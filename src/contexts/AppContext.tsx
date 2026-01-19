@@ -16,6 +16,11 @@ interface CartItem {
   dishId: string;
   quantity: number;
   price: number;
+  dishName: string;
+  dishImage: string;
+  chefName: string;
+  chefId: string;
+  maxPortions: number;
 }
 
 interface AppContextType {
@@ -33,6 +38,7 @@ interface AppContextType {
   // Cart
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
+  updateCartQuantity: (dishId: string, quantity: number) => void;
   removeFromCart: (dishId: string) => void;
   clearCart: () => void;
   cartTotal: number;
@@ -92,6 +98,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const updateCartQuantity = (dishId: string, quantity: number) => {
+    setCart(prev => prev.map(item => 
+      item.dishId === dishId ? { ...item, quantity } : item
+    ));
+  };
+
   const removeFromCart = (dishId: string) => {
     setCart(prev => prev.filter(i => i.dishId !== dishId));
   };
@@ -110,6 +122,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCurrency,
     cart,
     addToCart,
+    updateCartQuantity,
     removeFromCart,
     clearCart,
     cartTotal,

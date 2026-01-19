@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Clock, Heart, ShoppingCart } from 'lucide-react';
+import { Star, Clock, Heart, ShoppingCart, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useApp } from '@/contexts/AppContext';
 import { formatPrice, t } from '@/lib/i18n';
+import { useToast } from '@/hooks/use-toast';
 
 export interface Dish {
   id: string;
@@ -32,7 +34,26 @@ interface DishCardProps {
 }
 
 export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps) {
-  const { currency, language, addToCart, isAuthenticated, setAuthModalOpen, setAuthModalMode } = useApp();
+  const { currency, language, addToCart, isAuthenticated, user, setAuthModalOpen, setAuthModalMode } = useApp();
+  const { toast } = useToast();
+  const [quantity, setQuantity] = useState(1);
+  const [showQuantitySelector, setShowQuantitySelector] = useState(false);
+
+  // Role-based visibility
+  const isAdmin = user?.role === 'admin';
+  const isCook = user?.role === 'cook';
+  const isOwnDish = isCook && user?.id === dish.chef.id;
+
+  // Don't show Add to Cart for admin or cook's own dishes
+  const showAddToCart = !isAdmin && !isOwnDish;
+  const isDisabled = isOwnDish;
+
+  const handleQuantityChange = (delta: number) => {
+    const newQty = quantity + delta;
+    if (newQty >= 1 && newQty <= dish.availablePortions) {
+      setQuantity(newQty);
+    }
+  };
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
@@ -40,13 +61,43 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
       setAuthModalOpen(true);
       return;
     }
+
+    if (dish.availablePortions < quantity) {
+      toast({
+        title: t('common.error', language),
+        description: 'Not enough portions available',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     addToCart({
       dishId: dish.id,
-      quantity: 1,
+      quantity,
       price: dish.price,
+      dishName: dish.name,
+      dishImage: dish.image,
+      chefName: dish.chef.name,
+      chefId: dish.chef.id,
+      maxPortions: dish.availablePortions,
     });
+
+    toast({
+      title: t('common.success', language),
+      description: `${dish.name} (x${quantity}) added to cart!`,
+    });
+
+    setQuantity(1);
+    setShowQuantitySelector(false);
     onAddToCart?.();
+  };
+
+  const handleButtonClick = () => {
+    if (!isAuthenticated) {
+      handleAddToCart();
+      return;
+    }
+    setShowQuantitySelector(true);
   };
 
   return (
@@ -83,13 +134,67 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           </div>
         )}
 
-        {/* Quick Add */}
-        <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button onClick={handleAddToCart} variant="hero" size="sm" className="w-full gap-2">
-            <ShoppingCart className="w-4 h-4" />
-            {t('catalog.addToCart', language)}
-          </Button>
-        </div>
+        {/* Quick Add / Quantity Selector */}
+        {showAddToCart && (
+          <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            {showQuantitySelector ? (
+              <div className="bg-background/95 backdrop-blur rounded-lg p-3 space-y-3">
+                {/* Quantity Controls */}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">{t('catalog.quantity', language) || 'Quantity'}:</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleQuantityChange(-1)}
+                      disabled={quantity <= 1}
+                      className="w-7 h-7 rounded-md border flex items-center justify-center hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="w-8 text-center font-medium">{quantity}</span>
+                    <button
+                      onClick={() => handleQuantityChange(1)}
+                      disabled={quantity >= dish.availablePortions}
+                      className="w-7 h-7 rounded-md border flex items-center justify-center hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Max portions hint */}
+                <p className="text-xs text-muted-foreground text-center">
+                  Max: {dish.availablePortions} portions
+                </p>
+
+                {/* Add Button */}
+                <Button onClick={handleAddToCart} variant="hero" size="sm" className="w-full gap-2">
+                  <ShoppingCart className="w-4 h-4" />
+                  {t('catalog.addToCart', language)} ({formatPrice(dish.price * quantity, currency)})
+                </Button>
+              </div>
+            ) : (
+              <Button 
+                onClick={handleButtonClick} 
+                variant="hero" 
+                size="sm" 
+                className="w-full gap-2"
+                disabled={isDisabled}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                {isOwnDish ? 'Your Dish' : t('catalog.addToCart', language)}
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Cook's own dish indicator */}
+        {isOwnDish && (
+          <div className="absolute bottom-3 left-3 right-3">
+            <Badge variant="secondary" className="w-full justify-center py-2">
+              This is your dish
+            </Badge>
+          </div>
+        )}
       </div>
 
       {/* Content */}

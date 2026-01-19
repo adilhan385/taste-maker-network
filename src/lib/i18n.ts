@@ -38,6 +38,7 @@ export const translations = {
     'catalog.perPortion': 'per portion',
     'catalog.portions': 'portions',
     'catalog.available': 'available',
+    'catalog.quantity': 'Quantity',
     
     // Auth
     'auth.login': 'Welcome Back',
@@ -106,6 +107,7 @@ export const translations = {
     'catalog.perPortion': 'за порцию',
     'catalog.portions': 'порций',
     'catalog.available': 'доступно',
+    'catalog.quantity': 'Количество',
     
     // Auth
     'auth.login': 'С возвращением',
@@ -174,6 +176,7 @@ export const translations = {
     'catalog.perPortion': 'бір порция',
     'catalog.portions': 'порция',
     'catalog.available': 'қол жетімді',
+    'catalog.quantity': 'Саны',
     
     // Auth
     'auth.login': 'Қайта оралуыңызбен',

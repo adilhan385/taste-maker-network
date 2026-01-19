@@ -21,6 +21,9 @@ export default function Navbar() {
   const location = useLocation();
   
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  
+  // Role-based cart visibility - hide for admin
+  const showCart = !user || user.role !== 'admin';
 
   const handleLogin = () => {
     setAuthModalMode('login');
@@ -101,6 +104,18 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           <LanguageCurrencySelector />
 
+          {/* Cart - visible for guests and buyers, hidden for admin */}
+          {showCart && (
+            <Link to="/cart" className="relative p-2 hover:bg-muted rounded-lg transition-colors">
+              <ShoppingCart className="w-5 h-5 text-muted-foreground" />
+              {cartItemCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs">
+                  {cartItemCount}
+                </Badge>
+              )}
+            </Link>
+          )}
+
           {user && (
             <>
               {/* Become a Chef - for buyers only */}
@@ -119,16 +134,6 @@ export default function Navbar() {
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
                   3
                 </span>
-              </Link>
-
-              {/* Cart */}
-              <Link to="/cart" className="relative p-2 hover:bg-muted rounded-lg transition-colors">
-                <ShoppingCart className="w-5 h-5 text-muted-foreground" />
-                {cartItemCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-xs">
-                    {cartItemCount}
-                  </Badge>
-                )}
               </Link>
             </>
           )}
