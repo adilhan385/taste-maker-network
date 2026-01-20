@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, Currency } from '@/lib/i18n';
+import { Language } from '@/lib/i18n';
 import { useAuthContext } from './AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -20,8 +20,6 @@ interface AppContextType {
   // Settings
   language: Language;
   setLanguage: (lang: Language) => void;
-  currency: Currency;
-  setCurrency: (currency: Currency) => void;
   
   // Cart (local state, syncs to DB when authenticated)
   cart: CartItem[];
@@ -44,8 +42,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const { user, isAuthenticated } = useAuthContext();
   
-  const [language, setLanguage] = useState<Language>('en');
-  const [currency, setCurrency] = useState<Currency>('USD');
+  const [language, setLanguage] = useState<Language>('ru');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
@@ -53,10 +50,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // Load settings from localStorage
   useEffect(() => {
     const savedLang = localStorage.getItem('chefcook_language') as Language;
-    const savedCurrency = localStorage.getItem('chefcook_currency') as Currency;
-    
-    if (savedLang) setLanguage(savedLang);
-    if (savedCurrency) setCurrency(savedCurrency);
+    if (savedLang && ['en', 'ru', 'kz'].includes(savedLang)) {
+      setLanguage(savedLang);
+    }
   }, []);
 
   // Load cart from DB when authenticated, or from localStorage when not
@@ -73,10 +69,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem('chefcook_language', language);
   }, [language]);
-
-  useEffect(() => {
-    localStorage.setItem('chefcook_currency', currency);
-  }, [currency]);
 
   // Save cart to localStorage (for guests)
   useEffect(() => {
@@ -115,7 +107,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           price: item.products?.price || 0,
           productName: item.products?.name || 'Unknown',
           productImage: item.products?.image_url || '',
-          chefName: 'Chef', // Simplified - no join needed
+          chefName: 'Chef',
           chefId: item.products?.chef_id || '',
           maxPortions: item.products?.available_portions || 10,
         }));
@@ -123,7 +115,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error loading cart:', error);
-      // Fallback to localStorage
       const savedCart = localStorage.getItem('chefcook_cart');
       if (savedCart) setCart(JSON.parse(savedCart));
     }
@@ -133,10 +124,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     
     try {
-      // Delete all current cart items
       await supabase.from('cart_items').delete().eq('user_id', user.id);
       
-      // Insert new items
       if (newCart.length > 0) {
         await supabase.from('cart_items').insert(
           newCart.map(item => ({
@@ -212,8 +201,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value: AppContextType = {
     language,
     setLanguage,
-    currency,
-    setCurrency,
     cart,
     addToCart,
     updateCartQuantity,
