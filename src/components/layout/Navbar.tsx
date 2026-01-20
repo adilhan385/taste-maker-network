@@ -63,7 +63,7 @@ export default function Navbar() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
                 <ChefHat className="w-4 h-4" />
-                Chef Dashboard
+                {t('nav.chefDashboard', language)}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-background border">
@@ -79,17 +79,17 @@ export default function Navbar() {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/chef-dashboard?tab=customers" className="flex items-center gap-2">
-                  Customers
+                  {t('nav.customers', language)}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/chef-dashboard?tab=analytics" className="flex items-center gap-2">
-                  Analytics
+                  {t('nav.analytics', language)}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/chef-dashboard?tab=availability" className="flex items-center gap-2">
-                  Availability
+                  {t('nav.availability', language)}
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
@@ -199,7 +199,7 @@ export default function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link to="/chef-dashboard" className="flex items-center gap-2">
                       <ChefHat className="w-4 h-4" />
-                      Chef Dashboard
+                      {t('nav.chefDashboard', language)}
                     </Link>
                   </DropdownMenuItem>
                 )}

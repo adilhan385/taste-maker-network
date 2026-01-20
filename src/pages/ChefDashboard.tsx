@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChefHat, UtensilsCrossed, Package, Users, BarChart3, Clock, User, DollarSign } from 'lucide-react';
+import { ChefHat, UtensilsCrossed, Package, Users, BarChart3, Clock, User, DollarSign, RefreshCw } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -15,10 +16,23 @@ import ChefAnalyticsTab from '@/components/chef/ChefAnalyticsTab';
 import ChefAvailabilityTab from '@/components/chef/ChefAvailabilityTab';
 import ChefProfileTab from '@/components/chef/ChefProfileTab';
 import ChefEarningsTab from '@/components/chef/ChefEarningsTab';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ChefDashboard() {
-  const { isAuthenticated, profile } = useAuthContext();
+  const { isAuthenticated, profile, refetchProfile } = useAuthContext();
   const { language, setAuthModalOpen, setAuthModalMode } = useApp();
+  const [refreshing, setRefreshing] = useState(false);
+  const { toast } = useToast();
+
+  const handleRefreshStatus = async () => {
+    setRefreshing(true);
+    await refetchProfile();
+    setRefreshing(false);
+    toast({
+      title: 'Status updated',
+      description: 'Your profile status has been refreshed.',
+    });
+  };
 
   if (!isAuthenticated) {
     return (
@@ -52,9 +66,20 @@ export default function ChefDashboard() {
             <p className="text-muted-foreground mb-8">
               Your chef application is pending review. Once approved by an admin, you'll have access to your chef dashboard.
             </p>
-            <Link to="/become-chef">
-              <Button variant="outline">Apply to become a Chef</Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button 
+                variant="default" 
+                onClick={handleRefreshStatus}
+                disabled={refreshing}
+                className="gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                {refreshing ? 'Checking...' : 'Check Status'}
+              </Button>
+              <Link to="/become-chef">
+                <Button variant="outline">Apply to become a Chef</Button>
+              </Link>
+            </div>
           </motion.div>
         </div>
         <Footer />
