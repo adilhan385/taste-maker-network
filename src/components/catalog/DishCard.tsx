@@ -5,13 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { formatPrice, t } from '@/lib/i18n';
+import { formatPrice, t, getLocalizedField } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 
 export interface Dish {
   id: string;
   name: string;
+  name_ru?: string | null;
+  name_kz?: string | null;
   description: string;
+  description_ru?: string | null;
+  description_kz?: string | null;
   price: number;
   image: string;
   chef: {
@@ -35,20 +39,21 @@ interface DishCardProps {
 }
 
 export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps) {
-  const { currency, language, addToCart, setAuthModalOpen, setAuthModalMode } = useApp();
+  const { language, addToCart, setAuthModalOpen, setAuthModalMode } = useApp();
   const { isAuthenticated, profile } = useAuthContext();
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
 
-  // Role-based visibility
   const isAdmin = profile?.role === 'admin';
   const isCook = profile?.role === 'cook';
   const isOwnDish = isCook && profile?.userId === dish.chef.id;
-
-  // Don't show Add to Cart for admin or cook's own dishes
   const showAddToCart = !isAdmin && !isOwnDish;
   const isDisabled = isOwnDish;
+
+  // Get localized name and description
+  const dishName = getLocalizedField(dish.name, dish.name_ru, dish.name_kz, language);
+  const dishDescription = getLocalizedField(dish.description, dish.description_ru, dish.description_kz, language);
 
   const handleQuantityChange = (delta: number) => {
     const newQty = quantity + delta;
@@ -67,7 +72,7 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
     if (dish.availablePortions < quantity) {
       toast({
         title: t('common.error', language),
-        description: 'Not enough portions available',
+        description: t('cart.notEnoughPortions', language),
         variant: 'destructive',
       });
       return;
@@ -77,7 +82,7 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
       productId: dish.id,
       quantity,
       price: dish.price,
-      productName: dish.name,
+      productName: dishName,
       productImage: dish.image,
       chefName: dish.chef.name,
       chefId: dish.chef.id,
@@ -86,7 +91,7 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
 
     toast({
       title: t('common.success', language),
-      description: `${dish.name} (x${quantity}) added to cart!`,
+      description: `${dishName} (x${quantity}) ${t('catalog.addToCart', language)}!`,
     });
 
     setQuantity(1);
@@ -109,23 +114,19 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
       transition={{ duration: 0.4, delay: index * 0.1 }}
       className="group bg-card rounded-2xl overflow-hidden card-elevated"
     >
-      {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={dish.image}
-          alt={dish.name}
+          alt={dishName}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         
-        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         
-        {/* Favorite Button */}
         <button className="absolute top-3 right-3 w-9 h-9 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background transition-colors">
           <Heart className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
         </button>
 
-        {/* Dietary Badges */}
         {dish.dietary.length > 0 && (
           <div className="absolute top-3 left-3 flex flex-wrap gap-1">
             {dish.dietary.slice(0, 2).map((diet) => (
@@ -136,14 +137,12 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           </div>
         )}
 
-        {/* Quick Add / Quantity Selector */}
         {showAddToCart && (
           <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
             {showQuantitySelector ? (
               <div className="bg-background/95 backdrop-blur rounded-lg p-3 space-y-3">
-                {/* Quantity Controls */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{t('catalog.quantity', language) || 'Quantity'}:</span>
+                  <span className="text-sm font-medium">{t('catalog.quantity', language)}:</span>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleQuantityChange(-1)}
@@ -163,15 +162,13 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
                   </div>
                 </div>
                 
-                {/* Max portions hint */}
                 <p className="text-xs text-muted-foreground text-center">
-                  Max: {dish.availablePortions} portions
+                  {t('catalog.maxPortions', language)}: {dish.availablePortions} {t('catalog.portions', language)}
                 </p>
 
-                {/* Add Button */}
                 <Button onClick={handleAddToCart} variant="hero" size="sm" className="w-full gap-2">
                   <ShoppingCart className="w-4 h-4" />
-                  {t('catalog.addToCart', language)} ({formatPrice(dish.price * quantity, currency)})
+                  {t('catalog.addToCart', language)} ({formatPrice(dish.price * quantity)})
                 </Button>
               </div>
             ) : (
@@ -183,25 +180,22 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
                 disabled={isDisabled}
               >
                 <ShoppingCart className="w-4 h-4" />
-                {isOwnDish ? 'Your Dish' : t('catalog.addToCart', language)}
+                {isOwnDish ? t('catalog.yourDish', language) : t('catalog.addToCart', language)}
               </Button>
             )}
           </div>
         )}
 
-        {/* Cook's own dish indicator */}
         {isOwnDish && (
           <div className="absolute bottom-3 left-3 right-3">
             <Badge variant="secondary" className="w-full justify-center py-2">
-              This is your dish
+              {t('catalog.thisIsYourDish', language)}
             </Badge>
           </div>
         )}
       </div>
 
-      {/* Content */}
       <div className="p-4">
-        {/* Chef */}
         <div className="flex items-center gap-2 mb-3">
           <img
             src={dish.chef.avatar}
@@ -215,11 +209,9 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           </span>
         </div>
 
-        {/* Title & Cuisine */}
-        <h3 className="font-serif font-semibold text-lg mb-1 line-clamp-1">{dish.name}</h3>
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{dish.description}</p>
+        <h3 className="font-serif font-semibold text-lg mb-1 line-clamp-1">{dishName}</h3>
+        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{dishDescription}</p>
 
-        {/* Meta */}
         <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
           <span className="flex items-center gap-1">
             <Star className="w-4 h-4 text-accent fill-accent" />
@@ -227,14 +219,13 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           </span>
           <span className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
-            {dish.prepTime} min
+            {dish.prepTime} {t('common.min', language)}
           </span>
         </div>
 
-        {/* Price & Portions */}
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-xl font-bold text-primary">{formatPrice(dish.price, currency)}</span>
+            <span className="text-xl font-bold text-primary">{formatPrice(dish.price)}</span>
             <span className="text-xs text-muted-foreground ml-1">{t('catalog.perPortion', language)}</span>
           </div>
           <span className="text-xs text-muted-foreground">

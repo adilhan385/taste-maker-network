@@ -1,5 +1,4 @@
 export type Language = 'en' | 'ru' | 'kz';
-export type Currency = 'USD' | 'RUB' | 'KZT';
 
 export const translations = {
   en: {
@@ -20,6 +19,7 @@ export const translations = {
     'nav.availability': 'Availability',
     'nav.settings': 'Settings',
     'nav.logout': 'Logout',
+    'nav.cart': 'Cart',
     
     // Hero
     'hero.title': 'Homemade Food,',
@@ -30,6 +30,7 @@ export const translations = {
     
     // Catalog
     'catalog.title': 'Discover Delicious Dishes',
+    'catalog.subtitle': 'Browse delicious homemade dishes from verified local chefs',
     'catalog.search': 'Search dishes, cuisines, or chefs...',
     'catalog.filters': 'Filters',
     'catalog.cuisine': 'Cuisine',
@@ -43,6 +44,134 @@ export const translations = {
     'catalog.portions': 'portions',
     'catalog.available': 'available',
     'catalog.quantity': 'Quantity',
+    'catalog.noDishes': 'No dishes found matching your criteria',
+    'catalog.dishesFound': 'dishes found',
+    'catalog.clearFilters': 'Clear filters',
+    'catalog.clearAll': 'Clear all',
+    'catalog.activeFilters': 'Active filters',
+    'catalog.maxPortions': 'Max',
+    'catalog.yourDish': 'Your Dish',
+    'catalog.thisIsYourDish': 'This is your dish',
+    'catalog.min': 'min',
+    
+    // Cart
+    'cart.title': 'Shopping Cart',
+    'cart.empty': 'Your cart is empty',
+    'cart.emptySubtitle': 'Discover delicious homemade dishes from local chefs',
+    'cart.pleaseLogin': 'Please log in',
+    'cart.loginSubtitle': 'Log in to view your cart and place orders.',
+    'cart.browseDishes': 'Browse Dishes',
+    'cart.yourItems': 'Your Items',
+    'cart.orderSummary': 'Order Summary',
+    'cart.deliveryOption': 'Delivery Option',
+    'cart.delivery': 'Delivery',
+    'cart.pickup': 'Pickup',
+    'cart.free': 'Free',
+    'cart.paymentMethod': 'Payment Method',
+    'cart.payOnline': 'Pay Online',
+    'cart.payCash': 'Cash on Delivery',
+    'cart.subtotal': 'Subtotal',
+    'cart.deliveryFee': 'Delivery Fee',
+    'cart.serviceFee': 'Service Fee',
+    'cart.total': 'Total',
+    'cart.proceedToPayment': 'Proceed to Payment',
+    'cart.placeOrder': 'Place Order',
+    'cart.by': 'by',
+    'cart.perPortion': 'per portion',
+    'cart.max': 'max',
+    'cart.itemRemoved': 'Item removed',
+    'cart.itemRemovedDesc': 'has been removed from your cart',
+    'cart.notEnoughPortions': 'Not enough portions',
+    'cart.onlyAvailable': 'Only {count} portions available',
+    'cart.orderPlaced': 'Order placed!',
+    'cart.orderPlacedDesc': 'Your order has been placed successfully.',
+    'cart.backToCatalog': 'Back to Catalog',
+    'cart.adminAccount': 'Admin Account',
+    'cart.adminCantOrder': 'Admin accounts cannot place orders.',
+    'cart.goToAdmin': 'Go to Admin Panel',
+    
+    // Become Chef
+    'becomeChef.title': 'Become a Chef',
+    'becomeChef.subtitle': 'Complete the steps below to start your culinary journey',
+    'becomeChef.loginPrompt': 'Please log in or create an account to start your chef application',
+    'becomeChef.step1': 'Personal Info',
+    'becomeChef.step2': 'Verification',
+    'becomeChef.step3': 'Cooking Profile',
+    'becomeChef.personalInfo': 'Personal Information',
+    'becomeChef.fullName': 'Full Name',
+    'becomeChef.phone': 'Phone',
+    'becomeChef.city': 'City',
+    'becomeChef.address': 'Address',
+    'becomeChef.addressOptional': 'Optional',
+    'becomeChef.documentVerification': 'Document Verification',
+    'becomeChef.idDocument': 'ID/Passport',
+    'becomeChef.medicalCert': 'Medical Certificate',
+    'becomeChef.profilePhoto': 'Profile Photo (Optional)',
+    'becomeChef.clickToUpload': 'Click to upload',
+    'becomeChef.cookingProfile': 'Cooking Profile',
+    'becomeChef.bio': 'Bio',
+    'becomeChef.bioPlaceholder': 'Tell us about yourself and your cooking passion...',
+    'becomeChef.cuisine': 'Cuisine',
+    'becomeChef.cuisineSelect': 'Select',
+    'becomeChef.experience': 'Experience',
+    'becomeChef.experienceSelect': 'Select',
+    'becomeChef.exp1': 'Less than 1 year',
+    'becomeChef.exp1_3': '1-3 years',
+    'becomeChef.exp3_5': '3-5 years',
+    'becomeChef.exp5plus': '5+ years',
+    'becomeChef.back': 'Back',
+    'becomeChef.continue': 'Continue',
+    'becomeChef.submit': 'Submit Application',
+    'becomeChef.submitting': 'Submitting...',
+    'becomeChef.appExists': 'Application Exists',
+    'becomeChef.appExistsDesc': 'You already have a pending application. Please wait for admin review.',
+    'becomeChef.appSubmitted': 'Application Submitted!',
+    'becomeChef.appSubmittedDesc': 'Your chef application has been submitted. We will review and notify you within 2-3 business days.',
+    
+    // Chef Dashboard
+    'chef.myDishes': 'My Dishes',
+    'chef.addDish': 'Add New Dish',
+    'chef.editDish': 'Edit Dish',
+    'chef.noDishes': 'No dishes yet. Add your first dish to get started!',
+    'chef.addFirst': 'Add Your First Dish',
+    'chef.dishPhoto': 'Dish Photo',
+    'chef.dishName': 'Name',
+    'chef.dishNamePlaceholder': 'Dish name',
+    'chef.price': 'Price (₸)',
+    'chef.pricePlaceholder': '0',
+    'chef.description': 'Description',
+    'chef.descriptionPlaceholder': 'Describe your dish...',
+    'chef.cuisine': 'Cuisine',
+    'chef.cuisineSelect': 'Select cuisine',
+    'chef.prepTime': 'Prep Time (min)',
+    'chef.portions': 'Portions Available',
+    'chef.portionSize': 'Portion Size',
+    'chef.portionSizePlaceholder': 'e.g., 500g, 2 pieces, Large bowl',
+    'chef.ingredients': 'Ingredients (comma separated)',
+    'chef.ingredientsPlaceholder': 'chicken, rice, vegetables, spices',
+    'chef.allergens': 'Allergens (comma separated)',
+    'chef.allergensPlaceholder': 'nuts, dairy, gluten',
+    'chef.dietaryOptions': 'Dietary Options',
+    'chef.availableDays': 'Available Days',
+    'chef.cancel': 'Cancel',
+    'chef.save': 'Save Dish',
+    'chef.saving': 'Saving...',
+    'chef.dishCreated': 'Dish created successfully!',
+    'chef.dishUpdated': 'Dish updated successfully!',
+    'chef.dishDeleted': 'Dish deleted',
+    'chef.dishPaused': 'Dish paused',
+    'chef.dishActivated': 'Dish activated',
+    'chef.confirmDelete': 'Are you sure you want to delete this dish?',
+    'chef.edit': 'Edit',
+    'chef.paused': 'Paused',
+    'chef.upload': 'Upload',
+    'chef.nameRequired': 'Name and price are required',
+    // Translations for dishes
+    'chef.translations': 'Translations',
+    'chef.nameRu': 'Name (Russian)',
+    'chef.nameKz': 'Name (Kazakh)',
+    'chef.descriptionRu': 'Description (Russian)',
+    'chef.descriptionKz': 'Description (Kazakh)',
     
     // Auth
     'auth.login': 'Welcome Back',
@@ -59,6 +188,7 @@ export const translations = {
     'auth.hasAccount': 'Already have an account?',
     'auth.signUp': 'Sign Up',
     'auth.signIn': 'Sign In',
+    'auth.logIn': 'Log In',
     
     // Common
     'common.loading': 'Loading...',
@@ -74,6 +204,9 @@ export const translations = {
     'common.sort': 'Sort',
     'common.all': 'All',
     'common.from': 'from',
+    'common.required': 'Required',
+    'common.optional': 'Optional',
+    'common.min': 'min',
   },
   ru: {
     // Navigation
@@ -93,6 +226,7 @@ export const translations = {
     'nav.availability': 'Расписание',
     'nav.settings': 'Настройки',
     'nav.logout': 'Выйти',
+    'nav.cart': 'Корзина',
     
     // Hero
     'hero.title': 'Домашняя еда,',
@@ -103,6 +237,7 @@ export const translations = {
     
     // Catalog
     'catalog.title': 'Откройте вкусные блюда',
+    'catalog.subtitle': 'Просмотрите вкусные домашние блюда от проверенных местных поваров',
     'catalog.search': 'Поиск блюд, кухонь или поваров...',
     'catalog.filters': 'Фильтры',
     'catalog.cuisine': 'Кухня',
@@ -116,6 +251,134 @@ export const translations = {
     'catalog.portions': 'порций',
     'catalog.available': 'доступно',
     'catalog.quantity': 'Количество',
+    'catalog.noDishes': 'Блюда не найдены по вашим критериям',
+    'catalog.dishesFound': 'блюд найдено',
+    'catalog.clearFilters': 'Сбросить фильтры',
+    'catalog.clearAll': 'Сбросить все',
+    'catalog.activeFilters': 'Активные фильтры',
+    'catalog.maxPortions': 'Макс',
+    'catalog.yourDish': 'Ваше блюдо',
+    'catalog.thisIsYourDish': 'Это ваше блюдо',
+    'catalog.min': 'мин',
+    
+    // Cart
+    'cart.title': 'Корзина',
+    'cart.empty': 'Ваша корзина пуста',
+    'cart.emptySubtitle': 'Откройте для себя вкусные домашние блюда от местных поваров',
+    'cart.pleaseLogin': 'Пожалуйста, войдите',
+    'cart.loginSubtitle': 'Войдите, чтобы просмотреть корзину и сделать заказ.',
+    'cart.browseDishes': 'Смотреть блюда',
+    'cart.yourItems': 'Ваши товары',
+    'cart.orderSummary': 'Итого заказа',
+    'cart.deliveryOption': 'Способ доставки',
+    'cart.delivery': 'Доставка',
+    'cart.pickup': 'Самовывоз',
+    'cart.free': 'Бесплатно',
+    'cart.paymentMethod': 'Способ оплаты',
+    'cart.payOnline': 'Онлайн оплата',
+    'cart.payCash': 'Наличными при получении',
+    'cart.subtotal': 'Подытог',
+    'cart.deliveryFee': 'Стоимость доставки',
+    'cart.serviceFee': 'Сервисный сбор',
+    'cart.total': 'Итого',
+    'cart.proceedToPayment': 'Перейти к оплате',
+    'cart.placeOrder': 'Оформить заказ',
+    'cart.by': 'от',
+    'cart.perPortion': 'за порцию',
+    'cart.max': 'макс',
+    'cart.itemRemoved': 'Товар удален',
+    'cart.itemRemovedDesc': 'удален из вашей корзины',
+    'cart.notEnoughPortions': 'Недостаточно порций',
+    'cart.onlyAvailable': 'Доступно только {count} порций',
+    'cart.orderPlaced': 'Заказ оформлен!',
+    'cart.orderPlacedDesc': 'Ваш заказ успешно оформлен.',
+    'cart.backToCatalog': 'Назад в каталог',
+    'cart.adminAccount': 'Аккаунт админа',
+    'cart.adminCantOrder': 'Админы не могут делать заказы.',
+    'cart.goToAdmin': 'Перейти в панель админа',
+    
+    // Become Chef
+    'becomeChef.title': 'Стать поваром',
+    'becomeChef.subtitle': 'Выполните шаги ниже, чтобы начать свой кулинарный путь',
+    'becomeChef.loginPrompt': 'Войдите или создайте аккаунт, чтобы подать заявку повара',
+    'becomeChef.step1': 'Личные данные',
+    'becomeChef.step2': 'Верификация',
+    'becomeChef.step3': 'Профиль повара',
+    'becomeChef.personalInfo': 'Личная информация',
+    'becomeChef.fullName': 'Полное имя',
+    'becomeChef.phone': 'Телефон',
+    'becomeChef.city': 'Город',
+    'becomeChef.address': 'Адрес',
+    'becomeChef.addressOptional': 'Необязательно',
+    'becomeChef.documentVerification': 'Верификация документов',
+    'becomeChef.idDocument': 'Удостоверение личности',
+    'becomeChef.medicalCert': 'Медицинская справка',
+    'becomeChef.profilePhoto': 'Фото профиля (необязательно)',
+    'becomeChef.clickToUpload': 'Нажмите для загрузки',
+    'becomeChef.cookingProfile': 'Профиль повара',
+    'becomeChef.bio': 'О себе',
+    'becomeChef.bioPlaceholder': 'Расскажите о себе и своей страсти к кулинарии...',
+    'becomeChef.cuisine': 'Кухня',
+    'becomeChef.cuisineSelect': 'Выберите',
+    'becomeChef.experience': 'Опыт',
+    'becomeChef.experienceSelect': 'Выберите',
+    'becomeChef.exp1': 'Менее 1 года',
+    'becomeChef.exp1_3': '1-3 года',
+    'becomeChef.exp3_5': '3-5 лет',
+    'becomeChef.exp5plus': '5+ лет',
+    'becomeChef.back': 'Назад',
+    'becomeChef.continue': 'Продолжить',
+    'becomeChef.submit': 'Отправить заявку',
+    'becomeChef.submitting': 'Отправка...',
+    'becomeChef.appExists': 'Заявка существует',
+    'becomeChef.appExistsDesc': 'У вас уже есть ожидающая заявка. Пожалуйста, дождитесь проверки.',
+    'becomeChef.appSubmitted': 'Заявка отправлена!',
+    'becomeChef.appSubmittedDesc': 'Ваша заявка повара отправлена. Мы рассмотрим её в течение 2-3 рабочих дней.',
+    
+    // Chef Dashboard
+    'chef.myDishes': 'Мои блюда',
+    'chef.addDish': 'Добавить блюдо',
+    'chef.editDish': 'Редактировать блюдо',
+    'chef.noDishes': 'Блюд пока нет. Добавьте своё первое блюдо!',
+    'chef.addFirst': 'Добавить первое блюдо',
+    'chef.dishPhoto': 'Фото блюда',
+    'chef.dishName': 'Название',
+    'chef.dishNamePlaceholder': 'Название блюда',
+    'chef.price': 'Цена (₸)',
+    'chef.pricePlaceholder': '0',
+    'chef.description': 'Описание',
+    'chef.descriptionPlaceholder': 'Опишите ваше блюдо...',
+    'chef.cuisine': 'Кухня',
+    'chef.cuisineSelect': 'Выберите кухню',
+    'chef.prepTime': 'Время готовки (мин)',
+    'chef.portions': 'Доступно порций',
+    'chef.portionSize': 'Размер порции',
+    'chef.portionSizePlaceholder': 'напр., 500г, 2 шт, Большая тарелка',
+    'chef.ingredients': 'Ингредиенты (через запятую)',
+    'chef.ingredientsPlaceholder': 'курица, рис, овощи, специи',
+    'chef.allergens': 'Аллергены (через запятую)',
+    'chef.allergensPlaceholder': 'орехи, молоко, глютен',
+    'chef.dietaryOptions': 'Диетические опции',
+    'chef.availableDays': 'Дни доступности',
+    'chef.cancel': 'Отмена',
+    'chef.save': 'Сохранить',
+    'chef.saving': 'Сохранение...',
+    'chef.dishCreated': 'Блюдо успешно создано!',
+    'chef.dishUpdated': 'Блюдо успешно обновлено!',
+    'chef.dishDeleted': 'Блюдо удалено',
+    'chef.dishPaused': 'Блюдо приостановлено',
+    'chef.dishActivated': 'Блюдо активировано',
+    'chef.confirmDelete': 'Вы уверены, что хотите удалить это блюдо?',
+    'chef.edit': 'Редактировать',
+    'chef.paused': 'Приостановлено',
+    'chef.upload': 'Загрузить',
+    'chef.nameRequired': 'Название и цена обязательны',
+    // Translations
+    'chef.translations': 'Переводы',
+    'chef.nameRu': 'Название (русский)',
+    'chef.nameKz': 'Название (казахский)',
+    'chef.descriptionRu': 'Описание (русский)',
+    'chef.descriptionKz': 'Описание (казахский)',
     
     // Auth
     'auth.login': 'С возвращением',
@@ -132,6 +395,7 @@ export const translations = {
     'auth.hasAccount': 'Уже есть аккаунт?',
     'auth.signUp': 'Регистрация',
     'auth.signIn': 'Войти',
+    'auth.logIn': 'Войти',
     
     // Common
     'common.loading': 'Загрузка...',
@@ -147,6 +411,9 @@ export const translations = {
     'common.sort': 'Сортировка',
     'common.all': 'Все',
     'common.from': 'от',
+    'common.required': 'Обязательно',
+    'common.optional': 'Необязательно',
+    'common.min': 'мин',
   },
   kz: {
     // Navigation
@@ -166,6 +433,7 @@ export const translations = {
     'nav.availability': 'Кесте',
     'nav.settings': 'Баптаулар',
     'nav.logout': 'Шығу',
+    'nav.cart': 'Себет',
     
     // Hero
     'hero.title': 'Үй тағамы,',
@@ -176,6 +444,7 @@ export const translations = {
     
     // Catalog
     'catalog.title': 'Дәмді тағамдарды табыңыз',
+    'catalog.subtitle': 'Тексерілген жергілікті аспаздардың дәмді үй тағамдарын қараңыз',
     'catalog.search': 'Тағамдар, асүй немесе аспаздар...',
     'catalog.filters': 'Сүзгілер',
     'catalog.cuisine': 'Асүй',
@@ -189,6 +458,134 @@ export const translations = {
     'catalog.portions': 'порция',
     'catalog.available': 'қол жетімді',
     'catalog.quantity': 'Саны',
+    'catalog.noDishes': 'Сіздің критерийлеріңізге сәйкес тағам табылмады',
+    'catalog.dishesFound': 'тағам табылды',
+    'catalog.clearFilters': 'Сүзгілерді тазалау',
+    'catalog.clearAll': 'Барлығын тазалау',
+    'catalog.activeFilters': 'Белсенді сүзгілер',
+    'catalog.maxPortions': 'Макс',
+    'catalog.yourDish': 'Сіздің тағамыңыз',
+    'catalog.thisIsYourDish': 'Бұл сіздің тағамыңыз',
+    'catalog.min': 'мин',
+    
+    // Cart
+    'cart.title': 'Себет',
+    'cart.empty': 'Сіздің себетіңіз бос',
+    'cart.emptySubtitle': 'Жергілікті аспаздардың дәмді үй тағамдарын табыңыз',
+    'cart.pleaseLogin': 'Кіріңіз',
+    'cart.loginSubtitle': 'Себетті көру және тапсырыс беру үшін кіріңіз.',
+    'cart.browseDishes': 'Тағамдарды қарау',
+    'cart.yourItems': 'Сіздің тауарларыңыз',
+    'cart.orderSummary': 'Тапсырыс жиынтығы',
+    'cart.deliveryOption': 'Жеткізу тәсілі',
+    'cart.delivery': 'Жеткізу',
+    'cart.pickup': 'Өзі алып кету',
+    'cart.free': 'Тегін',
+    'cart.paymentMethod': 'Төлем тәсілі',
+    'cart.payOnline': 'Онлайн төлем',
+    'cart.payCash': 'Қолма-қол',
+    'cart.subtotal': 'Жиынтық',
+    'cart.deliveryFee': 'Жеткізу құны',
+    'cart.serviceFee': 'Сервис алымы',
+    'cart.total': 'Барлығы',
+    'cart.proceedToPayment': 'Төлемге өту',
+    'cart.placeOrder': 'Тапсырыс беру',
+    'cart.by': '-дан',
+    'cart.perPortion': 'бір порция',
+    'cart.max': 'макс',
+    'cart.itemRemoved': 'Тауар жойылды',
+    'cart.itemRemovedDesc': 'себеттен жойылды',
+    'cart.notEnoughPortions': 'Порция жеткіліксіз',
+    'cart.onlyAvailable': 'Тек {count} порция қол жетімді',
+    'cart.orderPlaced': 'Тапсырыс берілді!',
+    'cart.orderPlacedDesc': 'Сіздің тапсырысыңыз сәтті берілді.',
+    'cart.backToCatalog': 'Каталогқа оралу',
+    'cart.adminAccount': 'Админ аккаунты',
+    'cart.adminCantOrder': 'Админдер тапсырыс бере алмайды.',
+    'cart.goToAdmin': 'Админ панеліне өту',
+    
+    // Become Chef
+    'becomeChef.title': 'Аспаз болу',
+    'becomeChef.subtitle': 'Аспаздық жолыңызды бастау үшін төмендегі қадамдарды орындаңыз',
+    'becomeChef.loginPrompt': 'Аспаз өтінімін беру үшін кіріңіз немесе аккаунт жасаңыз',
+    'becomeChef.step1': 'Жеке деректер',
+    'becomeChef.step2': 'Тексеру',
+    'becomeChef.step3': 'Аспаз профилі',
+    'becomeChef.personalInfo': 'Жеке ақпарат',
+    'becomeChef.fullName': 'Толық аты',
+    'becomeChef.phone': 'Телефон',
+    'becomeChef.city': 'Қала',
+    'becomeChef.address': 'Мекенжай',
+    'becomeChef.addressOptional': 'Міндетті емес',
+    'becomeChef.documentVerification': 'Құжаттарды тексеру',
+    'becomeChef.idDocument': 'Жеке куәлік',
+    'becomeChef.medicalCert': 'Медициналық анықтама',
+    'becomeChef.profilePhoto': 'Профиль суреті (міндетті емес)',
+    'becomeChef.clickToUpload': 'Жүктеу үшін басыңыз',
+    'becomeChef.cookingProfile': 'Аспаз профилі',
+    'becomeChef.bio': 'Өзі туралы',
+    'becomeChef.bioPlaceholder': 'Өзіңіз және аспаздыққа деген құштарлығыңыз туралы айтыңыз...',
+    'becomeChef.cuisine': 'Ас үй',
+    'becomeChef.cuisineSelect': 'Таңдау',
+    'becomeChef.experience': 'Тәжірибе',
+    'becomeChef.experienceSelect': 'Таңдау',
+    'becomeChef.exp1': '1 жылдан аз',
+    'becomeChef.exp1_3': '1-3 жыл',
+    'becomeChef.exp3_5': '3-5 жыл',
+    'becomeChef.exp5plus': '5+ жыл',
+    'becomeChef.back': 'Артқа',
+    'becomeChef.continue': 'Жалғастыру',
+    'becomeChef.submit': 'Өтінім жіберу',
+    'becomeChef.submitting': 'Жіберілуде...',
+    'becomeChef.appExists': 'Өтінім бар',
+    'becomeChef.appExistsDesc': 'Сізде күтудегі өтінім бар. Тексеруді күтіңіз.',
+    'becomeChef.appSubmitted': 'Өтінім жіберілді!',
+    'becomeChef.appSubmittedDesc': 'Сіздің аспаз өтініміңіз жіберілді. Біз 2-3 жұмыс күні ішінде қарастырамыз.',
+    
+    // Chef Dashboard
+    'chef.myDishes': 'Менің тағамдарым',
+    'chef.addDish': 'Тағам қосу',
+    'chef.editDish': 'Тағамды өзгерту',
+    'chef.noDishes': 'Тағамдар әлі жоқ. Бірінші тағамыңызды қосыңыз!',
+    'chef.addFirst': 'Бірінші тағам қосу',
+    'chef.dishPhoto': 'Тағам суреті',
+    'chef.dishName': 'Атауы',
+    'chef.dishNamePlaceholder': 'Тағам атауы',
+    'chef.price': 'Баға (₸)',
+    'chef.pricePlaceholder': '0',
+    'chef.description': 'Сипаттама',
+    'chef.descriptionPlaceholder': 'Тағамыңызды сипаттаңыз...',
+    'chef.cuisine': 'Ас үй',
+    'chef.cuisineSelect': 'Ас үйді таңдаңыз',
+    'chef.prepTime': 'Дайындау уақыты (мин)',
+    'chef.portions': 'Қол жетімді порциялар',
+    'chef.portionSize': 'Порция көлемі',
+    'chef.portionSizePlaceholder': 'мыс., 500г, 2 дана, Үлкен тарелка',
+    'chef.ingredients': 'Ингредиенттер (үтір арқылы)',
+    'chef.ingredientsPlaceholder': 'тауық, күріш, көкөніс, дәмдеуіштер',
+    'chef.allergens': 'Аллергендер (үтір арқылы)',
+    'chef.allergensPlaceholder': 'жаңғақ, сүт, глютен',
+    'chef.dietaryOptions': 'Диеталық опциялар',
+    'chef.availableDays': 'Қол жетімді күндер',
+    'chef.cancel': 'Болдырмау',
+    'chef.save': 'Сақтау',
+    'chef.saving': 'Сақталуда...',
+    'chef.dishCreated': 'Тағам сәтті құрылды!',
+    'chef.dishUpdated': 'Тағам сәтті жаңартылды!',
+    'chef.dishDeleted': 'Тағам жойылды',
+    'chef.dishPaused': 'Тағам тоқтатылды',
+    'chef.dishActivated': 'Тағам іске қосылды',
+    'chef.confirmDelete': 'Бұл тағамды жоюға сенімдісіз бе?',
+    'chef.edit': 'Өзгерту',
+    'chef.paused': 'Тоқтатылған',
+    'chef.upload': 'Жүктеу',
+    'chef.nameRequired': 'Атауы мен бағасы міндетті',
+    // Translations
+    'chef.translations': 'Аудармалар',
+    'chef.nameRu': 'Атауы (орысша)',
+    'chef.nameKz': 'Атауы (қазақша)',
+    'chef.descriptionRu': 'Сипаттама (орысша)',
+    'chef.descriptionKz': 'Сипаттама (қазақша)',
     
     // Auth
     'auth.login': 'Қайта оралуыңызбен',
@@ -205,6 +602,7 @@ export const translations = {
     'auth.hasAccount': 'Аккаунтыңыз бар ма?',
     'auth.signUp': 'Тіркелу',
     'auth.signIn': 'Кіру',
+    'auth.logIn': 'Кіру',
     
     // Common
     'common.loading': 'Жүктелуде...',
@@ -220,31 +618,38 @@ export const translations = {
     'common.sort': 'Сұрыптау',
     'common.all': 'Барлығы',
     'common.from': 'бастап',
+    'common.required': 'Міндетті',
+    'common.optional': 'Міндетті емес',
+    'common.min': 'мин',
   },
 };
 
-export const currencySymbols: Record<Currency, string> = {
-  USD: '$',
-  RUB: '₽',
-  KZT: '₸',
-};
-
-export const currencyRates: Record<Currency, number> = {
-  USD: 1,
-  RUB: 92,
-  KZT: 450,
-};
-
-export function formatPrice(priceUSD: number, currency: Currency): string {
-  const converted = priceUSD * currencyRates[currency];
-  const symbol = currencySymbols[currency];
-  
-  if (currency === 'USD') {
-    return `${symbol}${converted.toFixed(2)}`;
-  }
-  return `${Math.round(converted)} ${symbol}`;
+/**
+ * Format price in Kazakhstani Tenge (₸)
+ * All prices in the system are stored in Tenge
+ */
+export function formatPrice(priceTenge: number): string {
+  return `${Math.round(priceTenge).toLocaleString('ru-KZ')} ₸`;
 }
 
+/**
+ * Get translation for a key
+ */
 export function t(key: string, language: Language): string {
   return translations[language]?.[key as keyof typeof translations['en']] || key;
+}
+
+/**
+ * Get localized field value based on language
+ * Falls back to base value if translation not available
+ */
+export function getLocalizedField(
+  baseValue: string | null | undefined,
+  ruValue: string | null | undefined,
+  kzValue: string | null | undefined,
+  language: Language
+): string {
+  if (language === 'ru' && ruValue) return ruValue;
+  if (language === 'kz' && kzValue) return kzValue;
+  return baseValue || '';
 }

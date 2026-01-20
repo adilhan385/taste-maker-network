@@ -305,12 +305,16 @@ export type Database = {
           created_at: string
           cuisine: string | null
           description: string | null
+          description_kz: string | null
+          description_ru: string | null
           dietary: string[] | null
           id: string
           image_url: string | null
           ingredients: string[] | null
           is_available: boolean
           name: string
+          name_kz: string | null
+          name_ru: string | null
           portion_size: string | null
           prep_time: number | null
           price: number
@@ -326,12 +330,16 @@ export type Database = {
           created_at?: string
           cuisine?: string | null
           description?: string | null
+          description_kz?: string | null
+          description_ru?: string | null
           dietary?: string[] | null
           id?: string
           image_url?: string | null
           ingredients?: string[] | null
           is_available?: boolean
           name: string
+          name_kz?: string | null
+          name_ru?: string | null
           portion_size?: string | null
           prep_time?: number | null
           price: number
@@ -347,12 +355,16 @@ export type Database = {
           created_at?: string
           cuisine?: string | null
           description?: string | null
+          description_kz?: string | null
+          description_ru?: string | null
           dietary?: string[] | null
           id?: string
           image_url?: string | null
           ingredients?: string[] | null
           is_available?: boolean
           name?: string
+          name_kz?: string | null
+          name_ru?: string | null
           portion_size?: string | null
           prep_time?: number | null
           price?: number
