@@ -112,6 +112,39 @@ export type Database = {
         }
         Relationships: []
       }
+      chef_availability: {
+        Row: {
+          chef_id: string
+          created_at: string
+          end_time: string
+          id: string
+          is_kitchen_open: boolean
+          start_time: string
+          updated_at: string
+          working_days: string[]
+        }
+        Insert: {
+          chef_id: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          is_kitchen_open?: boolean
+          start_time?: string
+          updated_at?: string
+          working_days?: string[]
+        }
+        Update: {
+          chef_id?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          is_kitchen_open?: boolean
+          start_time?: string
+          updated_at?: string
+          working_days?: string[]
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
@@ -263,7 +296,11 @@ export type Database = {
       }
       products: {
         Row: {
+          allergens: string[] | null
+          available_days: string[] | null
+          available_end_time: string | null
           available_portions: number
+          available_start_time: string | null
           chef_id: string
           created_at: string
           cuisine: string | null
@@ -271,14 +308,20 @@ export type Database = {
           dietary: string[] | null
           id: string
           image_url: string | null
+          ingredients: string[] | null
           is_available: boolean
           name: string
+          portion_size: string | null
           prep_time: number | null
           price: number
           updated_at: string
         }
         Insert: {
+          allergens?: string[] | null
+          available_days?: string[] | null
+          available_end_time?: string | null
           available_portions?: number
+          available_start_time?: string | null
           chef_id: string
           created_at?: string
           cuisine?: string | null
@@ -286,14 +329,20 @@ export type Database = {
           dietary?: string[] | null
           id?: string
           image_url?: string | null
+          ingredients?: string[] | null
           is_available?: boolean
           name: string
+          portion_size?: string | null
           prep_time?: number | null
           price: number
           updated_at?: string
         }
         Update: {
+          allergens?: string[] | null
+          available_days?: string[] | null
+          available_end_time?: string | null
           available_portions?: number
+          available_start_time?: string | null
           chef_id?: string
           created_at?: string
           cuisine?: string | null
@@ -301,8 +350,10 @@ export type Database = {
           dietary?: string[] | null
           id?: string
           image_url?: string | null
+          ingredients?: string[] | null
           is_available?: boolean
           name?: string
+          portion_size?: string | null
           prep_time?: number | null
           price?: number
           updated_at?: string

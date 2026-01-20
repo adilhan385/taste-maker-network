@@ -59,11 +59,17 @@ export default function Navbar() {
           <Link to="/chef-dashboard" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
             {t('nav.myDishes', language)}
           </Link>
-          <Link to="/orders" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+          <Link to="/chef-dashboard?tab=orders" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
             {t('nav.orders', language)}
           </Link>
-          <Link to="/chat" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-            {t('nav.chat', language)}
+          <Link to="/chef-dashboard?tab=customers" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+            Customers
+          </Link>
+          <Link to="/chef-dashboard?tab=analytics" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+            Analytics
+          </Link>
+          <Link to="/chef-dashboard?tab=earnings" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+            {t('nav.earnings', language)}
           </Link>
         </>
       );
