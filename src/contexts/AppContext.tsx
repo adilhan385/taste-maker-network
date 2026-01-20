@@ -95,15 +95,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
           id,
           quantity,
           product_id,
-          products (
-            id,
-            name,
-            price,
-            image_url,
-            available_portions,
-            chef_id,
-            profiles!products_chef_id_fkey (full_name)
-          )
+        products (
+          id,
+          name,
+          price,
+          image_url,
+          available_portions,
+          chef_id
+        )
         `)
         .eq('user_id', user.id);
 
@@ -116,7 +115,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           price: item.products?.price || 0,
           productName: item.products?.name || 'Unknown',
           productImage: item.products?.image_url || '',
-          chefName: item.products?.profiles?.full_name || 'Unknown Chef',
+          chefName: 'Chef', // Simplified - no join needed
           chefId: item.products?.chef_id || '',
           maxPortions: item.products?.available_portions || 10,
         }));
