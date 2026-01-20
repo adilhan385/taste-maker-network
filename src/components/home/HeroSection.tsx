@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, ChefHat, Star, Clock, Users } from 'lucide-react';
+import { ArrowRight, ChefHat, Star, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { t } from '@/lib/i18n';
 import { Link } from 'react-router-dom';
 import heroBg from '@/assets/hero-bg.jpg';
 
 export default function HeroSection() {
-  const { language, setAuthModalOpen, setAuthModalMode, isAuthenticated } = useApp();
+  const { language, setAuthModalOpen, setAuthModalMode } = useApp();
+  const { isAuthenticated } = useAuthContext();
 
   const handleGetStarted = () => {
     if (!isAuthenticated) {
@@ -94,8 +96,8 @@ export default function HeroSection() {
                 <ChefHat className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold">500+</div>
-                <div className="text-sm text-muted-foreground">Local Chefs</div>
+                <div className="text-2xl font-bold">Local</div>
+                <div className="text-sm text-muted-foreground">Home Chefs</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -103,8 +105,8 @@ export default function HeroSection() {
                 <Star className="w-6 h-6 text-accent" />
               </div>
               <div>
-                <div className="text-2xl font-bold">4.9</div>
-                <div className="text-sm text-muted-foreground">Average Rating</div>
+                <div className="text-2xl font-bold">Quality</div>
+                <div className="text-sm text-muted-foreground">Homemade Food</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -112,8 +114,8 @@ export default function HeroSection() {
                 <Users className="w-6 h-6 text-success" />
               </div>
               <div>
-                <div className="text-2xl font-bold">50K+</div>
-                <div className="text-sm text-muted-foreground">Happy Customers</div>
+                <div className="text-2xl font-bold">Community</div>
+                <div className="text-sm text-muted-foreground">Food Lovers</div>
               </div>
             </div>
           </motion.div>

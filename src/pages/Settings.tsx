@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings as SettingsIcon, Globe, CreditCard, Lock, Bell, HelpCircle } from 'lucide-react';
+import { Settings as SettingsIcon, Globe, Lock, Bell, HelpCircle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Language, Currency, currencySymbols } from '@/lib/i18n';
 import { t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +27,8 @@ const currencies = [
 ];
 
 export default function SettingsPage() {
-  const { user, isAuthenticated, setAuthModalOpen, setAuthModalMode, language, setLanguage, currency, setCurrency } = useApp();
+  const { language, setLanguage, currency, setCurrency, setAuthModalOpen, setAuthModalMode } = useApp();
+  const { isAuthenticated, profile } = useAuthContext();
   const { toast } = useToast();
   
   const [notifications, setNotifications] = useState({

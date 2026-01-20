@@ -12,18 +12,18 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useApp } from '@/contexts/AppContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { t } from '@/lib/i18n';
 import LanguageCurrencySelector from './LanguageCurrencySelector';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, cart, language, setAuthModalOpen, setAuthModalMode, setUser } = useApp();
+  const { cart, language, setAuthModalOpen, setAuthModalMode, cartItemCount } = useApp();
+  const { profile, isAuthenticated, signOut } = useAuthContext();
   const location = useLocation();
   
-  const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  
   // Role-based cart visibility - hide for admin
-  const showCart = !user || user.role !== 'admin';
+  const showCart = !profile || profile.role !== 'admin';
 
   const handleLogin = () => {
     setAuthModalMode('login');
@@ -35,12 +35,12 @@ export default function Navbar() {
     setAuthModalOpen(true);
   };
 
-  const handleLogout = () => {
-    setUser(null);
+  const handleLogout = async () => {
+    await signOut();
   };
 
   const NavLinks = () => {
-    if (!user) {
+    if (!profile) {
       return (
         <>
           <Link 
@@ -53,10 +53,10 @@ export default function Navbar() {
       );
     }
 
-    if (user.role === 'cook') {
+    if (profile.role === 'cook') {
       return (
         <>
-          <Link to="/my-dishes" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+          <Link to="/chef-dashboard" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
             {t('nav.myDishes', language)}
           </Link>
           <Link to="/orders" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
@@ -116,10 +116,10 @@ export default function Navbar() {
             </Link>
           )}
 
-          {user && (
+          {isAuthenticated && profile && (
             <>
               {/* Become a Chef - for buyers only */}
-              {user.role === 'buyer' && (
+              {profile.role === 'buyer' && (
                 <Link to="/become-chef">
                   <Button variant="outline" size="sm" className="hidden sm:flex gap-2">
                     <ChefHat className="w-4 h-4" />
@@ -131,22 +131,19 @@ export default function Navbar() {
               {/* Notifications */}
               <Link to="/notifications" className="relative p-2 hover:bg-muted rounded-lg transition-colors">
                 <Bell className="w-5 h-5 text-muted-foreground" />
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center">
-                  3
-                </span>
               </Link>
             </>
           )}
 
           {/* User Menu / Auth Buttons */}
-          {user ? (
+          {isAuthenticated && profile ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 p-2 hover:bg-muted rounded-lg transition-colors">
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                     <User className="w-4 h-4 text-primary" />
                   </div>
-                  <span className="hidden sm:block text-sm font-medium">{user.name}</span>
+                  <span className="hidden sm:block text-sm font-medium">{profile.fullName}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -156,11 +153,19 @@ export default function Navbar() {
                     {t('nav.profile', language)}
                   </Link>
                 </DropdownMenuItem>
-                {user.role === 'admin' && (
+                {profile.role === 'admin' && (
                   <DropdownMenuItem asChild>
                     <Link to="/admin" className="flex items-center gap-2">
                       <Shield className="w-4 h-4" />
                       {t('nav.adminPanel', language)}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {profile.role === 'cook' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/chef-dashboard" className="flex items-center gap-2">
+                      <ChefHat className="w-4 h-4" />
+                      Chef Dashboard
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -209,7 +214,7 @@ export default function Navbar() {
           >
             <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
               <NavLinks />
-              {user?.role === 'buyer' && (
+              {profile?.role === 'buyer' && (
                 <Link to="/become-chef" className="flex items-center gap-2 text-primary font-medium">
                   <ChefHat className="w-4 h-4" />
                   {t('nav.becomeChef', language)}

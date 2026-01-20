@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ChefHat, DollarSign, Clock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { t } from '@/lib/i18n';
 
 const benefits = [
@@ -12,7 +13,8 @@ const benefits = [
 ];
 
 export default function BecomeChefCTA() {
-  const { language, isAuthenticated } = useApp();
+  const { language } = useApp();
+  const { isAuthenticated } = useAuthContext();
 
   return (
     <section className="py-20 bg-foreground text-background relative overflow-hidden">
@@ -42,8 +44,8 @@ export default function BecomeChefCTA() {
             </h2>
 
             <p className="text-background/70 text-lg mb-8 max-w-lg">
-              Turn your kitchen into a business. Join hundreds of home cooks 
-              already earning by sharing their delicious creations with hungry neighbors.
+              Turn your kitchen into a business. Join home cooks 
+              sharing their delicious creations with hungry neighbors.
             </p>
 
             <ul className="space-y-4 mb-8">
@@ -79,29 +81,6 @@ export default function BecomeChefCTA() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
-              {/* Floating Stats */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.3 }}
-                className="absolute -bottom-4 -left-4 bg-background text-foreground p-4 rounded-2xl shadow-lg"
-              >
-                <div className="text-2xl font-bold text-primary">$2,500+</div>
-                <div className="text-sm text-muted-foreground">Avg. monthly earnings</div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
-                className="absolute -top-4 -right-4 bg-background text-foreground p-4 rounded-2xl shadow-lg"
-              >
-                <div className="text-2xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground">Active Chefs</div>
-              </motion.div>
             </div>
           </motion.div>
         </div>

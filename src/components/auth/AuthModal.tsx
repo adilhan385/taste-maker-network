@@ -1,19 +1,37 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useApp } from '@/contexts/AppContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { t } from '@/lib/i18n';
-import { useToast } from '@/hooks/use-toast';
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+const registerSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional(),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
 export default function AuthModal() {
-  const { isAuthModalOpen, setAuthModalOpen, authModalMode, setAuthModalMode, language, setUser } = useApp();
+  const { isAuthModalOpen, setAuthModalOpen, authModalMode, setAuthModalMode, language } = useApp();
+  const { signIn, signUp } = useAuthContext();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     name: '',
@@ -25,53 +43,56 @@ export default function AuthModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      if (authModalMode === 'login') {
+        const result = loginSchema.safeParse(formData);
+        if (!result.success) {
+          const fieldErrors: Record<string, string> = {};
+          result.error.errors.forEach(err => {
+            if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
+          });
+          setErrors(fieldErrors);
+          setIsLoading(false);
+          return;
+        }
 
-    if (authModalMode === 'register' && formData.password !== formData.confirmPassword) {
-      toast({
-        title: 'Error',
-        description: 'Passwords do not match',
-        variant: 'destructive',
-      });
-      setIsLoading(false);
-      return;
+        const { error } = await signIn(formData.email, formData.password);
+        if (!error) {
+          setAuthModalOpen(false);
+          setFormData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+        }
+      } else {
+        const result = registerSchema.safeParse(formData);
+        if (!result.success) {
+          const fieldErrors: Record<string, string> = {};
+          result.error.errors.forEach(err => {
+            if (err.path[0]) fieldErrors[err.path[0] as string] = err.message;
+          });
+          setErrors(fieldErrors);
+          setIsLoading(false);
+          return;
+        }
+
+        const { error } = await signUp(formData.email, formData.password, formData.name, formData.phone);
+        if (!error) {
+          setAuthModalOpen(false);
+          setFormData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+        }
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
     }
-
-    // Check for admin login
-    if (authModalMode === 'login' && formData.email === 'admin@gmail.com') {
-      setUser({
-        id: 'admin-1',
-        email: 'admin@gmail.com',
-        name: 'Administrator',
-        role: 'admin',
-      });
-    } else {
-      // Regular user login/register
-      setUser({
-        id: 'user-1',
-        email: formData.email,
-        name: authModalMode === 'register' ? formData.name : formData.email.split('@')[0],
-        role: 'buyer',
-        phone: formData.phone,
-      });
-    }
-
-    toast({
-      title: t('common.success', language),
-      description: authModalMode === 'login' ? 'Welcome back!' : 'Account created successfully!',
-    });
 
     setIsLoading(false);
-    setAuthModalOpen(false);
-    setFormData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
   };
 
   const toggleMode = () => {
     setAuthModalMode(authModalMode === 'login' ? 'register' : 'login');
     setFormData({ name: '', email: '', phone: '', password: '', confirmPassword: '' });
+    setErrors({});
   };
 
   return (
@@ -106,13 +127,14 @@ export default function AuthModal() {
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
                         id="name"
-                        placeholder="John Doe"
+                        placeholder="Your name"
                         className="pl-10"
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                         required
                       />
                     </div>
+                    {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -147,6 +169,7 @@ export default function AuthModal() {
                   required
                 />
               </div>
+              {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
             </div>
 
             <div className="space-y-2">
@@ -170,6 +193,7 @@ export default function AuthModal() {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
             </div>
 
             <AnimatePresence>
@@ -193,6 +217,7 @@ export default function AuthModal() {
                       required
                     />
                   </div>
+                  {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
                 </motion.div>
               )}
             </AnimatePresence>
