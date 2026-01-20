@@ -14,6 +14,10 @@ export const translations = {
     'nav.myDishes': 'My Dishes',
     'nav.earnings': 'Earnings',
     'nav.adminPanel': 'Admin Panel',
+    'nav.chefDashboard': 'Chef Dashboard',
+    'nav.customers': 'Customers',
+    'nav.analytics': 'Analytics',
+    'nav.availability': 'Availability',
     'nav.settings': 'Settings',
     'nav.logout': 'Logout',
     
@@ -83,6 +87,10 @@ export const translations = {
     'nav.myDishes': 'Мои блюда',
     'nav.earnings': 'Доходы',
     'nav.adminPanel': 'Панель админа',
+    'nav.chefDashboard': 'Панель повара',
+    'nav.customers': 'Клиенты',
+    'nav.analytics': 'Аналитика',
+    'nav.availability': 'Расписание',
     'nav.settings': 'Настройки',
     'nav.logout': 'Выйти',
     
@@ -152,6 +160,10 @@ export const translations = {
     'nav.myDishes': 'Менің тағамдарым',
     'nav.earnings': 'Табыс',
     'nav.adminPanel': 'Админ панелі',
+    'nav.chefDashboard': 'Аспаз панелі',
+    'nav.customers': 'Клиенттер',
+    'nav.analytics': 'Аналитика',
+    'nav.availability': 'Кесте',
     'nav.settings': 'Баптаулар',
     'nav.logout': 'Шығу',
     
