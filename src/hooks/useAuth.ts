@@ -36,18 +36,22 @@ export function useAuth() {
 
       if (profileError) throw profileError;
 
-      // Fetch role
-      const { data: roleData, error: roleError } = await supabase
+      // Fetch all roles and pick the highest priority one
+      const { data: rolesData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', userId)
-        .order('role')
-        .limit(1)
-        .maybeSingle();
+        .eq('user_id', userId);
 
       if (roleError) throw roleError;
 
-      const role = (roleData?.role as UserRole) || 'buyer';
+      // Priority: admin > cook > buyer
+      const roles = rolesData?.map(r => r.role as UserRole) || [];
+      let role: UserRole = 'buyer';
+      if (roles.includes('admin')) {
+        role = 'admin';
+      } else if (roles.includes('cook')) {
+        role = 'cook';
+      }
 
       if (profileData) {
         setProfile({
