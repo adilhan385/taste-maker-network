@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ChefHat, User, FileCheck, Camera, ArrowRight, ArrowLeft, Check, Upload } from 'lucide-react';
+import { ChefHat, User, FileCheck, Camera, ArrowRight, ArrowLeft, Check, Upload, Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { t } from '@/lib/i18n';
+import { supabase } from '@/integrations/supabase/client';
 
 const steps = [
   { id: 1, title: 'Personal Info', icon: User },
@@ -25,10 +26,11 @@ const cuisineOptions = ['Kazakh', 'Uzbek', 'Russian', 'Georgian', 'Turkish', 'In
 export default function BecomeChef() {
   const navigate = useNavigate();
   const { language, setAuthModalOpen, setAuthModalMode } = useApp();
-  const { isAuthenticated, profile } = useAuthContext();
+  const { isAuthenticated, profile, user } = useAuthContext();
   const { toast } = useToast();
   
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: profile?.fullName || '',
     phone: profile?.phone || '',
@@ -67,9 +69,84 @@ export default function BecomeChef() {
     if (e.target.files?.[0]) setFormData(prev => ({ ...prev, [field]: e.target.files![0] }));
   };
 
-  const handleSubmit = () => {
-    toast({ title: 'Application Submitted!', description: 'Your chef application has been submitted. We will review and notify you within 2-3 business days.' });
-    navigate('/');
+  const uploadFile = async (file: File, folder: string): Promise<string> => {
+    const userId = user?.id;
+    if (!userId) throw new Error('User not authenticated');
+    
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/${folder}/${Date.now()}.${fileExt}`;
+    
+    const { error } = await supabase.storage
+      .from('chef-documents')
+      .upload(fileName, file);
+    
+    if (error) throw error;
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('chef-documents')
+      .getPublicUrl(fileName);
+    
+    return publicUrl;
+  };
+
+  const handleSubmit = async () => {
+    if (!user?.id) {
+      toast({ title: 'Error', description: 'You must be logged in to submit an application', variant: 'destructive' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Check for existing pending application
+      const { data: existingApp } = await supabase
+        .from('chef_applications')
+        .select('id, status')
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .maybeSingle();
+      
+      if (existingApp) {
+        toast({ title: 'Application Exists', description: 'You already have a pending application. Please wait for admin review.', variant: 'destructive' });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Upload documents
+      const [passportUrl, sanitaryUrl, photoUrl] = await Promise.all([
+        uploadFile(formData.idDocument!, 'passport'),
+        uploadFile(formData.sanitaryCertificate!, 'sanitary'),
+        formData.profilePhoto ? uploadFile(formData.profilePhoto, 'photo') : Promise.resolve(null),
+      ]);
+
+      // Insert application
+      const { error } = await supabase
+        .from('chef_applications')
+        .insert({
+          user_id: user.id,
+          full_name: formData.fullName,
+          phone: formData.phone,
+          city: formData.city,
+          address: formData.address || null,
+          docs_passport_url: passportUrl,
+          docs_sanitary_url: sanitaryUrl,
+          profile_photo_url: photoUrl,
+          bio: formData.bio || null,
+          cuisine_specialization: formData.cuisineSpecialization,
+          experience: formData.experience,
+          status: 'pending',
+        });
+
+      if (error) throw error;
+
+      toast({ title: 'Application Submitted!', description: 'Your chef application has been submitted. We will review and notify you within 2-3 business days.' });
+      navigate('/');
+    } catch (error: any) {
+      console.error('Error submitting application:', error);
+      toast({ title: 'Error', description: error.message || 'Failed to submit application. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const canProceed = () => {
@@ -114,6 +191,7 @@ export default function BecomeChef() {
                   <div className="space-y-2"><Label>Phone *</Label><Input type="tel" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))} /></div>
                 </div>
                 <div className="space-y-2"><Label>City *</Label><Input value={formData.city} onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))} /></div>
+                <div className="space-y-2"><Label>Address</Label><Input value={formData.address} onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))} placeholder="Optional" /></div>
               </div>
             )}
             {currentStep === 2 && (
@@ -122,13 +200,14 @@ export default function BecomeChef() {
                 <div className="space-y-4">
                   <div className="space-y-2"><Label>ID/Passport *</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('idDocument')} className="hidden" id="idDocument" /><label htmlFor="idDocument" className="cursor-pointer">{formData.idDocument ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.idDocument.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>Click to upload</span></div>}</label></div></div>
                   <div className="space-y-2"><Label>Medical Certificate *</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('sanitaryCertificate')} className="hidden" id="sanitaryCertificate" /><label htmlFor="sanitaryCertificate" className="cursor-pointer">{formData.sanitaryCertificate ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.sanitaryCertificate.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>Click to upload</span></div>}</label></div></div>
+                  <div className="space-y-2"><Label>Profile Photo (Optional)</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*" onChange={handleFileChange('profilePhoto')} className="hidden" id="profilePhoto" /><label htmlFor="profilePhoto" className="cursor-pointer">{formData.profilePhoto ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.profilePhoto.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Camera className="w-8 h-8" /><span>Click to upload</span></div>}</label></div></div>
                 </div>
               </div>
             )}
             {currentStep === 3 && (
               <div className="space-y-6">
                 <h2 className="text-xl font-serif font-semibold mb-6">Cooking Profile</h2>
-                <div className="space-y-2"><Label>Bio *</Label><Textarea rows={4} value={formData.bio} onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))} /></div>
+                <div className="space-y-2"><Label>Bio *</Label><Textarea rows={4} value={formData.bio} onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))} placeholder="Tell us about yourself and your cooking passion..." /></div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2"><Label>Cuisine *</Label><Select value={formData.cuisineSpecialization} onValueChange={(v) => setFormData(prev => ({ ...prev, cuisineSpecialization: v }))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{cuisineOptions.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
                   <div className="space-y-2"><Label>Experience *</Label><Select value={formData.experience} onValueChange={(v) => setFormData(prev => ({ ...prev, experience: v }))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="1">Less than 1 year</SelectItem><SelectItem value="1-3">1-3 years</SelectItem><SelectItem value="3-5">3-5 years</SelectItem><SelectItem value="5+">5+ years</SelectItem></SelectContent></Select></div>
@@ -136,8 +215,14 @@ export default function BecomeChef() {
               </div>
             )}
             <div className="flex justify-between mt-8 pt-6 border-t">
-              <Button variant="outline" onClick={() => setCurrentStep(prev => prev - 1)} disabled={currentStep === 1} className="gap-2"><ArrowLeft className="w-4 h-4" />Back</Button>
-              {currentStep < 3 ? <Button variant="hero" onClick={() => setCurrentStep(prev => prev + 1)} disabled={!canProceed()} className="gap-2">Continue<ArrowRight className="w-4 h-4" /></Button> : <Button variant="hero" onClick={handleSubmit} disabled={!canProceed()} className="gap-2">Submit<Check className="w-4 h-4" /></Button>}
+              <Button variant="outline" onClick={() => setCurrentStep(prev => prev - 1)} disabled={currentStep === 1 || isSubmitting} className="gap-2"><ArrowLeft className="w-4 h-4" />Back</Button>
+              {currentStep < 3 ? (
+                <Button variant="hero" onClick={() => setCurrentStep(prev => prev + 1)} disabled={!canProceed()} className="gap-2">Continue<ArrowRight className="w-4 h-4" /></Button>
+              ) : (
+                <Button variant="hero" onClick={handleSubmit} disabled={!canProceed() || isSubmitting} className="gap-2">
+                  {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" />Submitting...</> : <><Check className="w-4 h-4" />Submit</>}
+                </Button>
+              )}
             </div>
           </motion.div>
         </div>
