@@ -56,21 +56,49 @@ export default function Navbar() {
     if (profile.role === 'cook') {
       return (
         <>
-          <Link to="/chef-dashboard" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-            {t('nav.myDishes', language)}
+          <Link to="/catalog" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+            {t('nav.catalog', language)}
           </Link>
-          <Link to="/chef-dashboard?tab=orders" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-            {t('nav.orders', language)}
-          </Link>
-          <Link to="/chef-dashboard?tab=customers" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-            Customers
-          </Link>
-          <Link to="/chef-dashboard?tab=analytics" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-            Analytics
-          </Link>
-          <Link to="/chef-dashboard?tab=earnings" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
-            {t('nav.earnings', language)}
-          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <ChefHat className="w-4 h-4" />
+                Chef Dashboard
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-background border">
+              <DropdownMenuItem asChild>
+                <Link to="/chef-dashboard" className="flex items-center gap-2">
+                  {t('nav.myDishes', language)}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/chef-dashboard?tab=orders" className="flex items-center gap-2">
+                  {t('nav.orders', language)}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/chef-dashboard?tab=customers" className="flex items-center gap-2">
+                  Customers
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/chef-dashboard?tab=analytics" className="flex items-center gap-2">
+                  Analytics
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/chef-dashboard?tab=availability" className="flex items-center gap-2">
+                  Availability
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/chef-dashboard?tab=earnings" className="flex items-center gap-2">
+                  {t('nav.earnings', language)}
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </>
       );
     }
