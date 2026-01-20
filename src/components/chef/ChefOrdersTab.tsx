@@ -95,7 +95,9 @@ export default function ChefOrdersTab() {
     }
   };
 
-  const updateOrderStatus = async (order: Order, newStatus: string) => {
+  type OrderStatus = 'pending' | 'accepted' | 'cooking' | 'ready' | 'delivered' | 'cancelled';
+  
+  const updateOrderStatus = async (order: Order, newStatus: OrderStatus) => {
     try {
       const { error } = await supabase
         .from('orders')
@@ -258,7 +260,7 @@ export default function ChefOrdersTab() {
                               <Button 
                                 variant="hero" 
                                 size="sm"
-                                onClick={(e) => { e.stopPropagation(); updateOrderStatus(order, config.next as string); }}
+                                onClick={(e) => { e.stopPropagation(); updateOrderStatus(order, config.next as OrderStatus); }}
                               >
                                 Mark as {statusConfig[config.next as string]?.label}
                               </Button>
