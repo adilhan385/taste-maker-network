@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Users, ChefHat, Package, CreditCard, BarChart3, Bell, MessageCircle, Settings, Search, LogOut, Check, X, Eye, Ban, RefreshCw } from 'lucide-react';
@@ -6,13 +6,14 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import ChefApplicationsTab from '@/components/admin/ChefApplicationsTab';
 
 const navItems = [
-  { id: 'applications', label: 'Chef Applications', icon: ChefHat, count: 0 },
+  { id: 'applications', label: 'Chef Applications', icon: ChefHat },
   { id: 'users', label: 'Users', icon: Users },
   { id: 'products', label: 'Products', icon: Package },
   { id: 'orders', label: 'Orders', icon: CreditCard },
@@ -71,7 +72,6 @@ export default function AdminPanel() {
               <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === item.id ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}>
                 <item.icon className="w-5 h-5" />
                 <span className="flex-1 text-left">{item.label}</span>
-                {item.count !== undefined && <Badge variant="secondary" className="text-xs">{item.count}</Badge>}
               </button>
             ))}
           </nav>
@@ -94,10 +94,15 @@ export default function AdminPanel() {
                   <Input placeholder="Search..." className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                 </div>
               </div>
-              <div className="bg-card rounded-xl p-12 shadow-card text-center">
-                <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">No data yet</p>
-              </div>
+              {activeTab === 'applications' && (
+                <ChefApplicationsTab searchQuery={searchQuery} />
+              )}
+              {activeTab !== 'applications' && (
+                <div className="bg-card rounded-xl p-12 shadow-card text-center">
+                  <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">No data yet</p>
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
