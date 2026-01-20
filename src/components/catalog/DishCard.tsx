@@ -4,6 +4,7 @@ import { Star, Clock, Heart, ShoppingCart, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useApp } from '@/contexts/AppContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { formatPrice, t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,15 +35,16 @@ interface DishCardProps {
 }
 
 export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps) {
-  const { currency, language, addToCart, isAuthenticated, user, setAuthModalOpen, setAuthModalMode } = useApp();
+  const { currency, language, addToCart, setAuthModalOpen, setAuthModalMode } = useApp();
+  const { isAuthenticated, profile } = useAuthContext();
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
 
   // Role-based visibility
-  const isAdmin = user?.role === 'admin';
-  const isCook = user?.role === 'cook';
-  const isOwnDish = isCook && user?.id === dish.chef.id;
+  const isAdmin = profile?.role === 'admin';
+  const isCook = profile?.role === 'cook';
+  const isOwnDish = isCook && profile?.userId === dish.chef.id;
 
   // Don't show Add to Cart for admin or cook's own dishes
   const showAddToCart = !isAdmin && !isOwnDish;
@@ -72,11 +74,11 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
     }
     
     addToCart({
-      dishId: dish.id,
+      productId: dish.id,
       quantity,
       price: dish.price,
-      dishName: dish.name,
-      dishImage: dish.image,
+      productName: dish.name,
+      productImage: dish.image,
       chefName: dish.chef.name,
       chefId: dish.chef.id,
       maxPortions: dish.availablePortions,
