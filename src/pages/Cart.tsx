@@ -209,6 +209,42 @@ export default function Cart() {
           });
       }
 
+      // Update available portions for each product
+      for (const item of cart) {
+        // Fetch current portions
+        const { data: product } = await supabase
+          .from('products')
+          .select('available_portions, chef_id, name')
+          .eq('id', item.productId)
+          .single();
+
+        if (product) {
+          const newPortions = Math.max(0, product.available_portions - item.quantity);
+          
+          // Update portions and availability
+          await supabase
+            .from('products')
+            .update({ 
+              available_portions: newPortions,
+              is_available: newPortions > 0
+            })
+            .eq('id', item.productId);
+
+          // Notify chef if sold out
+          if (newPortions === 0) {
+            await supabase
+              .from('notifications')
+              .insert({
+                user_id: product.chef_id,
+                type: 'product_sold_out',
+                title: 'Блюдо распродано',
+                message: `${product.name} полностью распродано!`,
+                related_id: item.productId
+              });
+          }
+        }
+      }
+
       // Simulate card payment processing
       if (paymentMethod === 'card') {
         await new Promise(resolve => setTimeout(resolve, 1500));

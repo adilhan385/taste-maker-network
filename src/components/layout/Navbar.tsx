@@ -60,6 +60,12 @@ export default function Navbar() {
           <Link to="/catalog" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
             {t('nav.catalog', language)}
           </Link>
+          <Link to="/orders" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+            {t('nav.orders', language)}
+          </Link>
+          <Link to="/chat" className="text-foreground/80 hover:text-foreground transition-colors font-medium">
+            {t('nav.chat', language)}
+          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2">
