@@ -16,8 +16,7 @@ export default function Footer() {
             <span className="font-serif text-xl font-bold text-background">ChefCook</span>
           </Link>
           <p className="text-sm text-background/60 text-center max-w-md">
-            Connecting food lovers with talented home cooks for authentic, 
-            delicious meals made with love.
+            ChefCook
           </p>
         </div>
 
