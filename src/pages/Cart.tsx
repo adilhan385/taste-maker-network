@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Minus, Plus, Trash2, CreditCard, Banknote, ArrowLeft, Truck, Store } from 'lucide-react';
+import { ShoppingBag, Minus, Plus, Trash2, CreditCard, Banknote, ArrowLeft, Truck, Store, Wallet } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -10,6 +10,10 @@ import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { formatPrice, t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import CardPaymentForm, { CardPaymentData, initialCardPaymentData, validateCardPayment } from '@/components/checkout/CardPaymentForm';
+
+type PaymentMethod = 'card' | 'cash' | 'wallet';
 
 export default function Cart() {
   const { cart, language, updateCartQuantity, removeFromCart, cartTotal, setAuthModalOpen, setAuthModalMode, clearCart } = useApp();
@@ -18,7 +22,34 @@ export default function Cart() {
   const navigate = useNavigate();
   
   const [deliveryOption, setDeliveryOption] = useState<'delivery' | 'pickup'>('delivery');
-  const [paymentMethod, setPaymentMethod] = useState<'online' | 'cash'>('online');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [cardData, setCardData] = useState<CardPaymentData>(initialCardPaymentData);
+  const [walletBalance, setWalletBalance] = useState<number>(0);
+  const [walletId, setWalletId] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
+
+  // Fetch wallet balance
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const fetchWallet = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('wallets')
+        .select('id, balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (data) {
+        setWalletId(data.id);
+        setWalletBalance(Number(data.balance));
+      }
+    };
+
+    fetchWallet();
+  }, [isAuthenticated]);
 
   if (profile?.role === 'admin') {
     return (
@@ -92,10 +123,106 @@ export default function Cart() {
   const serviceFee = Math.round(cartTotal * 0.05);
   const totalPrice = cartTotal + deliveryFee + serviceFee;
 
+  const insufficientBalance = paymentMethod === 'wallet' && walletBalance < totalPrice;
+
   const handleCheckout = async () => {
-    toast({ title: t('cart.orderPlaced', language), description: t('cart.orderPlacedDesc', language) });
-    clearCart();
-    navigate('/orders');
+    // Validate based on payment method
+    if (paymentMethod === 'card') {
+      const validationError = validateCardPayment(cardData, deliveryOption === 'delivery');
+      if (validationError) {
+        toast({ title: validationError, variant: 'destructive' });
+        return;
+      }
+    }
+
+    if (paymentMethod === 'wallet') {
+      if (walletBalance < totalPrice) {
+        toast({ title: t('cart.insufficientBalance', language), variant: 'destructive' });
+        return;
+      }
+    }
+
+    if (paymentMethod === 'cash' && deliveryOption === 'delivery' && !cardData.street.trim()) {
+      toast({ title: t('payment.streetRequired', language), variant: 'destructive' });
+      return;
+    }
+
+    setProcessing(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Create order
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          buyer_id: user.id,
+          chef_id: cart[0]?.chefId || null,
+          total_amount: totalPrice,
+          status: 'pending',
+          payment_method: paymentMethod,
+          delivery_type: deliveryOption,
+          delivery_address: deliveryOption === 'delivery' 
+            ? `${cardData.street}, ${cardData.city}${cardData.notes ? ` (${cardData.notes})` : ''}`
+            : null,
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = cart.map(item => ({
+        order_id: order.id,
+        product_id: item.productId,
+        product_name: item.productName,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      // If wallet payment, deduct balance
+      if (paymentMethod === 'wallet' && walletId) {
+        const newBalance = walletBalance - totalPrice;
+        
+        const { error: walletError } = await supabase
+          .from('wallets')
+          .update({ balance: newBalance })
+          .eq('id', walletId);
+
+        if (walletError) throw walletError;
+
+        // Create wallet transaction
+        await supabase
+          .from('wallet_transactions')
+          .insert({
+            wallet_id: walletId,
+            type: 'payment',
+            amount: totalPrice,
+            description: `Order #${order.id.slice(0, 8)}`,
+            order_id: order.id,
+          });
+      }
+
+      // Simulate card payment processing
+      if (paymentMethod === 'card') {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+
+      toast({ title: t('cart.orderPlaced', language), description: t('cart.orderPlacedDesc', language) });
+      clearCart();
+      navigate('/orders');
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({ title: t('common.error', language), variant: 'destructive' });
+    } finally {
+      setProcessing(false);
+    }
   };
 
   return (
@@ -144,6 +271,25 @@ export default function Cart() {
                 </div>
               </motion.div>
             ))}
+
+            {/* Card Payment Form - show when card selected OR when delivery + cash */}
+            {(paymentMethod === 'card' || (paymentMethod === 'cash' && deliveryOption === 'delivery')) && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-card rounded-xl p-6 shadow-card"
+              >
+                <h2 className="font-semibold text-lg mb-4">
+                  {paymentMethod === 'card' ? t('payment.cardDetails', language) : t('payment.deliveryAddress', language)}
+                </h2>
+                <CardPaymentForm
+                  language={language}
+                  showAddress={deliveryOption === 'delivery'}
+                  formData={cardData}
+                  onFormChange={setCardData}
+                />
+              </motion.div>
+            )}
           </div>
 
           <div className="lg:col-span-1">
@@ -174,12 +320,22 @@ export default function Cart() {
 
               <div className="space-y-3">
                 <h3 className="text-sm font-medium">{t('cart.paymentMethod', language)}</h3>
-                <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as 'online' | 'cash')}>
+                <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
                   <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="online" id="online" />
-                    <Label htmlFor="online" className="flex-1 cursor-pointer flex items-center gap-2">
+                    <RadioGroupItem value="card" id="card" />
+                    <Label htmlFor="card" className="flex-1 cursor-pointer flex items-center gap-2">
                       <CreditCard className="w-4 h-4" />
-                      <span>{t('cart.payOnline', language)}</span>
+                      <span>{t('cart.payByCard', language)}</span>
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                    <RadioGroupItem value="wallet" id="wallet" />
+                    <Label htmlFor="wallet" className="flex-1 cursor-pointer flex items-center gap-2">
+                      <Wallet className="w-4 h-4" />
+                      <span>{t('cart.payByWallet', language)}</span>
+                      <span className={`ml-auto text-sm ${insufficientBalance ? 'text-destructive' : 'text-muted-foreground'}`}>
+                        {formatPrice(walletBalance)}
+                      </span>
                     </Label>
                   </div>
                   <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
@@ -190,6 +346,12 @@ export default function Cart() {
                     </Label>
                   </div>
                 </RadioGroup>
+                {paymentMethod === 'wallet' && insufficientBalance && (
+                  <p className="text-sm text-destructive flex items-center gap-1">
+                    {t('cart.insufficientBalance', language)}
+                    <Link to="/wallet" className="underline">{t('wallet.topUp', language)}</Link>
+                  </p>
+                )}
               </div>
 
               <div className="border-t pt-4 space-y-2">
@@ -211,8 +373,17 @@ export default function Cart() {
                 </div>
               </div>
 
-              <Button onClick={handleCheckout} className="w-full" size="lg">
-                {paymentMethod === 'online' ? t('cart.proceedToPayment', language) : t('cart.placeOrder', language)}
+              <Button 
+                onClick={handleCheckout} 
+                className="w-full" 
+                size="lg"
+                disabled={processing || insufficientBalance}
+              >
+                {processing ? t('common.loading', language) : (
+                  paymentMethod === 'card' ? t('cart.proceedToPayment', language) : 
+                  paymentMethod === 'wallet' ? t('cart.payFromWallet', language) :
+                  t('cart.placeOrder', language)
+                )}
               </Button>
             </div>
           </div>
