@@ -10,8 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { Language, Currency, currencySymbols } from '@/lib/i18n';
-import { t } from '@/lib/i18n';
+import { Language, t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 
 const languages = [
@@ -20,14 +19,8 @@ const languages = [
   { code: 'kz', name: 'Қазақша', flag: '🇰🇿' },
 ];
 
-const currencies = [
-  { code: 'USD', name: 'US Dollar' },
-  { code: 'RUB', name: 'Russian Ruble' },
-  { code: 'KZT', name: 'Kazakh Tenge' },
-];
-
 export default function SettingsPage() {
-  const { language, setLanguage, currency, setCurrency, setAuthModalOpen, setAuthModalMode } = useApp();
+  const { language, setLanguage, setAuthModalOpen, setAuthModalMode } = useApp();
   const { isAuthenticated, profile } = useAuthContext();
   const { toast } = useToast();
   
@@ -52,7 +45,7 @@ export default function SettingsPage() {
             </div>
             <h1 className="text-3xl font-serif font-bold mb-4">{t('nav.settings', language)}</h1>
             <p className="text-muted-foreground mb-8">
-              Please log in to access settings
+              {t('settings.loginPrompt', language)}
             </p>
             <Button 
               variant="hero" 
@@ -69,8 +62,8 @@ export default function SettingsPage() {
 
   const handlePasswordChange = () => {
     toast({
-      title: 'Password Updated',
-      description: 'Your password has been changed successfully.',
+      title: t('settings.passwordUpdated', language),
+      description: t('settings.passwordUpdatedDesc', language),
     });
   };
 
@@ -85,55 +78,35 @@ export default function SettingsPage() {
             <h1 className="text-3xl font-serif font-bold mb-8">{t('nav.settings', language)}</h1>
 
             <div className="space-y-6">
-              {/* Language & Currency */}
+              {/* Language */}
               <div className="bg-card rounded-2xl p-6 shadow-card">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Globe className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h2 className="font-semibold">Language & Region</h2>
-                    <p className="text-sm text-muted-foreground">Customize your experience</p>
+                    <h2 className="font-semibold">{t('settings.languageRegion', language)}</h2>
+                    <p className="text-sm text-muted-foreground">{t('settings.customize', language)}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Language</Label>
-                    <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {languages.map(lang => (
-                          <SelectItem key={lang.code} value={lang.code}>
-                            <span className="flex items-center gap-2">
-                              <span>{lang.flag}</span>
-                              <span>{lang.name}</span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Currency</Label>
-                    <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {currencies.map(curr => (
-                          <SelectItem key={curr.code} value={curr.code}>
-                            <span className="flex items-center gap-2">
-                              <span className="font-medium">{currencySymbols[curr.code as Currency]}</span>
-                              <span>{curr.name}</span>
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label>{t('settings.language', language)}</Label>
+                  <Select value={language} onValueChange={(v) => setLanguage(v as Language)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {languages.map(lang => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          <span className="flex items-center gap-2">
+                            <span>{lang.flag}</span>
+                            <span>{lang.name}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -144,16 +117,16 @@ export default function SettingsPage() {
                     <Bell className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h2 className="font-semibold">Notifications</h2>
-                    <p className="text-sm text-muted-foreground">Manage your notifications</p>
+                    <h2 className="font-semibold">{t('settings.notifications', language)}</h2>
+                    <p className="text-sm text-muted-foreground">{t('settings.manageNotifications', language)}</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">Order Updates</p>
-                      <p className="text-sm text-muted-foreground">Get notified about your order status</p>
+                      <p className="font-medium">{t('settings.orderUpdates', language)}</p>
+                      <p className="text-sm text-muted-foreground">{t('settings.orderUpdatesDesc', language)}</p>
                     </div>
                     <Switch
                       checked={notifications.orders}
@@ -162,8 +135,8 @@ export default function SettingsPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">Messages</p>
-                      <p className="text-sm text-muted-foreground">Receive chat notifications</p>
+                      <p className="font-medium">{t('settings.messages', language)}</p>
+                      <p className="text-sm text-muted-foreground">{t('settings.messagesDesc', language)}</p>
                     </div>
                     <Switch
                       checked={notifications.messages}
@@ -172,8 +145,8 @@ export default function SettingsPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">Promotions</p>
-                      <p className="text-sm text-muted-foreground">Get special offers and discounts</p>
+                      <p className="font-medium">{t('settings.promotions', language)}</p>
+                      <p className="text-sm text-muted-foreground">{t('settings.promotionsDesc', language)}</p>
                     </div>
                     <Switch
                       checked={notifications.promotions}
@@ -190,26 +163,26 @@ export default function SettingsPage() {
                     <Lock className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h2 className="font-semibold">Security</h2>
-                    <p className="text-sm text-muted-foreground">Manage your account security</p>
+                    <h2 className="font-semibold">{t('settings.security', language)}</h2>
+                    <p className="text-sm text-muted-foreground">{t('settings.securityDesc', language)}</p>
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Current Password</Label>
-                    <Input type="password" placeholder="Enter current password" />
+                    <Label>{t('settings.currentPassword', language)}</Label>
+                    <Input type="password" placeholder={t('settings.currentPassword', language)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>New Password</Label>
-                    <Input type="password" placeholder="Enter new password" />
+                    <Label>{t('settings.newPassword', language)}</Label>
+                    <Input type="password" placeholder={t('settings.newPassword', language)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>Confirm New Password</Label>
-                    <Input type="password" placeholder="Confirm new password" />
+                    <Label>{t('settings.confirmPassword', language)}</Label>
+                    <Input type="password" placeholder={t('settings.confirmPassword', language)} />
                   </div>
                   <Button variant="outline" onClick={handlePasswordChange}>
-                    Update Password
+                    {t('settings.updatePassword', language)}
                   </Button>
                 </div>
               </div>
@@ -221,23 +194,23 @@ export default function SettingsPage() {
                     <HelpCircle className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h2 className="font-semibold">Help & Support</h2>
-                    <p className="text-sm text-muted-foreground">Get help when you need it</p>
+                    <h2 className="font-semibold">{t('settings.helpSupport', language)}</h2>
+                    <p className="text-sm text-muted-foreground">{t('settings.helpDesc', language)}</p>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <Button variant="outline" className="w-full justify-start">
-                    FAQ
+                    {t('settings.faq', language)}
                   </Button>
                   <Button variant="outline" className="w-full justify-start">
-                    Contact Support
+                    {t('settings.contactSupport', language)}
                   </Button>
                   <Button variant="outline" className="w-full justify-start">
-                    Privacy Policy
+                    {t('settings.privacyPolicy', language)}
                   </Button>
                   <Button variant="outline" className="w-full justify-start">
-                    Terms of Service
+                    {t('settings.termsOfService', language)}
                   </Button>
                 </div>
               </div>

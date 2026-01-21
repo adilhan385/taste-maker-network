@@ -40,7 +40,7 @@ export default function HeroSection() {
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
               <ChefHat className="w-4 h-4" />
-              Homemade with Love
+              {t('hero.badge', language)}
             </span>
           </motion.div>
 
@@ -96,8 +96,8 @@ export default function HeroSection() {
                 <ChefHat className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold">Local</div>
-                <div className="text-sm text-muted-foreground">Home Chefs</div>
+                <div className="text-2xl font-bold">{t('hero.stats.local', language)}</div>
+                <div className="text-sm text-muted-foreground">{t('hero.stats.homeChefs', language)}</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -105,8 +105,8 @@ export default function HeroSection() {
                 <Star className="w-6 h-6 text-accent" />
               </div>
               <div>
-                <div className="text-2xl font-bold">Quality</div>
-                <div className="text-sm text-muted-foreground">Homemade Food</div>
+                <div className="text-2xl font-bold">{t('hero.stats.quality', language)}</div>
+                <div className="text-sm text-muted-foreground">{t('hero.stats.homemadeFood', language)}</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -114,8 +114,8 @@ export default function HeroSection() {
                 <Users className="w-6 h-6 text-success" />
               </div>
               <div>
-                <div className="text-2xl font-bold">Community</div>
-                <div className="text-sm text-muted-foreground">Food Lovers</div>
+                <div className="text-2xl font-bold">{t('hero.stats.community', language)}</div>
+                <div className="text-sm text-muted-foreground">{t('hero.stats.foodLovers', language)}</div>
               </div>
             </div>
           </motion.div>

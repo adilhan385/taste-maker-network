@@ -14,7 +14,7 @@ import {
 import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { t } from '@/lib/i18n';
-import LanguageCurrencySelector from './LanguageCurrencySelector';
+import LanguageSelector from './LanguageSelector';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -136,7 +136,7 @@ export default function Navbar() {
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
-          <LanguageCurrencySelector />
+          <LanguageSelector />
 
           {/* Cart - visible for guests and buyers, hidden for admin */}
           {showCart && (

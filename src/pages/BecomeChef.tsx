@@ -15,12 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { t } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 
-const steps = [
-  { id: 1, title: 'Personal Info', icon: User },
-  { id: 2, title: 'Verification', icon: FileCheck },
-  { id: 3, title: 'Cooking Profile', icon: Camera },
-];
-
 const cuisineOptions = ['Kazakh', 'Uzbek', 'Russian', 'Georgian', 'Turkish', 'Indian', 'Japanese', 'Mexican', 'Italian', 'Chinese', 'Korean', 'Other'];
 
 export default function BecomeChef() {
@@ -29,6 +23,12 @@ export default function BecomeChef() {
   const { isAuthenticated, profile, user } = useAuthContext();
   const { toast } = useToast();
   
+  const steps = [
+    { id: 1, title: t('becomeChef.step1', language), icon: User },
+    { id: 2, title: t('becomeChef.step2', language), icon: FileCheck },
+    { id: 3, title: t('becomeChef.step3', language), icon: Camera },
+  ];
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -52,8 +52,8 @@ export default function BecomeChef() {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full gradient-primary flex items-center justify-center">
               <ChefHat className="w-10 h-10 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl font-serif font-bold mb-4">{t('nav.becomeChef', language)}</h1>
-            <p className="text-muted-foreground mb-8">Please log in or create an account to start your chef application</p>
+            <h1 className="text-3xl font-serif font-bold mb-4">{t('becomeChef.title', language)}</h1>
+            <p className="text-muted-foreground mb-8">{t('becomeChef.loginPrompt', language)}</p>
             <div className="flex gap-4 justify-center">
               <Button variant="outline" onClick={() => { setAuthModalMode('login'); setAuthModalOpen(true); }}>{t('nav.login', language)}</Button>
               <Button variant="hero" onClick={() => { setAuthModalMode('register'); setAuthModalOpen(true); }}>{t('nav.register', language)}</Button>
@@ -91,7 +91,7 @@ export default function BecomeChef() {
 
   const handleSubmit = async () => {
     if (!user?.id) {
-      toast({ title: 'Error', description: 'You must be logged in to submit an application', variant: 'destructive' });
+      toast({ title: t('common.error', language), description: t('becomeChef.loginPrompt', language), variant: 'destructive' });
       return;
     }
 
@@ -107,7 +107,7 @@ export default function BecomeChef() {
         .maybeSingle();
       
       if (existingApp) {
-        toast({ title: 'Application Exists', description: 'You already have a pending application. Please wait for admin review.', variant: 'destructive' });
+        toast({ title: t('becomeChef.appExists', language), description: t('becomeChef.appExistsDesc', language), variant: 'destructive' });
         setIsSubmitting(false);
         return;
       }
@@ -139,11 +139,11 @@ export default function BecomeChef() {
 
       if (error) throw error;
 
-      toast({ title: 'Application Submitted!', description: 'Your chef application has been submitted. We will review and notify you within 2-3 business days.' });
+      toast({ title: t('becomeChef.appSubmitted', language), description: t('becomeChef.appSubmittedDesc', language) });
       navigate('/');
     } catch (error: any) {
       console.error('Error submitting application:', error);
-      toast({ title: 'Error', description: error.message || 'Failed to submit application. Please try again.', variant: 'destructive' });
+      toast({ title: t('common.error', language), description: error.message || t('common.error', language), variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -166,8 +166,8 @@ export default function BecomeChef() {
             <div className="w-16 h-16 mx-auto mb-4 rounded-full gradient-primary flex items-center justify-center">
               <ChefHat className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-bold mb-2">{t('nav.becomeChef', language)}</h1>
-            <p className="text-muted-foreground">Complete the steps below to start your culinary journey</p>
+            <h1 className="text-3xl sm:text-4xl font-serif font-bold mb-2">{t('becomeChef.title', language)}</h1>
+            <p className="text-muted-foreground">{t('becomeChef.subtitle', language)}</p>
           </motion.div>
 
           <div className="flex justify-between items-center mb-12 relative">
@@ -185,42 +185,42 @@ export default function BecomeChef() {
           <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-card rounded-2xl p-8 shadow-card">
             {currentStep === 1 && (
               <div className="space-y-6">
-                <h2 className="text-xl font-serif font-semibold mb-6">Personal Information</h2>
+                <h2 className="text-xl font-serif font-semibold mb-6">{t('becomeChef.personalInfo', language)}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Full Name *</Label><Input value={formData.fullName} onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))} /></div>
-                  <div className="space-y-2"><Label>Phone *</Label><Input type="tel" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))} /></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.fullName', language)} *</Label><Input value={formData.fullName} onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))} /></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.phone', language)} *</Label><Input type="tel" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))} /></div>
                 </div>
-                <div className="space-y-2"><Label>City *</Label><Input value={formData.city} onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))} /></div>
-                <div className="space-y-2"><Label>Address</Label><Input value={formData.address} onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))} placeholder="Optional" /></div>
+                <div className="space-y-2"><Label>{t('becomeChef.city', language)} *</Label><Input value={formData.city} onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))} /></div>
+                <div className="space-y-2"><Label>{t('becomeChef.address', language)}</Label><Input value={formData.address} onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))} placeholder={t('becomeChef.addressOptional', language)} /></div>
               </div>
             )}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <h2 className="text-xl font-serif font-semibold mb-6">Document Verification</h2>
+                <h2 className="text-xl font-serif font-semibold mb-6">{t('becomeChef.documentVerification', language)}</h2>
                 <div className="space-y-4">
-                  <div className="space-y-2"><Label>ID/Passport *</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('idDocument')} className="hidden" id="idDocument" /><label htmlFor="idDocument" className="cursor-pointer">{formData.idDocument ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.idDocument.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>Click to upload</span></div>}</label></div></div>
-                  <div className="space-y-2"><Label>Medical Certificate *</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('sanitaryCertificate')} className="hidden" id="sanitaryCertificate" /><label htmlFor="sanitaryCertificate" className="cursor-pointer">{formData.sanitaryCertificate ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.sanitaryCertificate.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>Click to upload</span></div>}</label></div></div>
-                  <div className="space-y-2"><Label>Profile Photo (Optional)</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*" onChange={handleFileChange('profilePhoto')} className="hidden" id="profilePhoto" /><label htmlFor="profilePhoto" className="cursor-pointer">{formData.profilePhoto ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.profilePhoto.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Camera className="w-8 h-8" /><span>Click to upload</span></div>}</label></div></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.idDocument', language)} *</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('idDocument')} className="hidden" id="idDocument" /><label htmlFor="idDocument" className="cursor-pointer">{formData.idDocument ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.idDocument.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.medicalCert', language)} *</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('sanitaryCertificate')} className="hidden" id="sanitaryCertificate" /><label htmlFor="sanitaryCertificate" className="cursor-pointer">{formData.sanitaryCertificate ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.sanitaryCertificate.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.profilePhoto', language)}</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*" onChange={handleFileChange('profilePhoto')} className="hidden" id="profilePhoto" /><label htmlFor="profilePhoto" className="cursor-pointer">{formData.profilePhoto ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.profilePhoto.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Camera className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
                 </div>
               </div>
             )}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h2 className="text-xl font-serif font-semibold mb-6">Cooking Profile</h2>
-                <div className="space-y-2"><Label>Bio *</Label><Textarea rows={4} value={formData.bio} onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))} placeholder="Tell us about yourself and your cooking passion..." /></div>
+                <h2 className="text-xl font-serif font-semibold mb-6">{t('becomeChef.cookingProfile', language)}</h2>
+                <div className="space-y-2"><Label>{t('becomeChef.bio', language)} *</Label><Textarea rows={4} value={formData.bio} onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))} placeholder={t('becomeChef.bioPlaceholder', language)} /></div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Cuisine *</Label><Select value={formData.cuisineSpecialization} onValueChange={(v) => setFormData(prev => ({ ...prev, cuisineSpecialization: v }))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent>{cuisineOptions.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
-                  <div className="space-y-2"><Label>Experience *</Label><Select value={formData.experience} onValueChange={(v) => setFormData(prev => ({ ...prev, experience: v }))}><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger><SelectContent><SelectItem value="1">Less than 1 year</SelectItem><SelectItem value="1-3">1-3 years</SelectItem><SelectItem value="3-5">3-5 years</SelectItem><SelectItem value="5+">5+ years</SelectItem></SelectContent></Select></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.cuisine', language)} *</Label><Select value={formData.cuisineSpecialization} onValueChange={(v) => setFormData(prev => ({ ...prev, cuisineSpecialization: v }))}><SelectTrigger><SelectValue placeholder={t('becomeChef.cuisineSelect', language)} /></SelectTrigger><SelectContent>{cuisineOptions.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.experience', language)} *</Label><Select value={formData.experience} onValueChange={(v) => setFormData(prev => ({ ...prev, experience: v }))}><SelectTrigger><SelectValue placeholder={t('becomeChef.experienceSelect', language)} /></SelectTrigger><SelectContent><SelectItem value="1">{t('becomeChef.exp1', language)}</SelectItem><SelectItem value="1-3">{t('becomeChef.exp1_3', language)}</SelectItem><SelectItem value="3-5">{t('becomeChef.exp3_5', language)}</SelectItem><SelectItem value="5+">{t('becomeChef.exp5plus', language)}</SelectItem></SelectContent></Select></div>
                 </div>
               </div>
             )}
             <div className="flex justify-between mt-8 pt-6 border-t">
-              <Button variant="outline" onClick={() => setCurrentStep(prev => prev - 1)} disabled={currentStep === 1 || isSubmitting} className="gap-2"><ArrowLeft className="w-4 h-4" />Back</Button>
+              <Button variant="outline" onClick={() => setCurrentStep(prev => prev - 1)} disabled={currentStep === 1 || isSubmitting} className="gap-2"><ArrowLeft className="w-4 h-4" />{t('becomeChef.back', language)}</Button>
               {currentStep < 3 ? (
-                <Button variant="hero" onClick={() => setCurrentStep(prev => prev + 1)} disabled={!canProceed()} className="gap-2">Continue<ArrowRight className="w-4 h-4" /></Button>
+                <Button variant="hero" onClick={() => setCurrentStep(prev => prev + 1)} disabled={!canProceed()} className="gap-2">{t('becomeChef.continue', language)}<ArrowRight className="w-4 h-4" /></Button>
               ) : (
                 <Button variant="hero" onClick={handleSubmit} disabled={!canProceed() || isSubmitting} className="gap-2">
-                  {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" />Submitting...</> : <><Check className="w-4 h-4" />Submit</>}
+                  {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" />{t('becomeChef.submitting', language)}</> : <><Check className="w-4 h-4" />{t('becomeChef.submit', language)}</>}
                 </Button>
               )}
             </div>
