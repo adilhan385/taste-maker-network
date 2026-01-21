@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart, User, ChefHat, MessageCircle, Bell, Settings, LogOut, Shield } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, ChefHat, Bell, Settings, LogOut, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -15,6 +15,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { t } from '@/lib/i18n';
 import LanguageSelector from './LanguageSelector';
+import WalletWidget from '@/components/wallet/WalletWidget';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -137,6 +138,9 @@ export default function Navbar() {
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
           <LanguageSelector />
+          
+          {/* Wallet Widget - for authenticated non-admin users */}
+          <WalletWidget />
 
           {/* Cart - visible for guests and buyers, hidden for admin */}
           {showCart && (

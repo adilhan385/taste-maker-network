@@ -14,6 +14,7 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Cart from "./pages/Cart";
+import Wallet from "./pages/Wallet";
 import AdminPanel from "./pages/AdminPanel";
 import ChefDashboard from "./pages/ChefDashboard";
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/profile" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/cart" element={<Cart />} />
+              <Route path="/wallet" element={<Wallet />} />
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/chef-dashboard" element={<ChefDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
