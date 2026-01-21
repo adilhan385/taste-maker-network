@@ -254,6 +254,9 @@ export default function Catalog() {
 
   const filteredDishes = useMemo(() => {
     return dishes.filter(dish => {
+      // Filter out dishes with no portions available
+      if (dish.availablePortions <= 0) return false;
+      
       // Get localized fields for search
       const dishName = getLocalizedField(dish.name, dish.name_ru, dish.name_kz, language);
       const dishDescription = getLocalizedField(dish.description, dish.description_ru, dish.description_kz, language);
