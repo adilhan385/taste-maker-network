@@ -11,15 +11,25 @@ import { t } from '@/lib/i18n';
 import { z } from 'zod';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().trim().email('Invalid email address').max(255, 'Email too long'),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(128, 'Password too long'),
 });
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().optional(),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  name: z.string().trim()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name too long')
+    .regex(/^[a-zA-Zа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ\s\-']+$/, 'Name contains invalid characters'),
+  email: z.string().trim().email('Invalid email address').max(255, 'Email too long'),
+  phone: z.string()
+    .regex(/^(\+?[0-9\s\-()]{0,20})?$/, 'Invalid phone number')
+    .optional()
+    .or(z.literal('')),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password too long')
+    .regex(/[A-ZА-ЯЁ]/, 'Password must contain an uppercase letter')
+    .regex(/[0-9]/, 'Password must contain a number'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",

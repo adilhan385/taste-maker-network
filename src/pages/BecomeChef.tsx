@@ -14,6 +14,26 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { t } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
+import { z } from 'zod';
+
+// Validation schema for chef application
+const chefApplicationSchema = z.object({
+  fullName: z.string().trim()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name too long')
+    .regex(/^[a-zA-Zа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ\s\-']+$/, 'Name contains invalid characters'),
+  phone: z.string()
+    .regex(/^\+?[0-9\s\-()]{10,20}$/, 'Invalid phone number format'),
+  city: z.string().trim()
+    .min(2, 'City must be at least 2 characters')
+    .max(100, 'City name too long'),
+  address: z.string().trim().max(200, 'Address too long').optional().or(z.literal('')),
+  bio: z.string().trim()
+    .min(10, 'Please write at least 10 characters about yourself')
+    .max(1000, 'Bio too long'),
+  cuisineSpecialization: z.string().min(1, 'Please select a cuisine'),
+  experience: z.string().min(1, 'Please select your experience level'),
+});
 
 const cuisineOptions = ['Kazakh', 'Uzbek', 'Russian', 'Georgian', 'Turkish', 'Indian', 'Japanese', 'Mexican', 'Italian', 'Chinese', 'Korean', 'Other'];
 
@@ -98,6 +118,24 @@ export default function BecomeChef() {
     setIsSubmitting(true);
     
     try {
+      // Validate form data with Zod schema
+      const validationResult = chefApplicationSchema.safeParse({
+        fullName: formData.fullName,
+        phone: formData.phone,
+        city: formData.city,
+        address: formData.address,
+        bio: formData.bio,
+        cuisineSpecialization: formData.cuisineSpecialization,
+        experience: formData.experience,
+      });
+
+      if (!validationResult.success) {
+        const errorMessages = validationResult.error.errors.map(e => e.message).join(', ');
+        toast({ title: t('common.error', language), description: errorMessages, variant: 'destructive' });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Check for existing pending application
       const { data: existingApp } = await supabase
         .from('chef_applications')
@@ -119,21 +157,21 @@ export default function BecomeChef() {
         formData.profilePhoto ? uploadFile(formData.profilePhoto, 'photo') : Promise.resolve(null),
       ]);
 
-      // Insert application
+      // Insert application with validated data
       const { error } = await supabase
         .from('chef_applications')
         .insert({
           user_id: user.id,
-          full_name: formData.fullName,
-          phone: formData.phone,
-          city: formData.city,
-          address: formData.address || null,
+          full_name: validationResult.data.fullName,
+          phone: validationResult.data.phone,
+          city: validationResult.data.city,
+          address: validationResult.data.address || null,
           docs_passport_url: passportUrl,
           docs_sanitary_url: sanitaryUrl,
           profile_photo_url: photoUrl,
-          bio: formData.bio || null,
-          cuisine_specialization: formData.cuisineSpecialization,
-          experience: formData.experience,
+          bio: validationResult.data.bio || null,
+          cuisine_specialization: validationResult.data.cuisineSpecialization,
+          experience: validationResult.data.experience,
           status: 'pending',
         });
 
