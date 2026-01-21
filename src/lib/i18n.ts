@@ -38,6 +38,20 @@ export const translations = {
     // Orders
     'orders.loginPrompt': 'Please log in to view your orders',
     'orders.empty': 'No orders yet',
+    'orders.orderNumber': 'Order #',
+    'orders.chef': 'Chef',
+    'orders.items': 'Items',
+    'orders.chatWithChef': 'Chat with Chef',
+    'orders.status.pending': 'Pending',
+    'orders.status.accepted': 'Accepted',
+    'orders.status.cooking': 'Cooking',
+    'orders.status.ready': 'Ready',
+    'orders.status.delivered': 'Delivered',
+    'orders.status.cancelled': 'Cancelled',
+    'orders.filter.all': 'All',
+    'orders.filter.active': 'Active',
+    'orders.filter.completed': 'Completed',
+    'orders.filter.cancelled': 'Cancelled',
     
     // Settings
     'settings.loginPrompt': 'Please log in to access settings',
@@ -325,6 +339,20 @@ export const translations = {
     // Orders
     'orders.loginPrompt': 'Войдите, чтобы просмотреть ваши заказы',
     'orders.empty': 'Заказов пока нет',
+    'orders.orderNumber': 'Заказ №',
+    'orders.chef': 'Повар',
+    'orders.items': 'Блюда',
+    'orders.chatWithChef': 'Написать повару',
+    'orders.status.pending': 'Ожидание',
+    'orders.status.accepted': 'Принят',
+    'orders.status.cooking': 'Готовится',
+    'orders.status.ready': 'Готов',
+    'orders.status.delivered': 'Доставлен',
+    'orders.status.cancelled': 'Отменён',
+    'orders.filter.all': 'Все',
+    'orders.filter.active': 'Активные',
+    'orders.filter.completed': 'Завершённые',
+    'orders.filter.cancelled': 'Отменённые',
     
     // Settings
     'settings.loginPrompt': 'Войдите для доступа к настройкам',
@@ -609,6 +637,20 @@ export const translations = {
     // Orders
     'orders.loginPrompt': 'Тапсырыстарыңызды көру үшін кіріңіз',
     'orders.empty': 'Тапсырыстар әлі жоқ',
+    'orders.orderNumber': 'Тапсырыс №',
+    'orders.chef': 'Аспазшы',
+    'orders.items': 'Тағамдар',
+    'orders.chatWithChef': 'Аспазшыға жазу',
+    'orders.status.pending': 'Күтуде',
+    'orders.status.accepted': 'Қабылданды',
+    'orders.status.cooking': 'Дайындалуда',
+    'orders.status.ready': 'Дайын',
+    'orders.status.delivered': 'Жеткізілді',
+    'orders.status.cancelled': 'Бас тартылды',
+    'orders.filter.all': 'Барлығы',
+    'orders.filter.active': 'Белсенді',
+    'orders.filter.completed': 'Аяқталған',
+    'orders.filter.cancelled': 'Бас тартылған',
     
     // Settings
     'settings.loginPrompt': 'Баптауларға кіру үшін жүйеге кіріңіз',
