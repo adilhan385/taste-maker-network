@@ -22,8 +22,8 @@ export const translations = {
     'nav.cart': 'Cart',
     
     // Hero
-    'hero.title': 'ChefCook',
-    'hero.titleHighlight': '',
+    'hero.title': 'Homemade Food,',
+    'hero.titleHighlight': 'Made with Love',
     'hero.subtitle': 'Discover authentic home-cooked meals from talented local chefs in your neighborhood',
     'hero.cta': 'Explore Dishes',
     'hero.ctaSecondary': 'Become a Chef',
@@ -323,8 +323,8 @@ export const translations = {
     'nav.cart': 'Корзина',
     
     // Hero
-    'hero.title': 'ChefCook',
-    'hero.titleHighlight': '',
+    'hero.title': 'Домашняя еда,',
+    'hero.titleHighlight': 'с любовью',
     'hero.subtitle': 'Откройте для себя аутентичные домашние блюда от талантливых местных поваров',
     'hero.cta': 'Смотреть блюда',
     'hero.ctaSecondary': 'Стать поваром',
@@ -621,8 +621,8 @@ export const translations = {
     'nav.cart': 'Себет',
     
     // Hero
-    'hero.title': 'ChefCook',
-    'hero.titleHighlight': '',
+    'hero.title': 'Үй тағамы,',
+    'hero.titleHighlight': 'сүйіспеншілікпен',
     'hero.subtitle': 'Жергілікті талантты аспаздардың үй тағамдарын ашыңыз',
     'hero.cta': 'Тағамдарды қарау',
     'hero.ctaSecondary': 'Аспаз болу',
