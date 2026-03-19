@@ -367,6 +367,20 @@ export default function Orders() {
         </div>
       </div>
       <Footer />
+
+      {user && (
+        <ReviewDialog
+          open={reviewDialog.open}
+          onOpenChange={(open) => setReviewDialog(prev => ({ ...prev, open }))}
+          productId={reviewDialog.productId}
+          productName={reviewDialog.productName}
+          orderId={reviewDialog.orderId}
+          userId={user.id}
+          onReviewSubmitted={(productId, orderId) => {
+            setReviewedItems(prev => new Set([...prev, `${productId}_${orderId}`]));
+          }}
+        />
+      )}
     </Layout>
   );
 }
