@@ -86,6 +86,17 @@ export default function Orders() {
       }
     }
     
+    // Fetch user's existing reviews
+    const { data: reviewsData } = await supabase
+      .from('reviews')
+      .select('product_id, order_id')
+      .eq('user_id', user.id);
+    
+    if (reviewsData) {
+      const reviewedSet = new Set(reviewsData.map(r => `${r.product_id}_${r.order_id}`));
+      setReviewedItems(reviewedSet);
+    }
+    
     setLoading(false);
   };
 
