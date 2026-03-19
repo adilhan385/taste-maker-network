@@ -53,6 +53,16 @@ export const translations = {
     'orders.filter.completed': 'Completed',
     'orders.filter.cancelled': 'Cancelled',
     
+    // Reviews
+    'reviews.leaveReview': 'Leave a Review',
+    'reviews.rating': 'Rating',
+    'reviews.comment': 'Comment',
+    'reviews.commentPlaceholder': 'Share your experience...',
+    'reviews.submit': 'Submit Review',
+    'reviews.submitted': 'Review submitted',
+    'reviews.thankYou': 'Thank you for your review!',
+    'reviews.reviewed': 'Reviewed',
+    
     // Settings
     'settings.loginPrompt': 'Please log in to access settings',
     'settings.languageRegion': 'Language & Region',
