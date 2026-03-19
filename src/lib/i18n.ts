@@ -672,6 +672,16 @@ export const translations = {
     'orders.filter.completed': 'Аяқталған',
     'orders.filter.cancelled': 'Бас тартылған',
     
+    // Reviews
+    'reviews.leaveReview': 'Пікір қалдыру',
+    'reviews.rating': 'Бағалау',
+    'reviews.comment': 'Пікір',
+    'reviews.commentPlaceholder': 'Тәжірибеңізбен бөлісіңіз...',
+    'reviews.submit': 'Пікір жіберу',
+    'reviews.submitted': 'Пікір қалдырылды',
+    'reviews.thankYou': 'Пікіріңізге рахмет!',
+    'reviews.reviewed': 'Пікір қалдырылды',
+    
     // Settings
     'settings.loginPrompt': 'Баптауларға кіру үшін жүйеге кіріңіз',
     'settings.languageRegion': 'Тіл және аймақ',
