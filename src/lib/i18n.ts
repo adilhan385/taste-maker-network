@@ -364,6 +364,16 @@ export const translations = {
     'orders.filter.completed': 'Завершённые',
     'orders.filter.cancelled': 'Отменённые',
     
+    // Reviews
+    'reviews.leaveReview': 'Оставить отзыв',
+    'reviews.rating': 'Оценка',
+    'reviews.comment': 'Комментарий',
+    'reviews.commentPlaceholder': 'Поделитесь впечатлениями...',
+    'reviews.submit': 'Отправить отзыв',
+    'reviews.submitted': 'Отзыв оставлен',
+    'reviews.thankYou': 'Спасибо за отзыв!',
+    'reviews.reviewed': 'Отзыв оставлен',
+    
     // Settings
     'settings.loginPrompt': 'Войдите для доступа к настройкам',
     'settings.languageRegion': 'Язык и регион',
