@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, Clock, MessageSquare, Filter } from 'lucide-react';
+import { Package, Clock, MessageSquare, Filter, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
@@ -13,6 +13,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { t } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import OrderProgressTracker from '@/components/orders/OrderProgressTracker';
+import ReviewDialog from '@/components/orders/ReviewDialog';
 import { useNavigate } from 'react-router-dom';
 import { Tables } from '@/integrations/supabase/types';
 
