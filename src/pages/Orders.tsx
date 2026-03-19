@@ -40,6 +40,13 @@ export default function Orders() {
   const [chefProfiles, setChefProfiles] = useState<Record<string, ChefProfile>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderFilter>('all');
+  const [reviewedItems, setReviewedItems] = useState<Set<string>>(new Set());
+  const [reviewDialog, setReviewDialog] = useState<{
+    open: boolean;
+    productId: string;
+    productName: string;
+    orderId: string;
+  }>({ open: false, productId: '', productName: '', orderId: '' });
 
   const fetchOrders = async () => {
     if (!user) return;
