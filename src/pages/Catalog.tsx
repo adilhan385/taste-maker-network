@@ -203,8 +203,26 @@ export default function Catalog() {
             profilesData?.map(p => [p.user_id, p]) || []
           );
 
+          // Fetch reviews for real ratings
+          const productIds = productsData.map(p => p.id);
+          const { data: reviewsData } = await supabase
+            .from('reviews')
+            .select('product_id, rating')
+            .in('product_id', productIds);
+
+          const reviewsMap = new Map<string, { sum: number; count: number }>();
+          reviewsData?.forEach(r => {
+            const existing = reviewsMap.get(r.product_id) || { sum: 0, count: 0 };
+            existing.sum += r.rating;
+            existing.count += 1;
+            reviewsMap.set(r.product_id, existing);
+          });
+
           const formattedDishes: Dish[] = productsData.map(product => {
             const profile = profilesMap.get(product.chef_id);
+            const reviewStats = reviewsMap.get(product.id);
+            const avgRating = reviewStats ? Math.round((reviewStats.sum / reviewStats.count) * 10) / 10 : 0;
+            const reviewCount = reviewStats?.count || 0;
             return {
               id: product.id,
               name: product.name,
@@ -219,12 +237,12 @@ export default function Catalog() {
                 id: product.chef_id,
                 name: profile?.full_name || 'Chef',
                 avatar: profile?.avatar_url || '',
-                rating: 4.8,
+                rating: avgRating || 4.8,
               },
               cuisine: product.cuisine || '',
               dietary: product.dietary || [],
-              rating: 4.8,
-              reviewCount: 0,
+              rating: avgRating || 0,
+              reviewCount,
               prepTime: product.prep_time || 30,
               availablePortions: product.available_portions,
             };

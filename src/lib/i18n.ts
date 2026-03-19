@@ -53,6 +53,16 @@ export const translations = {
     'orders.filter.completed': 'Completed',
     'orders.filter.cancelled': 'Cancelled',
     
+    // Reviews
+    'reviews.leaveReview': 'Leave a Review',
+    'reviews.rating': 'Rating',
+    'reviews.comment': 'Comment',
+    'reviews.commentPlaceholder': 'Share your experience...',
+    'reviews.submit': 'Submit Review',
+    'reviews.submitted': 'Review submitted',
+    'reviews.thankYou': 'Thank you for your review!',
+    'reviews.reviewed': 'Reviewed',
+    
     // Settings
     'settings.loginPrompt': 'Please log in to access settings',
     'settings.languageRegion': 'Language & Region',
@@ -354,6 +364,16 @@ export const translations = {
     'orders.filter.completed': 'Завершённые',
     'orders.filter.cancelled': 'Отменённые',
     
+    // Reviews
+    'reviews.leaveReview': 'Оставить отзыв',
+    'reviews.rating': 'Оценка',
+    'reviews.comment': 'Комментарий',
+    'reviews.commentPlaceholder': 'Поделитесь впечатлениями...',
+    'reviews.submit': 'Отправить отзыв',
+    'reviews.submitted': 'Отзыв оставлен',
+    'reviews.thankYou': 'Спасибо за отзыв!',
+    'reviews.reviewed': 'Отзыв оставлен',
+    
     // Settings
     'settings.loginPrompt': 'Войдите для доступа к настройкам',
     'settings.languageRegion': 'Язык и регион',
@@ -651,6 +671,16 @@ export const translations = {
     'orders.filter.active': 'Белсенді',
     'orders.filter.completed': 'Аяқталған',
     'orders.filter.cancelled': 'Бас тартылған',
+    
+    // Reviews
+    'reviews.leaveReview': 'Пікір қалдыру',
+    'reviews.rating': 'Бағалау',
+    'reviews.comment': 'Пікір',
+    'reviews.commentPlaceholder': 'Тәжірибеңізбен бөлісіңіз...',
+    'reviews.submit': 'Пікір жіберу',
+    'reviews.submitted': 'Пікір қалдырылды',
+    'reviews.thankYou': 'Пікіріңізге рахмет!',
+    'reviews.reviewed': 'Пікір қалдырылды',
     
     // Settings
     'settings.loginPrompt': 'Баптауларға кіру үшін жүйеге кіріңіз',

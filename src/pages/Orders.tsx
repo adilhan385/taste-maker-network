@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, Clock, MessageSquare, Filter } from 'lucide-react';
+import { Package, Clock, MessageSquare, Filter, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
@@ -13,6 +13,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { t } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import OrderProgressTracker from '@/components/orders/OrderProgressTracker';
+import ReviewDialog from '@/components/orders/ReviewDialog';
 import { useNavigate } from 'react-router-dom';
 import { Tables } from '@/integrations/supabase/types';
 
@@ -39,6 +40,13 @@ export default function Orders() {
   const [chefProfiles, setChefProfiles] = useState<Record<string, ChefProfile>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<OrderFilter>('all');
+  const [reviewedItems, setReviewedItems] = useState<Set<string>>(new Set());
+  const [reviewDialog, setReviewDialog] = useState<{
+    open: boolean;
+    productId: string;
+    productName: string;
+    orderId: string;
+  }>({ open: false, productId: '', productName: '', orderId: '' });
 
   const fetchOrders = async () => {
     if (!user) return;
@@ -76,6 +84,17 @@ export default function Orders() {
         });
         setChefProfiles(profileMap);
       }
+    }
+    
+    // Fetch user's existing reviews
+    const { data: reviewsData } = await supabase
+      .from('reviews')
+      .select('product_id, order_id')
+      .eq('user_id', user.id);
+    
+    if (reviewsData) {
+      const reviewedSet = new Set(reviewsData.map(r => `${r.product_id}_${r.order_id}`));
+      setReviewedItems(reviewedSet);
     }
     
     setLoading(false);
@@ -283,15 +302,42 @@ export default function Orders() {
                           <div>
                             <h4 className="font-medium mb-3">{t('orders.items', language)}</h4>
                             <div className="space-y-2">
-                              {order.order_items.map((item) => (
+                              {order.order_items.map((item) => {
+                                const isReviewed = item.product_id ? reviewedItems.has(`${item.product_id}_${order.id}`) : false;
+                                return (
                                 <div key={item.id} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
                                   <div className="flex items-center gap-3">
                                     <span className="text-sm bg-muted px-2 py-1 rounded">{item.quantity}x</span>
                                     <span>{item.product_name}</span>
                                   </div>
-                                  <span className="font-medium">{Number(item.price * item.quantity).toLocaleString()} ₸</span>
+                                  <div className="flex items-center gap-3">
+                                    <span className="font-medium">{Number(item.price * item.quantity).toLocaleString()} ₸</span>
+                                    {status === 'delivered' && item.product_id && (
+                                      isReviewed ? (
+                                        <Badge variant="secondary" className="gap-1">
+                                          <Star className="w-3 h-3 fill-current" />
+                                          {t('reviews.reviewed', language)}
+                                        </Badge>
+                                      ) : (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => setReviewDialog({
+                                            open: true,
+                                            productId: item.product_id!,
+                                            productName: item.product_name,
+                                            orderId: order.id,
+                                          })}
+                                        >
+                                          <Star className="w-4 h-4 mr-1" />
+                                          {t('reviews.leaveReview', language)}
+                                        </Button>
+                                      )
+                                    )}
+                                  </div>
                                 </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                           
@@ -321,6 +367,20 @@ export default function Orders() {
         </div>
       </div>
       <Footer />
+
+      {user && (
+        <ReviewDialog
+          open={reviewDialog.open}
+          onOpenChange={(open) => setReviewDialog(prev => ({ ...prev, open }))}
+          productId={reviewDialog.productId}
+          productName={reviewDialog.productName}
+          orderId={reviewDialog.orderId}
+          userId={user.id}
+          onReviewSubmitted={(productId, orderId) => {
+            setReviewedItems(prev => new Set([...prev, `${productId}_${orderId}`]));
+          }}
+        />
+      )}
     </Layout>
   );
 }
