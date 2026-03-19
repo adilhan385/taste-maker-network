@@ -302,15 +302,42 @@ export default function Orders() {
                           <div>
                             <h4 className="font-medium mb-3">{t('orders.items', language)}</h4>
                             <div className="space-y-2">
-                              {order.order_items.map((item) => (
+                              {order.order_items.map((item) => {
+                                const isReviewed = item.product_id ? reviewedItems.has(`${item.product_id}_${order.id}`) : false;
+                                return (
                                 <div key={item.id} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
                                   <div className="flex items-center gap-3">
                                     <span className="text-sm bg-muted px-2 py-1 rounded">{item.quantity}x</span>
                                     <span>{item.product_name}</span>
                                   </div>
-                                  <span className="font-medium">{Number(item.price * item.quantity).toLocaleString()} ₸</span>
+                                  <div className="flex items-center gap-3">
+                                    <span className="font-medium">{Number(item.price * item.quantity).toLocaleString()} ₸</span>
+                                    {status === 'delivered' && item.product_id && (
+                                      isReviewed ? (
+                                        <Badge variant="secondary" className="gap-1">
+                                          <Star className="w-3 h-3 fill-current" />
+                                          {t('reviews.reviewed', language)}
+                                        </Badge>
+                                      ) : (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => setReviewDialog({
+                                            open: true,
+                                            productId: item.product_id!,
+                                            productName: item.product_name,
+                                            orderId: order.id,
+                                          })}
+                                        >
+                                          <Star className="w-4 h-4 mr-1" />
+                                          {t('reviews.leaveReview', language)}
+                                        </Button>
+                                      )
+                                    )}
+                                  </div>
                                 </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
                           
