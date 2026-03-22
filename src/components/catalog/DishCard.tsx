@@ -7,6 +7,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { formatPrice, t, getLocalizedField } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
+import ChefReviewsDialog from './ChefReviewsDialog';
 
 export interface Dish {
   id: string;
