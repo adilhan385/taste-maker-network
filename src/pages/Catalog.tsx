@@ -164,7 +164,7 @@ const mockDishes: Dish[] = [
 ];
 
 const defaultCuisines = ['All', 'Kazakh', 'Uzbek', 'Georgian', 'Russian', 'Turkish', 'Indian', 'Japanese', 'Mexican'];
-const dietaryOptions = ['Halal', 'Vegetarian', 'Vegan', 'Gluten-free'];
+const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-free'];
 
 export default function Catalog() {
   const { language } = useApp();
