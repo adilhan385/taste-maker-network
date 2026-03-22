@@ -29,7 +29,7 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop',
     chef: { id: 'chef-1', name: 'Aisha K.', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&auto=format&fit=crop', rating: 4.9 },
     cuisine: 'Kazakh',
-    dietary: ['Halal'],
+    dietary: [],
     rating: 4.8,
     reviewCount: 128,
     prepTime: 45,
@@ -47,7 +47,7 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800&auto=format&fit=crop',
     chef: { id: 'chef-2', name: 'Rustam M.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop', rating: 4.8 },
     cuisine: 'Uzbek',
-    dietary: ['Halal', 'Gluten-free'],
+    dietary: ['Gluten-free'],
     rating: 4.9,
     reviewCount: 256,
     prepTime: 60,
@@ -101,7 +101,7 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&auto=format&fit=crop',
     chef: { id: 'chef-5', name: 'Mehmet A.', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop', rating: 4.8 },
     cuisine: 'Turkish',
-    dietary: ['Halal'],
+    dietary: [],
     rating: 4.8,
     reviewCount: 203,
     prepTime: 20,
@@ -119,7 +119,7 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=800&auto=format&fit=crop',
     chef: { id: 'chef-6', name: 'Priya S.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop', rating: 4.9 },
     cuisine: 'Indian',
-    dietary: ['Halal', 'Gluten-free'],
+    dietary: ['Gluten-free'],
     rating: 4.9,
     reviewCount: 312,
     prepTime: 40,
@@ -164,7 +164,7 @@ const mockDishes: Dish[] = [
 ];
 
 const defaultCuisines = ['All', 'Kazakh', 'Uzbek', 'Georgian', 'Russian', 'Turkish', 'Indian', 'Japanese', 'Mexican'];
-const dietaryOptions = ['Halal', 'Vegetarian', 'Vegan', 'Gluten-free'];
+const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-free'];
 
 export default function Catalog() {
   const { language } = useApp();
@@ -187,6 +187,7 @@ export default function Catalog() {
           .from('products')
           .select('*')
           .eq('is_available', true)
+          .gt('available_portions', 0)
           .order('created_at', { ascending: false });
 
         if (productsError) throw productsError;

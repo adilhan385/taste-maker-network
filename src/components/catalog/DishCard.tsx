@@ -7,6 +7,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { formatPrice, t, getLocalizedField } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
+import ChefReviewsDialog from './ChefReviewsDialog';
 
 export interface Dish {
   id: string;
@@ -44,6 +45,7 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
+  const [showChefReviews, setShowChefReviews] = useState(false);
 
   const isAdmin = profile?.role === 'admin';
   const isCook = profile?.role === 'cook';
@@ -127,9 +129,9 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           <Heart className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
         </button>
 
-        {dish.dietary.length > 0 && (
+        {dish.dietary.filter(d => d !== 'Halal').length > 0 && (
           <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-            {dish.dietary.slice(0, 2).map((diet) => (
+            {dish.dietary.filter(d => d !== 'Halal').slice(0, 2).map((diet) => (
               <Badge key={diet} variant="secondary" className="text-xs bg-background/80 backdrop-blur">
                 {diet}
               </Badge>
@@ -202,11 +204,19 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
             alt={dish.chef.name}
             className="w-6 h-6 rounded-full object-cover"
           />
-          <span className="text-xs text-muted-foreground">{dish.chef.name}</span>
-          <span className="flex items-center gap-1 text-xs text-accent ml-auto">
+          <button
+            onClick={() => setShowChefReviews(true)}
+            className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+          >
+            {dish.chef.name}
+          </button>
+          <button
+            onClick={() => setShowChefReviews(true)}
+            className="flex items-center gap-1 text-xs text-accent ml-auto hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <Star className="w-3 h-3 fill-current" />
             {dish.chef.rating}
-          </span>
+          </button>
         </div>
 
         <h3 className="font-serif font-semibold text-lg mb-1 line-clamp-1">{dishName}</h3>
@@ -233,6 +243,13 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           </span>
         </div>
       </div>
+
+      <ChefReviewsDialog
+        open={showChefReviews}
+        onOpenChange={setShowChefReviews}
+        chefId={dish.chef.id}
+        chefName={dish.chef.name}
+      />
     </motion.div>
   );
 }

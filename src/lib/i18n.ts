@@ -62,6 +62,10 @@ export const translations = {
     'reviews.submitted': 'Review submitted',
     'reviews.thankYou': 'Thank you for your review!',
     'reviews.reviewed': 'Reviewed',
+    'reviews.chefReviews': 'Chef Reviews',
+    'reviews.reviewsCount': 'reviews',
+    'reviews.noReviews': 'No reviews yet',
+    'reviews.anonymous': 'Anonymous',
     
     // Settings
     'settings.loginPrompt': 'Please log in to access settings',
@@ -373,6 +377,10 @@ export const translations = {
     'reviews.submitted': 'Отзыв оставлен',
     'reviews.thankYou': 'Спасибо за отзыв!',
     'reviews.reviewed': 'Отзыв оставлен',
+    'reviews.chefReviews': 'Отзывы о поваре',
+    'reviews.reviewsCount': 'отзывов',
+    'reviews.noReviews': 'Отзывов пока нет',
+    'reviews.anonymous': 'Аноним',
     
     // Settings
     'settings.loginPrompt': 'Войдите для доступа к настройкам',
@@ -681,6 +689,10 @@ export const translations = {
     'reviews.submitted': 'Пікір қалдырылды',
     'reviews.thankYou': 'Пікіріңізге рахмет!',
     'reviews.reviewed': 'Пікір қалдырылды',
+    'reviews.chefReviews': 'Аспаз туралы пікірлер',
+    'reviews.reviewsCount': 'пікір',
+    'reviews.noReviews': 'Пікірлер әлі жоқ',
+    'reviews.anonymous': 'Аноним',
     
     // Settings
     'settings.loginPrompt': 'Баптауларға кіру үшін жүйеге кіріңіз',
