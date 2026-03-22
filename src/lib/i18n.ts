@@ -62,6 +62,10 @@ export const translations = {
     'reviews.submitted': 'Review submitted',
     'reviews.thankYou': 'Thank you for your review!',
     'reviews.reviewed': 'Reviewed',
+    'reviews.chefReviews': 'Chef Reviews',
+    'reviews.reviewsCount': 'reviews',
+    'reviews.noReviews': 'No reviews yet',
+    'reviews.anonymous': 'Anonymous',
     
     // Settings
     'settings.loginPrompt': 'Please log in to access settings',
