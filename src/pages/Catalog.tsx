@@ -187,6 +187,7 @@ export default function Catalog() {
           .from('products')
           .select('*')
           .eq('is_available', true)
+          .gt('available_portions', 0)
           .order('created_at', { ascending: false });
 
         if (productsError) throw productsError;

@@ -243,6 +243,13 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           </span>
         </div>
       </div>
+
+      <ChefReviewsDialog
+        open={showChefReviews}
+        onOpenChange={setShowChefReviews}
+        chefId={dish.chef.id}
+        chefName={dish.chef.name}
+      />
     </motion.div>
   );
 }
