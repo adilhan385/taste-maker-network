@@ -377,6 +377,10 @@ export const translations = {
     'reviews.submitted': 'Отзыв оставлен',
     'reviews.thankYou': 'Спасибо за отзыв!',
     'reviews.reviewed': 'Отзыв оставлен',
+    'reviews.chefReviews': 'Отзывы о поваре',
+    'reviews.reviewsCount': 'отзывов',
+    'reviews.noReviews': 'Отзывов пока нет',
+    'reviews.anonymous': 'Аноним',
     
     // Settings
     'settings.loginPrompt': 'Войдите для доступа к настройкам',
