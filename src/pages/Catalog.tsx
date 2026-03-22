@@ -119,7 +119,7 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=800&auto=format&fit=crop',
     chef: { id: 'chef-6', name: 'Priya S.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop', rating: 4.9 },
     cuisine: 'Indian',
-    dietary: ['Halal', 'Gluten-free'],
+    dietary: ['Gluten-free'],
     rating: 4.9,
     reviewCount: 312,
     prepTime: 40,
