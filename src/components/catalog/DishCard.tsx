@@ -129,9 +129,9 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           <Heart className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
         </button>
 
-        {dish.dietary.length > 0 && (
+        {dish.dietary.filter(d => d !== 'Halal').length > 0 && (
           <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-            {dish.dietary.slice(0, 2).map((diet) => (
+            {dish.dietary.filter(d => d !== 'Halal').slice(0, 2).map((diet) => (
               <Badge key={diet} variant="secondary" className="text-xs bg-background/80 backdrop-blur">
                 {diet}
               </Badge>
