@@ -204,11 +204,19 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
             alt={dish.chef.name}
             className="w-6 h-6 rounded-full object-cover"
           />
-          <span className="text-xs text-muted-foreground">{dish.chef.name}</span>
-          <span className="flex items-center gap-1 text-xs text-accent ml-auto">
+          <button
+            onClick={() => setShowChefReviews(true)}
+            className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+          >
+            {dish.chef.name}
+          </button>
+          <button
+            onClick={() => setShowChefReviews(true)}
+            className="flex items-center gap-1 text-xs text-accent ml-auto hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <Star className="w-3 h-3 fill-current" />
             {dish.chef.rating}
-          </span>
+          </button>
         </div>
 
         <h3 className="font-serif font-semibold text-lg mb-1 line-clamp-1">{dishName}</h3>
