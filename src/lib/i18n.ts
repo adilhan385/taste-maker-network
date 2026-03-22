@@ -689,6 +689,10 @@ export const translations = {
     'reviews.submitted': 'Пікір қалдырылды',
     'reviews.thankYou': 'Пікіріңізге рахмет!',
     'reviews.reviewed': 'Пікір қалдырылды',
+    'reviews.chefReviews': 'Аспаз туралы пікірлер',
+    'reviews.reviewsCount': 'пікір',
+    'reviews.noReviews': 'Пікірлер әлі жоқ',
+    'reviews.anonymous': 'Аноним',
     
     // Settings
     'settings.loginPrompt': 'Баптауларға кіру үшін жүйеге кіріңіз',
