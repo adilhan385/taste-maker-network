@@ -45,6 +45,7 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
+  const [showChefReviews, setShowChefReviews] = useState(false);
 
   const isAdmin = profile?.role === 'admin';
   const isCook = profile?.role === 'cook';
