@@ -47,7 +47,7 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800&auto=format&fit=crop',
     chef: { id: 'chef-2', name: 'Rustam M.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop', rating: 4.8 },
     cuisine: 'Uzbek',
-    dietary: ['Halal', 'Gluten-free'],
+    dietary: ['Gluten-free'],
     rating: 4.9,
     reviewCount: 256,
     prepTime: 60,
