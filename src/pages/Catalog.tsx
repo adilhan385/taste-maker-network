@@ -101,7 +101,7 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&auto=format&fit=crop',
     chef: { id: 'chef-5', name: 'Mehmet A.', avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&auto=format&fit=crop', rating: 4.8 },
     cuisine: 'Turkish',
-    dietary: ['Halal'],
+    dietary: [],
     rating: 4.8,
     reviewCount: 203,
     prepTime: 20,
