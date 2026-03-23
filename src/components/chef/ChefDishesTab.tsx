@@ -32,7 +32,7 @@ interface Product {
 }
 
 const cuisineOptions = ['Italian', 'Chinese', 'Japanese', 'Mexican', 'Indian', 'French', 'Thai', 'Mediterranean', 'American', 'Korean', 'Vietnamese', 'Greek', 'Spanish', 'Middle Eastern', 'Other'];
-const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Nut-Free', 'Halal', 'Kosher', 'Low-Carb', 'Keto'];
+// Dietary options removed
 const dayOptions = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function ChefDishesTab() {
@@ -410,21 +410,6 @@ export default function ChefDishesTab() {
               <Input value={formData.allergens} onChange={e => setFormData(prev => ({ ...prev, allergens: e.target.value }))} placeholder={t('chef.allergensPlaceholder', language)} />
             </div>
 
-            <div className="space-y-2">
-              <Label>{t('chef.dietaryOptions', language)}</Label>
-              <div className="flex flex-wrap gap-2">
-                {dietaryOptions.map(option => (
-                  <Badge 
-                    key={option} 
-                    variant={formData.dietary.includes(option) ? 'default' : 'outline'}
-                    className="cursor-pointer"
-                    onClick={() => toggleDietary(option)}
-                  >
-                    {option}
-                  </Badge>
-                ))}
-              </div>
-            </div>
 
             <div className="space-y-2">
               <Label>{t('chef.availableDays', language)}</Label>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Clock, Heart, ShoppingCart, Minus, Plus } from 'lucide-react';
+import { Star, Clock, ShoppingCart, Minus, Plus, MessageCircle, Award } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useApp } from '@/contexts/AppContext';
@@ -31,6 +32,7 @@ export interface Dish {
   reviewCount: number;
   prepTime: number;
   availablePortions: number;
+  chefRank?: string;
 }
 
 interface DishCardProps {
@@ -39,10 +41,25 @@ interface DishCardProps {
   index?: number;
 }
 
+const rankColors: Record<string, string> = {
+  bronze: 'bg-amber-700/20 text-amber-700 border-amber-700/30',
+  silver: 'bg-gray-400/20 text-gray-500 border-gray-400/30',
+  gold: 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30',
+  diamond: 'bg-cyan-400/20 text-cyan-500 border-cyan-400/30',
+};
+
+const rankLabels: Record<string, string> = {
+  bronze: '🥉',
+  silver: '🥈',
+  gold: '🥇',
+  diamond: '💎',
+};
+
 export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps) {
   const { language, addToCart, setAuthModalOpen, setAuthModalMode } = useApp();
   const { isAuthenticated, profile } = useAuthContext();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [showQuantitySelector, setShowQuantitySelector] = useState(false);
   const [showChefReviews, setShowChefReviews] = useState(false);
@@ -51,9 +68,7 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
   const isCook = profile?.role === 'cook';
   const isOwnDish = isCook && profile?.userId === dish.chef.id;
   const showAddToCart = !isAdmin && !isOwnDish;
-  const isDisabled = isOwnDish;
 
-  // Get localized name and description
   const dishName = getLocalizedField(dish.name, dish.name_ru, dish.name_kz, language);
   const dishDescription = getLocalizedField(dish.description, dish.description_ru, dish.description_kz, language);
 
@@ -109,6 +124,15 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
     setShowQuantitySelector(true);
   };
 
+  const handleMessageChef = () => {
+    if (!isAuthenticated) {
+      setAuthModalMode('login');
+      setAuthModalOpen(true);
+      return;
+    }
+    navigate(`/chat?to=${dish.chef.id}`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -124,20 +148,6 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
         />
         
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        
-        <button className="absolute top-3 right-3 w-9 h-9 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background transition-colors">
-          <Heart className="w-4 h-4 text-muted-foreground hover:text-primary transition-colors" />
-        </button>
-
-        {dish.dietary.filter(d => d !== 'Halal').length > 0 && (
-          <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-            {dish.dietary.filter(d => d !== 'Halal').slice(0, 2).map((diet) => (
-              <Badge key={diet} variant="secondary" className="text-xs bg-background/80 backdrop-blur">
-                {diet}
-              </Badge>
-            ))}
-          </div>
-        )}
 
         {showAddToCart && (
           <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -174,16 +184,25 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
                 </Button>
               </div>
             ) : (
-              <Button 
-                onClick={handleButtonClick} 
-                variant="hero" 
-                size="sm" 
-                className="w-full gap-2"
-                disabled={isDisabled}
-              >
-                <ShoppingCart className="w-4 h-4" />
-                {isOwnDish ? t('catalog.yourDish', language) : t('catalog.addToCart', language)}
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleButtonClick} 
+                  variant="hero" 
+                  size="sm" 
+                  className="flex-1 gap-2"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  {t('catalog.addToCart', language)}
+                </Button>
+                <Button
+                  onClick={handleMessageChef}
+                  variant="secondary"
+                  size="sm"
+                  className="gap-1"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </Button>
+              </div>
             )}
           </div>
         )}
@@ -210,6 +229,11 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           >
             {dish.chef.name}
           </button>
+          {dish.chefRank && dish.chefRank !== 'bronze' && (
+            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${rankColors[dish.chefRank] || ''}`}>
+              {rankLabels[dish.chefRank]} {dish.chefRank}
+            </Badge>
+          )}
           <button
             onClick={() => setShowChefReviews(true)}
             className="flex items-center gap-1 text-xs text-accent ml-auto hover:opacity-80 transition-opacity cursor-pointer"

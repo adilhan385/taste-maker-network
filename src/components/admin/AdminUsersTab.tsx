@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Ban, Shield, ChefHat, ShoppingBag, Loader2, Unlock } from 'lucide-react';
+import { User, Ban, Shield, ChefHat, ShoppingBag, Loader2, Unlock, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useApp } from '@/contexts/AppContext';
+import { t } from '@/lib/i18n';
 
 interface UserWithRole {
   id: string;
@@ -19,6 +21,7 @@ interface UserWithRole {
   city: string | null;
   avatar_url: string | null;
   role: string;
+  chefRank: string | null;
   ban?: {
     id: string;
     reason: string | null;
@@ -34,12 +37,15 @@ interface Props {
 export default function AdminUsersTab({ searchQuery }: Props) {
   const { toast } = useToast();
   const { user } = useAuthContext();
+  const { language } = useApp();
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [banDialog, setBanDialog] = useState<UserWithRole | null>(null);
   const [banReason, setBanReason] = useState('');
   const [banDuration, setBanDuration] = useState('permanent');
   const [actionLoading, setActionLoading] = useState(false);
+  const [rankDialog, setRankDialog] = useState<UserWithRole | null>(null);
+  const [selectedRank, setSelectedRank] = useState('bronze');
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -61,6 +67,12 @@ export default function AdminUsersTab({ searchQuery }: Props) {
         .select('*');
       if (bErr) throw bErr;
 
+      const { data: ranks } = await supabase
+        .from('chef_ranks')
+        .select('*');
+
+      const ranksMap = new Map((ranks || []).map(r => [r.chef_id, r.rank]));
+
       const userList: UserWithRole[] = (profiles || []).map(p => {
         const userRoles = (roles || []).filter(r => r.user_id === p.user_id);
         let role = 'buyer';
@@ -80,6 +92,7 @@ export default function AdminUsersTab({ searchQuery }: Props) {
           city: p.city,
           avatar_url: p.avatar_url,
           role,
+          chefRank: role === 'cook' ? ranksMap.get(p.user_id) || 'bronze' : null,
           ban: activeBan ? {
             id: activeBan.id,
             reason: activeBan.reason,
@@ -92,7 +105,7 @@ export default function AdminUsersTab({ searchQuery }: Props) {
       setUsers(userList);
     } catch (error: any) {
       console.error('Error fetching users:', error);
-      toast({ title: 'Ошибка', description: 'Не удалось загрузить пользователей', variant: 'destructive' });
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -115,13 +128,13 @@ export default function AdminUsersTab({ searchQuery }: Props) {
       });
       if (error) throw error;
 
-      toast({ title: 'Пользователь заблокирован', description: banDialog.full_name });
+      toast({ title: t('admin.userBanned', language), description: banDialog.full_name });
       setBanDialog(null);
       setBanReason('');
       setBanDuration('permanent');
       fetchUsers();
     } catch (error: any) {
-      toast({ title: 'Ошибка', description: error.message, variant: 'destructive' });
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
     } finally {
       setActionLoading(false);
     }
@@ -133,10 +146,33 @@ export default function AdminUsersTab({ searchQuery }: Props) {
     try {
       const { error } = await supabase.from('user_bans').delete().eq('id', u.ban.id);
       if (error) throw error;
-      toast({ title: 'Пользователь разблокирован', description: u.full_name });
+      toast({ title: t('admin.userUnbanned', language), description: u.full_name });
       fetchUsers();
     } catch (error: any) {
-      toast({ title: 'Ошибка', description: error.message, variant: 'destructive' });
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSetRank = async () => {
+    if (!rankDialog || !user) return;
+    setActionLoading(true);
+    try {
+      // Upsert rank
+      const { error } = await supabase.from('chef_ranks').upsert({
+        chef_id: rankDialog.user_id,
+        rank: selectedRank,
+        assigned_by: user.id,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'chef_id' });
+      if (error) throw error;
+
+      toast({ title: t('admin.rankUpdated', language), description: `${rankDialog.full_name} → ${selectedRank}` });
+      setRankDialog(null);
+      fetchUsers();
+    } catch (error: any) {
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
     } finally {
       setActionLoading(false);
     }
@@ -161,6 +197,8 @@ export default function AdminUsersTab({ searchQuery }: Props) {
     );
   };
 
+  const rankLabels: Record<string, string> = { bronze: '🥉 Bronze', silver: '🥈 Silver', gold: '🥇 Gold', diamond: '💎 Diamond' };
+
   const filtered = users.filter(u =>
     u.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     u.city?.toLowerCase().includes(searchQuery.toLowerCase()) || false
@@ -172,12 +210,12 @@ export default function AdminUsersTab({ searchQuery }: Props) {
 
   return (
     <div className="space-y-4">
-      <Badge variant="secondary">{users.length} пользователей</Badge>
+      <Badge variant="secondary">{users.length} {t('admin.usersCount', language)}</Badge>
 
       {filtered.length === 0 ? (
         <div className="bg-card rounded-xl p-12 shadow-card text-center">
           <User className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">Пользователи не найдены</p>
+          <p className="text-muted-foreground">{t('admin.usersNotFound', language)}</p>
         </div>
       ) : (
         <div className="grid gap-3">
@@ -190,19 +228,27 @@ export default function AdminUsersTab({ searchQuery }: Props) {
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-semibold">{u.full_name}</h3>
                   {getRoleBadge(u.role)}
-                  {u.ban && <Badge variant="destructive" className="text-xs">Заблокирован{u.ban.banned_until ? ` до ${new Date(u.ban.banned_until).toLocaleDateString()}` : ' навсегда'}</Badge>}
+                  {u.chefRank && (
+                    <Badge variant="outline" className="text-xs">{rankLabels[u.chefRank] || u.chefRank}</Badge>
+                  )}
+                  {u.ban && <Badge variant="destructive" className="text-xs">{t('admin.banned', language)}{u.ban.banned_until ? ` ${t('admin.until', language)} ${new Date(u.ban.banned_until).toLocaleDateString()}` : ` ${t('admin.forever', language)}`}</Badge>}
                 </div>
-                <p className="text-sm text-muted-foreground">{u.city || 'Город не указан'} {u.phone ? `• ${u.phone}` : ''}</p>
+                <p className="text-sm text-muted-foreground">{u.city || t('admin.noCity', language)} {u.phone ? `• ${u.phone}` : ''}</p>
               </div>
-              <div className="flex gap-2 flex-shrink-0">
+              <div className="flex gap-2 flex-shrink-0 flex-wrap">
+                {u.role === 'cook' && (
+                  <Button variant="outline" size="sm" onClick={() => { setRankDialog(u); setSelectedRank(u.chefRank || 'bronze'); }}>
+                    <Award className="w-4 h-4 mr-1" />{t('admin.rank', language)}
+                  </Button>
+                )}
                 {u.role !== 'admin' && (
                   u.ban ? (
                     <Button variant="outline" size="sm" onClick={() => handleUnban(u)} disabled={actionLoading}>
-                      <Unlock className="w-4 h-4 mr-1" />Разблокировать
+                      <Unlock className="w-4 h-4 mr-1" />{t('admin.unban', language)}
                     </Button>
                   ) : (
                     <Button variant="destructive" size="sm" onClick={() => setBanDialog(u)} disabled={actionLoading}>
-                      <Ban className="w-4 h-4 mr-1" />Заблокировать
+                      <Ban className="w-4 h-4 mr-1" />{t('admin.ban', language)}
                     </Button>
                   )
                 )}
@@ -212,33 +258,63 @@ export default function AdminUsersTab({ searchQuery }: Props) {
         </div>
       )}
 
+      {/* Ban Dialog */}
       <Dialog open={!!banDialog} onOpenChange={() => setBanDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Заблокировать {banDialog?.full_name}</DialogTitle>
+            <DialogTitle>{t('admin.banUser', language)} {banDialog?.full_name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Срок блокировки</Label>
+              <Label>{t('admin.banDuration', language)}</Label>
               <Select value={banDuration} onValueChange={setBanDuration}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1d">1 день</SelectItem>
-                  <SelectItem value="7d">7 дней</SelectItem>
-                  <SelectItem value="30d">30 дней</SelectItem>
-                  <SelectItem value="permanent">Навсегда</SelectItem>
+                  <SelectItem value="1d">{t('admin.1day', language)}</SelectItem>
+                  <SelectItem value="7d">{t('admin.7days', language)}</SelectItem>
+                  <SelectItem value="30d">{t('admin.30days', language)}</SelectItem>
+                  <SelectItem value="permanent">{t('admin.forever', language)}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label>Причина</Label>
-              <Textarea value={banReason} onChange={e => setBanReason(e.target.value)} placeholder="Укажите причину блокировки..." rows={3} />
+              <Label>{t('admin.reason', language)}</Label>
+              <Textarea value={banReason} onChange={e => setBanReason(e.target.value)} placeholder={t('admin.reasonPlaceholder', language)} rows={3} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBanDialog(null)}>Отмена</Button>
+            <Button variant="outline" onClick={() => setBanDialog(null)}>{t('common.cancel', language)}</Button>
             <Button variant="destructive" onClick={handleBan} disabled={actionLoading}>
-              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Заблокировать
+              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}{t('admin.ban', language)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rank Dialog */}
+      <Dialog open={!!rankDialog} onOpenChange={() => setRankDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.setRank', language)} — {rankDialog?.full_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>{t('admin.rank', language)}</Label>
+              <Select value={selectedRank} onValueChange={setSelectedRank}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bronze">🥉 Bronze</SelectItem>
+                  <SelectItem value="silver">🥈 Silver</SelectItem>
+                  <SelectItem value="gold">🥇 Gold</SelectItem>
+                  <SelectItem value="diamond">💎 Diamond</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRankDialog(null)}>{t('common.cancel', language)}</Button>
+            <Button onClick={handleSetRank} disabled={actionLoading}>
+              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}{t('common.save', language)}
             </Button>
           </DialogFooter>
         </DialogContent>

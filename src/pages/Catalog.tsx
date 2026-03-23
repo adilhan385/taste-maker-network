@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { useApp } from '@/contexts/AppContext';
 import { t, formatPrice, getLocalizedField } from '@/lib/i18n';
@@ -34,6 +33,7 @@ const mockDishes: Dish[] = [
     reviewCount: 128,
     prepTime: 45,
     availablePortions: 8,
+    chefRank: 'bronze',
   },
   {
     id: '2',
@@ -47,11 +47,12 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800&auto=format&fit=crop',
     chef: { id: 'chef-2', name: 'Rustam M.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop', rating: 4.8 },
     cuisine: 'Uzbek',
-    dietary: ['Gluten-free'],
+    dietary: [],
     rating: 4.9,
     reviewCount: 256,
     prepTime: 60,
     availablePortions: 12,
+    chefRank: 'bronze',
   },
   {
     id: '3',
@@ -70,6 +71,7 @@ const mockDishes: Dish[] = [
     reviewCount: 89,
     prepTime: 30,
     availablePortions: 20,
+    chefRank: 'bronze',
   },
   {
     id: '4',
@@ -83,11 +85,12 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&auto=format&fit=crop',
     chef: { id: 'chef-4', name: 'Elena P.', avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&auto=format&fit=crop', rating: 4.9 },
     cuisine: 'Russian',
-    dietary: ['Vegetarian'],
+    dietary: [],
     rating: 4.6,
     reviewCount: 167,
     prepTime: 25,
     availablePortions: 15,
+    chefRank: 'bronze',
   },
   {
     id: '5',
@@ -106,6 +109,7 @@ const mockDishes: Dish[] = [
     reviewCount: 203,
     prepTime: 20,
     availablePortions: 25,
+    chefRank: 'bronze',
   },
   {
     id: '6',
@@ -119,11 +123,12 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=800&auto=format&fit=crop',
     chef: { id: 'chef-6', name: 'Priya S.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop', rating: 4.9 },
     cuisine: 'Indian',
-    dietary: ['Gluten-free'],
+    dietary: [],
     rating: 4.9,
     reviewCount: 312,
     prepTime: 40,
     availablePortions: 10,
+    chefRank: 'bronze',
   },
   {
     id: '7',
@@ -142,6 +147,7 @@ const mockDishes: Dish[] = [
     reviewCount: 178,
     prepTime: 35,
     availablePortions: 6,
+    chefRank: 'bronze',
   },
   {
     id: '8',
@@ -155,16 +161,18 @@ const mockDishes: Dish[] = [
     image: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=800&auto=format&fit=crop',
     chef: { id: 'chef-8', name: 'Maria L.', avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&auto=format&fit=crop', rating: 4.7 },
     cuisine: 'Mexican',
-    dietary: ['Gluten-free'],
+    dietary: [],
     rating: 4.8,
     reviewCount: 145,
     prepTime: 25,
     availablePortions: 18,
+    chefRank: 'bronze',
   },
 ];
 
 const defaultCuisines = ['All', 'Kazakh', 'Uzbek', 'Georgian', 'Russian', 'Turkish', 'Indian', 'Japanese', 'Mexican'];
-const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-free'];
+
+const rankOrder: Record<string, number> = { diamond: 4, gold: 3, silver: 2, bronze: 1 };
 
 export default function Catalog() {
   const { language } = useApp();
@@ -174,15 +182,12 @@ export default function Catalog() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCuisine, setSelectedCuisine] = useState('All');
-  const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState([0, 15000]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Fetch dishes from database
   useEffect(() => {
     const fetchDishes = async () => {
       try {
-        // Fetch products
         const { data: productsData, error: productsError } = await supabase
           .from('products')
           .select('*')
@@ -193,7 +198,6 @@ export default function Catalog() {
         if (productsError) throw productsError;
 
         if (productsData && productsData.length > 0) {
-          // Fetch chef profiles
           const chefIds = [...new Set(productsData.map(p => p.chef_id))];
           const { data: profilesData } = await supabase
             .from('profiles')
@@ -219,11 +223,22 @@ export default function Catalog() {
             reviewsMap.set(r.product_id, existing);
           });
 
+          // Fetch chef ranks
+          const { data: ranksData } = await supabase
+            .from('chef_ranks')
+            .select('chef_id, rank')
+            .in('chef_id', chefIds);
+
+          const ranksMap = new Map(
+            ranksData?.map(r => [r.chef_id, r.rank]) || []
+          );
+
           const formattedDishes: Dish[] = productsData.map(product => {
             const profile = profilesMap.get(product.chef_id);
             const reviewStats = reviewsMap.get(product.id);
             const avgRating = reviewStats ? Math.round((reviewStats.sum / reviewStats.count) * 10) / 10 : 0;
             const reviewCount = reviewStats?.count || 0;
+            const chefRank = ranksMap.get(product.chef_id) || 'bronze';
             return {
               id: product.id,
               name: product.name,
@@ -241,16 +256,20 @@ export default function Catalog() {
                 rating: avgRating || 4.8,
               },
               cuisine: product.cuisine || '',
-              dietary: product.dietary || [],
+              dietary: [],
               rating: avgRating || 0,
               reviewCount,
               prepTime: product.prep_time || 30,
               availablePortions: product.available_portions,
+              chefRank,
             };
           });
+
+          // Sort by chef rank (diamond first)
+          formattedDishes.sort((a, b) => (rankOrder[b.chefRank || 'bronze'] || 1) - (rankOrder[a.chefRank || 'bronze'] || 1));
+
           setDishes(formattedDishes);
         } else {
-          // Use mock data if database is empty
           setDishes(mockDishes);
         }
       } catch (error) {
@@ -264,7 +283,6 @@ export default function Catalog() {
     fetchDishes();
   }, []);
 
-  // Dynamic cuisines from loaded dishes
   const cuisines = useMemo(() => {
     const uniqueCuisines = [...new Set(dishes.map(d => d.cuisine).filter(Boolean))];
     if (uniqueCuisines.length === 0) return defaultCuisines;
@@ -273,31 +291,22 @@ export default function Catalog() {
 
   const filteredDishes = useMemo(() => {
     return dishes.filter(dish => {
-      // Filter out dishes with no portions available
       if (dish.availablePortions <= 0) return false;
       
-      // Get localized fields for search
       const dishName = getLocalizedField(dish.name, dish.name_ru, dish.name_kz, language);
       const dishDescription = getLocalizedField(dish.description, dish.description_ru, dish.description_kz, language);
       
-      // Search
       const matchesSearch = dishName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         dishDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
         dish.chef.name.toLowerCase().includes(searchQuery.toLowerCase());
       
-      // Cuisine
       const matchesCuisine = selectedCuisine === 'All' || dish.cuisine === selectedCuisine;
       
-      // Dietary
-      const matchesDietary = selectedDietary.length === 0 || 
-        selectedDietary.some(d => dish.dietary.includes(d));
-      
-      // Price
       const matchesPrice = dish.price >= priceRange[0] && dish.price <= priceRange[1];
       
-      return matchesSearch && matchesCuisine && matchesDietary && matchesPrice;
+      return matchesSearch && matchesCuisine && matchesPrice;
     });
-  }, [dishes, searchQuery, selectedCuisine, selectedDietary, priceRange, language]);
+  }, [dishes, searchQuery, selectedCuisine, priceRange, language]);
 
   const handleAddToCart = () => {
     toast({
@@ -308,12 +317,10 @@ export default function Catalog() {
 
   const clearFilters = () => {
     setSelectedCuisine('All');
-    setSelectedDietary([]);
     setPriceRange([0, 15000]);
   };
 
   const activeFiltersCount = (selectedCuisine !== 'All' ? 1 : 0) + 
-    selectedDietary.length + 
     (priceRange[0] > 0 || priceRange[1] < 15000 ? 1 : 0);
 
   return (
@@ -334,7 +341,6 @@ export default function Catalog() {
                 {t('catalog.subtitle', language)}
               </p>
               
-              {/* Search */}
               <div className="flex gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -387,29 +393,6 @@ export default function Catalog() {
                         </div>
                       </div>
 
-                      {/* Dietary */}
-                      <div>
-                        <h4 className="font-medium mb-3">{t('catalog.dietary', language)}</h4>
-                        <div className="space-y-3">
-                          {dietaryOptions.map(diet => (
-                            <div key={diet} className="flex items-center gap-2">
-                              <Checkbox
-                                id={diet}
-                                checked={selectedDietary.includes(diet)}
-                                onCheckedChange={(checked) => {
-                                  if (checked) {
-                                    setSelectedDietary([...selectedDietary, diet]);
-                                  } else {
-                                    setSelectedDietary(selectedDietary.filter(d => d !== diet));
-                                  }
-                                }}
-                              />
-                              <label htmlFor={diet} className="text-sm cursor-pointer">{diet}</label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
                       {/* Price Range */}
                       <div>
                         <h4 className="font-medium mb-3">{t('catalog.price', language)}</h4>
@@ -445,15 +428,6 @@ export default function Catalog() {
                   <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCuisine('All')} />
                 </Badge>
               )}
-              {selectedDietary.map(diet => (
-                <Badge key={diet} variant="secondary" className="gap-1">
-                  {diet}
-                  <X 
-                    className="w-3 h-3 cursor-pointer" 
-                    onClick={() => setSelectedDietary(selectedDietary.filter(d => d !== diet))} 
-                  />
-                </Badge>
-              ))}
               {(priceRange[0] > 0 || priceRange[1] < 15000) && (
                 <Badge variant="secondary" className="gap-1">
                   {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
