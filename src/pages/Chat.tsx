@@ -291,7 +291,7 @@ export default function Chat() {
               <div className={`w-full md:w-80 border-r flex flex-col ${selectedContact ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-4 border-b">
                   <h2 className="text-lg font-serif font-bold">{t('nav.chat', language)}</h2>
-                  {isAdmin && <p className="text-xs text-muted-foreground mt-1">{t('admin.viewOnly', language)}</p>}
+                  
                 </div>
                 <ScrollArea className="flex-1">
                   {loading ? (
