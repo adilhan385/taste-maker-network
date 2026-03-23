@@ -245,7 +245,6 @@ export default function Chat() {
 
   const handleSend = async () => {
     if (!newMessage.trim() || !selectedContact || !user || sending) return;
-    if (isAdmin) return; // Admin is read-only
 
     setSending(true);
     try {
