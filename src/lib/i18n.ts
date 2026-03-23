@@ -410,6 +410,8 @@ export const translations = {
     'admin.unavailable': 'Unavailable',
   },
   ru: {
+    // Navigation
+    'nav.catalog': 'Каталог',
     'nav.orders': 'Заказы',
     'nav.chat': 'Чат',
     'nav.profile': 'Профиль',
