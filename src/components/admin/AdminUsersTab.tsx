@@ -266,6 +266,9 @@ export default function AdminUsersTab({ searchQuery }: Props) {
                 <p className="text-sm text-muted-foreground">{u.city || t('admin.noCity', language)} {u.phone ? `• ${u.phone}` : ''}</p>
               </div>
               <div className="flex gap-2 flex-shrink-0 flex-wrap">
+                <Button variant="outline" size="sm" onClick={() => navigate(`/chat?to=${u.user_id}`)}>
+                  <MessageCircle className="w-4 h-4 mr-1" />{t('orders.chatWithChef', language)}
+                </Button>
                 {u.user_id !== user?.id && (
                   <Button variant={u.role === 'admin' ? 'destructive' : 'outline'} size="sm" onClick={() => setAdminConfirmDialog(u)} disabled={actionLoading}>
                     <Shield className="w-4 h-4 mr-1" />{u.role === 'admin' ? t('admin.removeAdmin', language) : t('admin.makeAdmin', language)}

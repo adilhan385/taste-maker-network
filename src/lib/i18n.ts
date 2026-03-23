@@ -1161,6 +1161,8 @@ export const translations = {
     'chat.noConversations': 'Чаттар әлі жоқ',
     'chat.selectConversation': 'Сөйлесуді бастау үшін чатты таңдаңыз',
     'chat.typePlaceholder': 'Хабарлама жазыңыз...',
+    'chat.newChat': 'Жаңа чат',
+    'chat.searchUsers': 'Пайдаланушыларды іздеу...',
     'chat.loading': 'Жүктелуде...',
     'chat.messageChef': 'Аспазға жазу',
 
