@@ -306,6 +306,11 @@ export default function AdminUsersTab({ searchQuery }: Props) {
                     <Award className="w-4 h-4 mr-1" />{t('admin.rank', language)}
                   </Button>
                 )}
+                {u.user_id !== user?.id && (
+                  <Button variant="outline" size="sm" onClick={() => { setResetDialog(u); setTempPassword(''); }}>
+                    <Key className="w-4 h-4 mr-1" />{t('admin.resetPassword', language)}
+                  </Button>
+                )}
                 {u.role !== 'admin' && (
                   u.ban ? (
                     <Button variant="outline" size="sm" onClick={() => handleUnban(u)} disabled={actionLoading}>
