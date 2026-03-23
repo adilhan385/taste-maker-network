@@ -87,7 +87,6 @@ export default function ChefDishesTab() {
       name: '',
       description: '',
       price: '',
-      cuisine: '',
       dietary: [],
       prep_time: '',
       available_portions: '10',
