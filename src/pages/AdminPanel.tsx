@@ -1,36 +1,34 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Users, ChefHat, Package, CreditCard, BarChart3, Bell, MessageCircle, Settings, Search, LogOut, Check, X, Eye, Ban, RefreshCw } from 'lucide-react';
+import { Shield, Users, ChefHat, Package, CreditCard, BarChart3, Bell, MessageCircle, Settings, Search, LogOut } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { t } from '@/lib/i18n';
 import ChefApplicationsTab from '@/components/admin/ChefApplicationsTab';
 import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import AdminProductsTab from '@/components/admin/AdminProductsTab';
+import AdminOrdersTab from '@/components/admin/AdminOrdersTab';
+import AdminChatsTab from '@/components/admin/AdminChatsTab';
 
 const navItems = [
-  { id: 'applications', label: 'Chef Applications', icon: ChefHat },
-  { id: 'users', label: 'Users', icon: Users },
-  { id: 'products', label: 'Products', icon: Package },
-  { id: 'orders', label: 'Orders', icon: CreditCard },
-  { id: 'refunds', label: 'Refunds', icon: RefreshCw },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'chats', label: 'Chats', icon: MessageCircle },
-  { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'applications', labelKey: 'admin.chefApplications', icon: ChefHat },
+  { id: 'users', labelKey: 'admin.users', icon: Users },
+  { id: 'products', labelKey: 'admin.products', icon: Package },
+  { id: 'orders', labelKey: 'admin.orders', icon: CreditCard },
+  { id: 'chats', labelKey: 'admin.chats', icon: MessageCircle },
+  { id: 'analytics', labelKey: 'admin.analytics', icon: BarChart3 },
+  { id: 'notifications', labelKey: 'admin.notifications', icon: Bell },
+  { id: 'settings', labelKey: 'admin.settings', icon: Settings },
 ];
 
 export default function AdminPanel() {
   const { language } = useApp();
   const { isAuthenticated, profile, signOut } = useAuthContext();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('applications');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -42,9 +40,9 @@ export default function AdminPanel() {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/20 flex items-center justify-center">
               <Shield className="w-10 h-10 text-destructive" />
             </div>
-            <h1 className="text-3xl font-serif font-bold mb-4">Access Denied</h1>
-            <p className="text-muted-foreground mb-8">You don't have permission to access this page.</p>
-            <Link to="/"><Button variant="outline">Return Home</Button></Link>
+            <h1 className="text-3xl font-serif font-bold mb-4">{t('admin.accessDenied', language)}</h1>
+            <p className="text-muted-foreground mb-8">{t('admin.noPermission', language)}</p>
+            <Link to="/"><Button variant="outline">{t('admin.returnHome', language)}</Button></Link>
           </motion.div>
         </div>
       </Layout>
@@ -65,7 +63,7 @@ export default function AdminPanel() {
               <Shield className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="font-semibold">Admin Panel</h2>
+              <h2 className="font-semibold">{t('admin.panel', language)}</h2>
               <p className="text-xs text-muted-foreground">ChefCook</p>
             </div>
           </div>
@@ -73,13 +71,13 @@ export default function AdminPanel() {
             {navItems.map(item => (
               <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeTab === item.id ? 'bg-primary text-primary-foreground' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}>
                 <item.icon className="w-5 h-5" />
-                <span className="flex-1 text-left">{item.label}</span>
+                <span className="flex-1 text-left">{t(item.labelKey, language)}</span>
               </button>
             ))}
           </nav>
           <div className="mt-8 pt-4 border-t">
             <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
-              <LogOut className="w-5 h-5" /><span>Logout</span>
+              <LogOut className="w-5 h-5" /><span>{t('nav.logout', language)}</span>
             </button>
           </div>
         </div>
@@ -88,27 +86,23 @@ export default function AdminPanel() {
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                  <h1 className="text-3xl font-serif font-bold">{navItems.find(n => n.id === activeTab)?.label}</h1>
-                  <p className="text-muted-foreground">Manage your platform</p>
+                  <h1 className="text-3xl font-serif font-bold">{t(navItems.find(n => n.id === activeTab)?.labelKey || '', language)}</h1>
+                  <p className="text-muted-foreground">{t('admin.managePlatform', language)}</p>
                 </div>
                 <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="Search..." className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                  <Input placeholder={t('common.search', language) + '...'} className="pl-9" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                 </div>
               </div>
-              {activeTab === 'applications' && (
-                <ChefApplicationsTab searchQuery={searchQuery} />
-              )}
-              {activeTab === 'users' && (
-                <AdminUsersTab searchQuery={searchQuery} />
-              )}
-              {activeTab === 'products' && (
-                <AdminProductsTab searchQuery={searchQuery} />
-              )}
-              {!['applications', 'users', 'products'].includes(activeTab) && (
+              {activeTab === 'applications' && <ChefApplicationsTab searchQuery={searchQuery} />}
+              {activeTab === 'users' && <AdminUsersTab searchQuery={searchQuery} />}
+              {activeTab === 'products' && <AdminProductsTab searchQuery={searchQuery} />}
+              {activeTab === 'orders' && <AdminOrdersTab searchQuery={searchQuery} />}
+              {activeTab === 'chats' && <AdminChatsTab searchQuery={searchQuery} />}
+              {!['applications', 'users', 'products', 'orders', 'chats'].includes(activeTab) && (
                 <div className="bg-card rounded-xl p-12 shadow-card text-center">
                   <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground">No data yet</p>
+                  <p className="text-muted-foreground">{t('admin.noData', language)}</p>
                 </div>
               )}
             </motion.div>

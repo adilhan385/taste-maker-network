@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useApp } from '@/contexts/AppContext';
+import { t, formatPrice } from '@/lib/i18n';
 
 interface Product {
   id: string;
@@ -26,6 +28,7 @@ interface Props {
 
 export default function AdminProductsTab({ searchQuery }: Props) {
   const { toast } = useToast();
+  const { language } = useApp();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
@@ -55,7 +58,7 @@ export default function AdminProductsTab({ searchQuery }: Props) {
       })));
     } catch (error: any) {
       console.error('Error fetching products:', error);
-      toast({ title: 'Ошибка', description: 'Не удалось загрузить продукты', variant: 'destructive' });
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -67,11 +70,11 @@ export default function AdminProductsTab({ searchQuery }: Props) {
     try {
       const { error } = await supabase.from('products').delete().eq('id', deleteTarget.id);
       if (error) throw error;
-      toast({ title: 'Блюдо удалено', description: deleteTarget.name });
+      toast({ title: t('admin.dishDeleted', language), description: deleteTarget.name });
       setDeleteTarget(null);
       fetchProducts();
     } catch (error: any) {
-      toast({ title: 'Ошибка', description: error.message, variant: 'destructive' });
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
     } finally {
       setActionLoading(false);
     }
@@ -89,12 +92,12 @@ export default function AdminProductsTab({ searchQuery }: Props) {
 
   return (
     <div className="space-y-4">
-      <Badge variant="secondary">{products.length} блюд</Badge>
+      <Badge variant="secondary">{products.length} {t('admin.dishesCount', language)}</Badge>
 
       {filtered.length === 0 ? (
         <div className="bg-card rounded-xl p-12 shadow-card text-center">
           <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">Продукты не найдены</p>
+          <p className="text-muted-foreground">{t('admin.productsNotFound', language)}</p>
         </div>
       ) : (
         <div className="grid gap-3">
@@ -105,11 +108,11 @@ export default function AdminProductsTab({ searchQuery }: Props) {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold">{p.name}</h3>
-                <p className="text-sm text-muted-foreground">Повар: {p.chef_name} • {p.price} ₸</p>
+                <p className="text-sm text-muted-foreground">{t('admin.chef', language)}: {p.chef_name} • {formatPrice(p.price)}</p>
                 <div className="flex gap-2 mt-1">
-                  <Badge variant="outline">{p.available_portions} порций</Badge>
+                  <Badge variant="outline">{p.available_portions} {t('admin.portionsCount', language)}</Badge>
                   {p.cuisine && <Badge variant="secondary">{p.cuisine}</Badge>}
-                  {!p.is_available && <Badge variant="destructive">Недоступно</Badge>}
+                  {!p.is_available && <Badge variant="destructive">{t('admin.unavailable', language)}</Badge>}
                 </div>
               </div>
               <Button variant="destructive" size="sm" onClick={() => setDeleteTarget(p)}>
@@ -123,13 +126,13 @@ export default function AdminProductsTab({ searchQuery }: Props) {
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Удалить блюдо</DialogTitle>
+            <DialogTitle>{t('admin.deleteDish', language)}</DialogTitle>
           </DialogHeader>
-          <p className="text-muted-foreground">Вы уверены, что хотите удалить "{deleteTarget?.name}"?</p>
+          <p className="text-muted-foreground">{t('admin.deleteDishConfirm', language)} "{deleteTarget?.name}"?</p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>Отмена</Button>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>{t('common.cancel', language)}</Button>
             <Button variant="destructive" onClick={handleDelete} disabled={actionLoading}>
-              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Удалить
+              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}{t('common.delete', language)}
             </Button>
           </DialogFooter>
         </DialogContent>
