@@ -106,7 +106,6 @@ export default function ChefDishesTab() {
       name: dish.name,
       description: dish.description || '',
       price: dish.price.toString(),
-      cuisine: dish.cuisine || '',
       dietary: dish.dietary || [],
       prep_time: dish.prep_time?.toString() || '',
       available_portions: dish.available_portions.toString(),
