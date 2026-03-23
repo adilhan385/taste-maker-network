@@ -101,7 +101,7 @@ export default function ChefDashboard() {
             </div>
 
             <Tabs defaultValue="dishes" className="space-y-6">
-              <TabsList className="w-full flex-wrap h-auto gap-2 bg-transparent p-0">
+              <TabsList className="w-full h-auto gap-2 bg-transparent p-0 overflow-x-auto flex-nowrap justify-start">
                 <TabsTrigger value="dishes" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <UtensilsCrossed className="w-4 h-4" />
                   {t('chef.myDishes', language)}

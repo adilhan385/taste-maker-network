@@ -147,10 +147,10 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent md:opacity-0 md:group-hover:opacity-100 transition-opacity" />
 
         {showAddToCart && (
-          <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute bottom-3 left-3 right-3 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             {showQuantitySelector ? (
               <div className="bg-background/95 backdrop-blur rounded-lg p-3 space-y-3">
                 <div className="flex items-center justify-between">
