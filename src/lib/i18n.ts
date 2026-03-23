@@ -326,6 +326,10 @@ export const translations = {
     'wallet.invalidAmount': 'Invalid amount',
     'wallet.topUpSuccess': 'Wallet topped up successfully!',
     'wallet.cardDeposit': 'Card deposit',
+    'wallet.refundOnly': 'Balance is replenished only through refunds',
+    'orders.viewReceipt': 'View Receipt',
+    'chef.kaspiPhone': 'Kaspi Phone Number',
+    'chef.kaspiPhoneHint': 'Buyers will transfer payment to this number',
     // Chat
     'chat.loginPrompt': 'Please log in to access your messages',
     'chat.noConversations': 'No conversations yet',
