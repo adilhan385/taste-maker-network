@@ -1,69 +1,43 @@
 
 
-# Аудит: Баги и недочёты
+# План: 5 исправлений
 
-## Найденные проблемы
+## 1. Чат покупателя с поваром — уже работает, но кнопка скрыта для hover
 
-### 1. BecomeChef: Кухня (cuisine) не убрана
-**Файл:** `src/pages/BecomeChef.tsx` (строка 28, 31, 56)
-- `cuisineSpecialization` всё ещё в Zod-схеме как обязательное поле
-- `cuisineOptions` массив всё ещё определён (строка 31)
-- В форме скорее всего остаётся выбор кухни
+**Проблема:** Кнопка "Написать повару" в `DishCard.tsx` видна только при hover на десктопе. На мобильных она невидима.
 
-**Файл:** `src/components/chef/ChefDishesTab.tsx` (строка 34, 54)
-- `cuisineOptions` массив всё ещё определён
-- `cuisine` в formData — всё ещё используется в форме создания блюда
+**Исправление:** `src/components/catalog/DishCard.tsx` — вынести кнопку MessageCircle из hover-overlay, показывать её всегда в нижней части карточки (рядом с ценой).
 
-**Исправление:** Убрать `cuisineSpecialization` из схемы валидации, убрать `cuisineOptions`, убрать cuisine из формы повара и из формы создания блюда.
+## 2. Повар не видит свои отзывы
 
-### 2. Уведомления повару — хардкод на русском
-**Файл:** `src/pages/Cart.tsx` (строки 253-257, 267-269)
-- Текст уведомлений захардкожен на русском: `'Блюдо распродано'`, `'Новый заказ!'`
-- Должны использовать нейтральный или EN текст (уведомления хранятся в БД, не переводятся на лету)
+**Проблема:** В `ChefProfileTab.tsx` нет секции отзывов. Повар не может посмотреть что о нём написали.
 
-### 3. useAuth — хардкод английских строк при регистрации
-**Файл:** `src/hooks/useAuth.ts` (строки 133-144)
-- `'Registration Error'`, `'Account created!'`, `'Welcome to ChefCook!'` — не переведены через i18n
+**Исправление:** `src/components/chef/ChefProfileTab.tsx` — добавить секцию "Мои отзывы" с использованием компонента `ChefReviewsDialog` (кнопка "Посмотреть отзывы") или встроенный список отзывов. Загружать из `reviews` по `product_id` блюд этого повара.
 
-### 4. Оплата "kaspi" не отображается в заказах
-**Файл:** `src/pages/Orders.tsx` (строка 152-158)
-- `getPaymentMethodLabel` не обрабатывает `'kaspi'` — показывает сырую строку "kaspi" вместо "Kaspi перевод"
+## 3. Админ может писать кому угодно в чате
 
-### 5. Кнопка "Написать повару" в заказах не ведёт к конкретному чату
-**Файл:** `src/pages/Orders.tsx` (строка 293)
-- `navigate('/chat')` без `?to=chef_id` — открывает пустой чат вместо чата с конкретным поваром
+**Проблема:** В `Chat.tsx` строка 248: `if (isAdmin) return;` — блокирует отправку сообщений для админа.
 
-### 6. DishCard — сломанная аватарка повара
-**Файл:** `src/components/catalog/DishCard.tsx` (строки 221-225)
-- `dish.chef.avatar` может быть пустой строкой — `<img src="">` отображает битую картинку
-- Нужен fallback на инициалы если avatar пустой
+**Исправление:** `src/pages/Chat.tsx` — убрать `if (isAdmin) return;` из `handleSend`, убрать `{!isAdmin && ...}` обёртку вокруг поля ввода. Админ должен и видеть все чаты, и писать.
 
-### 7. Каталог — chef.rating фоллбэк 4.8 вместо 0
-**Файл:** `src/pages/Catalog.tsx` (строка 99)
-- `rating: avgRating || 4.8` — если нет отзывов, показывает фейковый рейтинг 4.8. Должно быть 0.
+## 4. Защита владельца от снятия прав админа
 
-### 8. Нет проверки бана при входе
-**Файл:** `src/hooks/useAuth.ts`
-- При авторизации нет проверки таблицы `user_bans` — заблокированный пользователь может спокойно заходить и пользоваться сайтом
+**Проблема:** Любой админ может снять права у `adilhananuar426@gmail.com`.
 
-### 9. Корзина — все товары от одного повара
-**Файл:** `src/pages/Cart.tsx` (строка 174)
-- `chef_id: cart[0]?.chefId` — берёт chef_id только первого товара. Если в корзине товары разных поваров — заказ создаётся с неверным chef_id, уведомление и Kaspi номер показываются только первого повара
+**Исправление:** `src/components/admin/AdminUsersTab.tsx` — в `handleToggleAdmin` и в UI: если `user_id` принадлежит владельцу (проверять email через profiles), запретить снятие прав. Добавить проверку email из profiles при загрузке пользователей. Хардкод email `adilhananuar426@gmail.com` как OWNER_EMAIL.
 
-### 10. Форма BecomeChef — нет поля kaspiPhone в UI
-**Файл:** `src/pages/BecomeChef.tsx`
-- В схеме есть `kaspiPhone`, колонка в БД добавлена, но нужно проверить есть ли поле в форме (вероятно нет, учитывая предыдущие неполные изменения)
+## 5. Кнопка Instagram в футере
 
-## План исправления
+**Исправление:** `src/components/layout/Footer.tsx` — добавить иконку Instagram со ссылкой на `https://www.instagram.com/chefcook.kz?igsh=MXc3a2U2cGV5OW52MQ==`.
 
-| Файл | Что исправить |
-|------|---------------|
-| `src/pages/BecomeChef.tsx` | Убрать cuisineSpecialization, добавить поле kaspiPhone в UI |
-| `src/components/chef/ChefDishesTab.tsx` | Убрать cuisineOptions и cuisine из формы |
-| `src/pages/Cart.tsx` | Исправить хардкод уведомлений, добавить проверку разных поваров |
-| `src/pages/Orders.tsx` | Добавить kaspi в getPaymentMethodLabel, исправить навигацию в чат с chef_id |
-| `src/pages/Catalog.tsx` | Убрать фоллбэк 4.8 |
-| `src/components/catalog/DishCard.tsx` | Fallback для пустого аватара |
-| `src/hooks/useAuth.ts` | i18n строки, проверка бана при входе |
-| `src/lib/i18n.ts` | Добавить недостающие ключи |
+## Файлы
+
+| Файл | Действие |
+|------|----------|
+| `src/components/catalog/DishCard.tsx` | Кнопка чата всегда видна |
+| `src/components/chef/ChefProfileTab.tsx` | Секция отзывов повара |
+| `src/pages/Chat.tsx` | Админ может писать |
+| `src/components/admin/AdminUsersTab.tsx` | Защита владельца |
+| `src/components/layout/Footer.tsx` | Instagram ссылка |
+| `src/lib/i18n.ts` | Ключи для новых строк |
 
