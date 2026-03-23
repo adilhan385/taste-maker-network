@@ -157,7 +157,8 @@ export default function BecomeChef() {
           docs_sanitary_url: sanitaryUrl,
           profile_photo_url: photoUrl,
           bio: validationResult.data.bio || null,
-          cuisine_specialization: validationResult.data.cuisineSpecialization,
+          cuisine_specialization: 'General',
+          kaspi_phone: validationResult.data.kaspiPhone || null,
           experience: validationResult.data.experience,
           status: 'pending',
         });
