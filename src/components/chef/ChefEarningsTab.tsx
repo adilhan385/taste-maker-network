@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, TrendingUp, Calendar, Loader2, CreditCard, Wallet } from 'lucide-react';
+import { Wallet, TrendingUp, Calendar, Loader2, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useApp } from '@/contexts/AppContext';
+import { t, formatPrice } from '@/lib/i18n';
 
 interface EarningsData {
   totalEarnings: number;
@@ -18,6 +19,7 @@ interface EarningsData {
 
 export default function ChefEarningsTab() {
   const { user } = useAuthContext();
+  const { language } = useApp();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [earnings, setEarnings] = useState<EarningsData>({
@@ -52,14 +54,12 @@ export default function ChefEarningsTab() {
       const totalEarnings = orders.reduce((sum, o) => sum + o.total_amount, 0);
       const completedOrders = orders.length;
 
-      // This month's earnings
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const thisMonthEarnings = orders
         .filter(o => new Date(o.created_at) >= startOfMonth)
         .reduce((sum, o) => sum + o.total_amount, 0);
 
-      // Monthly breakdown (last 6 months)
       const monthlyMap = new Map<string, number>();
       for (let i = 5; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -83,12 +83,12 @@ export default function ChefEarningsTab() {
       setEarnings({
         totalEarnings,
         thisMonthEarnings,
-        pendingPayouts: 0, // Would need a separate payouts table for real implementation
+        pendingPayouts: 0,
         completedOrders,
         monthlyBreakdown,
       });
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -106,19 +106,18 @@ export default function ChefEarningsTab() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-serif font-bold">Earnings & Payouts</h2>
+      <h2 className="text-2xl font-serif font-bold">{t('chef.earningsTitle', language)}</h2>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Earnings</CardTitle>
-              <DollarSign className="w-4 h-4 text-primary" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('chef.totalEarnings', language)}</CardTitle>
+              <Wallet className="w-4 h-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">${earnings.totalEarnings.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">{earnings.completedOrders} orders delivered</p>
+              <div className="text-2xl font-bold text-primary">{formatPrice(earnings.totalEarnings)}</div>
+              <p className="text-xs text-muted-foreground">{earnings.completedOrders} {t('chef.ordersDelivered', language)}</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -126,14 +125,11 @@ export default function ChefEarningsTab() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">This Month</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('chef.thisMonth', language)}</CardTitle>
               <Calendar className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${earnings.thisMonthEarnings.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">
-                {new Date().toLocaleDateString('en', { month: 'long', year: 'numeric' })}
-              </p>
+              <div className="text-2xl font-bold">{formatPrice(earnings.thisMonthEarnings)}</div>
             </CardContent>
           </Card>
         </motion.div>
@@ -141,12 +137,12 @@ export default function ChefEarningsTab() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Payout</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('chef.pendingPayout', language)}</CardTitle>
               <Wallet className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${earnings.pendingPayouts.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">Ready for withdrawal</p>
+              <div className="text-2xl font-bold">{formatPrice(earnings.pendingPayouts)}</div>
+              <p className="text-xs text-muted-foreground">{t('chef.readyForWithdrawal', language)}</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -154,31 +150,30 @@ export default function ChefEarningsTab() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Avg per Order</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('chef.avgPerOrder', language)}</CardTitle>
               <TrendingUp className="w-4 h-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${earnings.completedOrders > 0 
-                  ? (earnings.totalEarnings / earnings.completedOrders).toFixed(2) 
-                  : '0.00'}
+                {formatPrice(earnings.completedOrders > 0 
+                  ? earnings.totalEarnings / earnings.completedOrders 
+                  : 0)}
               </div>
-              <p className="text-xs text-muted-foreground">Average order value</p>
+              <p className="text-xs text-muted-foreground">{t('chef.avgOrderValue', language)}</p>
             </CardContent>
           </Card>
         </motion.div>
       </div>
 
-      {/* Monthly Chart */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
         <Card>
           <CardHeader>
-            <CardTitle>Monthly Earnings</CardTitle>
-            <CardDescription>Your earnings over the last 6 months</CardDescription>
+            <CardTitle>{t('chef.monthlyEarnings', language)}</CardTitle>
+            <CardDescription>{t('chef.monthlyEarningsDesc', language)}</CardDescription>
           </CardHeader>
           <CardContent>
             {earnings.monthlyBreakdown.every(m => m.earnings === 0) ? (
-              <p className="text-center text-muted-foreground py-8">No earnings data yet</p>
+              <p className="text-center text-muted-foreground py-8">{t('chef.noEarningsData', language)}</p>
             ) : (
               <div className="space-y-4">
                 {earnings.monthlyBreakdown.map((month, i) => (
@@ -192,7 +187,7 @@ export default function ChefEarningsTab() {
                         className="h-full bg-gradient-to-r from-primary to-primary/70 rounded-full"
                       />
                     </div>
-                    <span className="font-bold w-24 text-right">${month.earnings.toFixed(0)}</span>
+                    <span className="font-bold w-28 text-right">{formatPrice(month.earnings)}</span>
                   </div>
                 ))}
               </div>
@@ -201,28 +196,27 @@ export default function ChefEarningsTab() {
         </Card>
       </motion.div>
 
-      {/* Payout Section */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="w-5 h-5" />
-              Payout Settings
+              {t('chef.payoutSettings', language)}
             </CardTitle>
-            <CardDescription>Configure how you receive your earnings</CardDescription>
+            <CardDescription>{t('chef.payoutSettingsDesc', language)}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
               <div>
-                <p className="font-medium">Payout Method</p>
-                <p className="text-sm text-muted-foreground">No payout method configured</p>
+                <p className="font-medium">{t('chef.payoutMethod', language)}</p>
+                <p className="text-sm text-muted-foreground">{t('chef.noPayoutMethod', language)}</p>
               </div>
               <Button variant="outline">
-                Add Payment Method
+                {t('chef.addPayoutMethod', language)}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-4">
-              * Payouts are processed weekly. Set up your payment method to start receiving earnings.
+              {t('chef.payoutNote', language)}
             </p>
           </CardContent>
         </Card>
