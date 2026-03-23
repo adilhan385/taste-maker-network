@@ -371,21 +371,19 @@ export default function Chat() {
                     </ScrollArea>
 
                     {/* Input */}
-                    {!isAdmin && (
-                      <div className="p-4 border-t">
-                        <div className="flex gap-2">
-                          <Input
-                            value={newMessage}
-                            onChange={e => setNewMessage(e.target.value)}
-                            placeholder={t('chat.typePlaceholder', language)}
-                            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                          />
-                          <Button onClick={handleSend} disabled={!newMessage.trim() || sending} size="icon">
-                            <Send className="w-4 h-4" />
-                          </Button>
-                        </div>
+                    <div className="p-4 border-t">
+                      <div className="flex gap-2">
+                        <Input
+                          value={newMessage}
+                          onChange={e => setNewMessage(e.target.value)}
+                          placeholder={t('chat.typePlaceholder', language)}
+                          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                        />
+                        <Button onClick={handleSend} disabled={!newMessage.trim() || sending} size="icon">
+                          <Send className="w-4 h-4" />
+                        </Button>
                       </div>
-                    )}
+                    </div>
                   </>
                 ) : (
                   <div className="flex-1 flex items-center justify-center">

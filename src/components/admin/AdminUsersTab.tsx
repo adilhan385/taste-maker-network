@@ -179,6 +179,8 @@ export default function AdminUsersTab({ searchQuery }: Props) {
     }
   };
 
+  const OWNER_EMAIL = 'adilhananuar426@gmail.com';
+
   const handleToggleAdmin = async () => {
     if (!adminConfirmDialog || !user) return;
     if (adminConfirmDialog.user_id === user.id) return;
