@@ -249,7 +249,7 @@ export default function ChefOrdersTab() {
                               {order.order_items.map(item => (
                                 <div key={item.id} className="flex justify-between items-center bg-muted/30 rounded-lg p-2">
                                   <span>{item.product_name} × {item.quantity}</span>
-                                  <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                                  <span className="font-medium">{(item.price * item.quantity).toLocaleString()} ₸</span>
                                 </div>
                               ))}
                             </div>
