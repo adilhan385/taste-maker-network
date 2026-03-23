@@ -238,6 +238,9 @@ export const translations = {
     'chef.edit': 'Edit',
     'chef.paused': 'Paused',
     'chef.upload': 'Upload',
+    'chef.myReviews': 'My Reviews',
+    'chef.myReviewsDesc': 'Reviews left by your customers',
+    'chef.noReviewsYet': 'No reviews yet',
     'chef.nameRequired': 'Name and price are required',
     // Translations for dishes
     'chef.translations': 'Translations',
