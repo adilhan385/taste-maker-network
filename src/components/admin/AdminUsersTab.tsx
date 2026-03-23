@@ -348,6 +348,24 @@ export default function AdminUsersTab({ searchQuery }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Admin Role Dialog */}
+      <Dialog open={!!adminConfirmDialog} onOpenChange={() => setAdminConfirmDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{adminConfirmDialog?.role === 'admin' ? t('admin.removeAdmin', language) : t('admin.makeAdmin', language)} — {adminConfirmDialog?.full_name}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {adminConfirmDialog?.role === 'admin' ? t('admin.confirmRemoveAdmin', language) : t('admin.confirmMakeAdmin', language)}
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAdminConfirmDialog(null)}>{t('common.cancel', language)}</Button>
+            <Button variant={adminConfirmDialog?.role === 'admin' ? 'destructive' : 'default'} onClick={handleToggleAdmin} disabled={actionLoading}>
+              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              {adminConfirmDialog?.role === 'admin' ? t('admin.removeAdmin', language) : t('admin.makeAdmin', language)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
