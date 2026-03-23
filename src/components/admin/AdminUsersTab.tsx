@@ -407,6 +407,27 @@ export default function AdminUsersTab({ searchQuery }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Reset Password Dialog */}
+      <Dialog open={!!resetDialog} onOpenChange={() => setResetDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.resetPassword', language)} — {resetDialog?.full_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>{t('admin.tempPassword', language)}</Label>
+              <Input type="text" value={tempPassword} onChange={e => setTempPassword(e.target.value)} placeholder={t('admin.tempPasswordPlaceholder', language)} minLength={6} />
+              <p className="text-xs text-muted-foreground mt-1">{t('admin.tempPasswordHint', language)}</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetDialog(null)}>{t('common.cancel', language)}</Button>
+            <Button onClick={handleResetPassword} disabled={actionLoading || tempPassword.length < 6}>
+              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}{t('admin.resetPassword', language)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
