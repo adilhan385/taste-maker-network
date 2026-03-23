@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Camera, Save, Loader2, MapPin, Phone, FileText, Star, MessageSquare } from 'lucide-react';
+import { User, Camera, Save, Loader2, MapPin, Phone, FileText, Star, MessageSquare, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -48,6 +48,7 @@ export default function ChefProfileTab() {
     city: '',
     address: '',
     bio: '',
+    kaspiPhone: '',
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -114,6 +115,12 @@ export default function ChefProfileTab() {
         address: profile.address || prev.address,
         bio: profile.bio || prev.bio,
       }));
+      // Fetch kaspi_phone from profiles table
+      if (user) {
+        supabase.from('profiles').select('kaspi_phone').eq('user_id', user.id).maybeSingle().then(({ data }) => {
+          if (data?.kaspi_phone) setFormData(prev => ({ ...prev, kaspiPhone: data.kaspi_phone || '' }));
+        });
+      }
     }
   }, [profile]);
 
@@ -141,6 +148,7 @@ export default function ChefProfileTab() {
           city: data.city,
           address: data.address || '',
           bio: data.bio || '',
+          kaspiPhone: '',
         });
         setPhotoPreview(data.profile_photo_url);
       }
@@ -180,6 +188,10 @@ export default function ChefProfileTab() {
         bio: formData.bio,
         avatarUrl,
       });
+      // Save kaspi_phone separately
+      if (user) {
+        await supabase.from('profiles').update({ kaspi_phone: formData.kaspiPhone }).eq('user_id', user.id);
+      }
       toast({ title: t('chef.profileUpdated', language) });
     } catch (error: any) {
       toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
@@ -237,6 +249,14 @@ export default function ChefProfileTab() {
                 <Label>{t('becomeChef.phone', language)}</Label>
                 <Input value={formData.phone} onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))} />
               </div>
+            </div>
+            <div className="space-y-2 mt-4">
+              <Label className="flex items-center gap-2">
+                <Smartphone className="w-4 h-4" />
+                {t('chef.kaspiPhone', language)}
+              </Label>
+              <Input value={formData.kaspiPhone} onChange={e => setFormData(prev => ({ ...prev, kaspiPhone: e.target.value }))} placeholder="+7 777 123 4567" />
+              <p className="text-xs text-muted-foreground">{t('chef.kaspiPhoneHint', language)}</p>
             </div>
           </CardContent>
         </Card>

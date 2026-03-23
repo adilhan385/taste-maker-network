@@ -316,6 +316,7 @@ export type Database = {
           id: string
           notes: string | null
           payment_method: string
+          payment_receipt_url: string | null
           status: Database["public"]["Enums"]["order_status"]
           total_amount: number
           updated_at: string
@@ -329,6 +330,7 @@ export type Database = {
           id?: string
           notes?: string | null
           payment_method?: string
+          payment_receipt_url?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           total_amount: number
           updated_at?: string
@@ -342,6 +344,7 @@ export type Database = {
           id?: string
           notes?: string | null
           payment_method?: string
+          payment_receipt_url?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           total_amount?: number
           updated_at?: string
@@ -435,6 +438,7 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          kaspi_phone: string | null
           phone: string | null
           updated_at: string
           user_id: string
@@ -447,6 +451,7 @@ export type Database = {
           created_at?: string
           full_name: string
           id?: string
+          kaspi_phone?: string | null
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -459,6 +464,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          kaspi_phone?: string | null
           phone?: string | null
           updated_at?: string
           user_id?: string

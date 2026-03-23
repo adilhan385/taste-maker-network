@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, Clock, MessageSquare, Filter, Star } from 'lucide-react';
+import { Package, Clock, MessageSquare, Filter, Star, ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
@@ -348,6 +348,14 @@ export default function Orders() {
                               <span className="text-muted-foreground">{t('payment.deliveryAddress', language)}: </span>
                               <span>{order.delivery_address}</span>
                             </div>
+                          )}
+
+                          {/* View receipt */}
+                          {(order as any).payment_receipt_url && (
+                            <Button variant="outline" size="sm" onClick={() => window.open((order as any).payment_receipt_url, '_blank')}>
+                              <ImageIcon className="w-4 h-4 mr-2" />
+                              {t('orders.viewReceipt', language)}
+                            </Button>
                           )}
                           
                           {/* Notes */}

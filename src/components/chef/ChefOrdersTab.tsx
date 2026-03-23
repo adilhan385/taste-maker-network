@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, Clock, CheckCircle, Truck, XCircle, Loader2, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Package, Clock, CheckCircle, Truck, XCircle, Loader2, MessageCircle, ChevronDown, ChevronUp, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
@@ -205,7 +205,7 @@ export default function ChefOrdersTab() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="font-bold text-lg">${order.total_amount}</span>
+                        <span className="font-bold text-lg">{Number(order.total_amount).toLocaleString()} ₸</span>
                         {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                       </div>
                     </div>
@@ -249,13 +249,20 @@ export default function ChefOrdersTab() {
                               {order.order_items.map(item => (
                                 <div key={item.id} className="flex justify-between items-center bg-muted/30 rounded-lg p-2">
                                   <span>{item.product_name} × {item.quantity}</span>
-                                  <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                                  <span className="font-medium">{(item.price * item.quantity).toLocaleString()} ₸</span>
                                 </div>
                               ))}
                             </div>
                           </div>
 
                           <div className="flex gap-2 flex-wrap pt-2">
+                            {/* View receipt */}
+                            {(order as any).payment_receipt_url && (
+                              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); window.open((order as any).payment_receipt_url, '_blank'); }}>
+                                <ImageIcon className="w-4 h-4 mr-1" />
+                                View Receipt
+                              </Button>
+                            )}
                             {config.next && order.status !== 'cancelled' && (
                               <Button 
                                 variant="hero" 
