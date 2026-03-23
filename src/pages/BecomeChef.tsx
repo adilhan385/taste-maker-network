@@ -50,7 +50,7 @@ export default function BecomeChef() {
     sanitaryCertificate: null as File | null,
     profilePhoto: null as File | null,
     bio: '',
-    cuisineSpecialization: '',
+    kaspiPhone: '',
     experience: '',
   });
 
