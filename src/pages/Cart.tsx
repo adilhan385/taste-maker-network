@@ -150,15 +150,6 @@ export default function Cart() {
   const insufficientBalance = paymentMethod === 'wallet' && walletBalance < totalPrice;
 
   const handleCheckout = async () => {
-    // Validate based on payment method
-    if (paymentMethod === 'card') {
-      const validationError = validateCardPayment(cardData, deliveryOption === 'delivery');
-      if (validationError) {
-        toast({ title: validationError, variant: 'destructive' });
-        return;
-      }
-    }
-
     if (paymentMethod === 'wallet') {
       if (walletBalance < totalPrice) {
         toast({ title: t('cart.insufficientBalance', language), variant: 'destructive' });
@@ -166,7 +157,7 @@ export default function Cart() {
       }
     }
 
-    if (paymentMethod === 'cash' && deliveryOption === 'delivery' && !cardData.street.trim()) {
+    if (deliveryOption === 'delivery' && !deliveryAddress.trim()) {
       toast({ title: t('payment.streetRequired', language), variant: 'destructive' });
       return;
     }
@@ -176,7 +167,6 @@ export default function Cart() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Create order
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -187,7 +177,7 @@ export default function Cart() {
           payment_method: paymentMethod,
           delivery_type: deliveryOption,
           delivery_address: deliveryOption === 'delivery' 
-            ? `${cardData.street}, ${cardData.city}${cardData.notes ? ` (${cardData.notes})` : ''}`
+            ? `${deliveryAddress}${deliveryNotes ? ` (${deliveryNotes})` : ''}`
             : null,
         })
         .select()
