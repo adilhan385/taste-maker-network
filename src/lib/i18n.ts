@@ -810,6 +810,9 @@ export const translations = {
     'admin.portionsCount': 'порций',
     'admin.unavailable': 'Недоступно',
   },
+  kz: {
+    // Navigation
+    'nav.catalog': 'Каталог',
     'nav.orders': 'Тапсырыстар',
     'nav.chat': 'Чат',
     'nav.profile': 'Профиль',
