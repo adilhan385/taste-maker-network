@@ -102,11 +102,8 @@ export default function BecomeChef() {
     
     if (error) throw error;
     
-    const { data: { publicUrl } } = supabase.storage
-      .from('chef-documents')
-      .getPublicUrl(fileName);
-    
-    return publicUrl;
+    // Return only the relative path, not a public URL — the bucket is private
+    return fileName;
   };
 
   const handleSubmit = async () => {
