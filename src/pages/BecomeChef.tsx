@@ -235,8 +235,8 @@ export default function BecomeChef() {
                 <h2 className="text-xl font-serif font-semibold mb-6">{t('becomeChef.cookingProfile', language)}</h2>
                 <div className="space-y-2"><Label>{t('becomeChef.bio', language)} *</Label><Textarea rows={4} value={formData.bio} onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))} placeholder={t('becomeChef.bioPlaceholder', language)} /></div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>{t('becomeChef.cuisine', language)} *</Label><Select value={formData.cuisineSpecialization} onValueChange={(v) => setFormData(prev => ({ ...prev, cuisineSpecialization: v }))}><SelectTrigger><SelectValue placeholder={t('becomeChef.cuisineSelect', language)} /></SelectTrigger><SelectContent>{cuisineOptions.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
                   <div className="space-y-2"><Label>{t('becomeChef.experience', language)} *</Label><Select value={formData.experience} onValueChange={(v) => setFormData(prev => ({ ...prev, experience: v }))}><SelectTrigger><SelectValue placeholder={t('becomeChef.experienceSelect', language)} /></SelectTrigger><SelectContent><SelectItem value="1">{t('becomeChef.exp1', language)}</SelectItem><SelectItem value="1-3">{t('becomeChef.exp1_3', language)}</SelectItem><SelectItem value="3-5">{t('becomeChef.exp3_5', language)}</SelectItem><SelectItem value="5+">{t('becomeChef.exp5plus', language)}</SelectItem></SelectContent></Select></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.kaspiPhone', language)}</Label><Input type="tel" value={formData.kaspiPhone} onChange={(e) => setFormData(prev => ({ ...prev, kaspiPhone: e.target.value }))} placeholder="+7 777 123 4567" /></div>
                 </div>
               </div>
             )}

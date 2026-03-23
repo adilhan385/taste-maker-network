@@ -265,8 +265,8 @@ export default function Cart() {
         await supabase.from('notifications').insert({
           user_id: chefId,
           type: 'new_order',
-          title: 'Новый заказ!',
-          message: `У вас новый заказ на ${formatPrice(totalPrice)}`,
+          title: 'New order!',
+          message: `New order for ${formatPrice(totalPrice)}`,
           related_id: order.id,
         });
       }

@@ -371,16 +371,7 @@ export default function ChefDishesTab() {
               <Textarea value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} placeholder={t('chef.descriptionPlaceholder', language)} rows={3} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>{t('chef.cuisine', language)}</Label>
-                <Select value={formData.cuisine} onValueChange={v => setFormData(prev => ({ ...prev, cuisine: v }))}>
-                  <SelectTrigger><SelectValue placeholder={t('chef.cuisineSelect', language)} /></SelectTrigger>
-                  <SelectContent>
-                    {cuisineOptions.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('chef.prepTime', language)}</Label>
                 <Input type="number" value={formData.prep_time} onChange={e => setFormData(prev => ({ ...prev, prep_time: e.target.value }))} placeholder="30" />

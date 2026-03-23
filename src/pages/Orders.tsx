@@ -291,7 +291,7 @@ export default function Orders() {
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                onClick={() => navigate('/chat')}
+                                onClick={() => navigate(`/chat?to=${order.chef_id}`)}
                               >
                                 <MessageSquare className="w-4 h-4 mr-2" />
                                 {t('orders.chatWithChef', language)}
