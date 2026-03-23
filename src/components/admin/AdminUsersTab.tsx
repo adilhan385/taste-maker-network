@@ -179,7 +179,27 @@ export default function AdminUsersTab({ searchQuery }: Props) {
     }
   };
 
-  const getRoleIcon = (role: string) => {
+  const handleToggleAdmin = async () => {
+    if (!adminConfirmDialog || !user) return;
+    if (adminConfirmDialog.user_id === user.id) return;
+    setActionLoading(true);
+    try {
+      if (adminConfirmDialog.role === 'admin') {
+        const { error } = await supabase.from('user_roles').delete().eq('user_id', adminConfirmDialog.user_id).eq('role', 'admin');
+        if (error) throw error;
+        toast({ title: t('admin.adminRevoked', language), description: adminConfirmDialog.full_name });
+      } else {
+        const { error } = await supabase.from('user_roles').insert({ user_id: adminConfirmDialog.user_id, role: 'admin' });
+        if (error) throw error;
+        toast({ title: t('admin.adminGranted', language), description: adminConfirmDialog.full_name });
+      }
+      setAdminConfirmDialog(null);
+      fetchUsers();
+    } catch (error: any) {
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
     if (role === 'admin') return <Shield className="w-4 h-4" />;
     if (role === 'cook') return <ChefHat className="w-4 h-4" />;
     return <ShoppingBag className="w-4 h-4" />;
