@@ -41,6 +41,7 @@ export default function AdminUsersTab({ searchQuery }: Props) {
   const { toast } = useToast();
   const { user } = useAuthContext();
   const { language } = useApp();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [banDialog, setBanDialog] = useState<UserWithRole | null>(null);
