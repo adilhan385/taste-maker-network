@@ -16,6 +16,7 @@ export interface UserProfile {
   avatarUrl?: string;
   bio?: string;
   role: UserRole;
+  forcePasswordChange?: boolean;
 }
 
 export function useAuth() {
