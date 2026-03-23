@@ -155,6 +155,7 @@ export const translations = {
     'cart.backToCatalog': 'Back to Catalog',
     'cart.payByCard': 'Pay by Card',
     'cart.payByWallet': 'Pay from Wallet',
+    'cart.payByKaspi': 'Kaspi Transfer',
     'cart.payFromWallet': 'Pay from Wallet',
     'cart.insufficientBalance': 'Insufficient balance',
     'cart.adminAccount': 'Admin Account',
