@@ -436,6 +436,7 @@ export type Database = {
           bio: string | null
           city: string | null
           created_at: string
+          force_password_change: boolean | null
           full_name: string
           id: string
           kaspi_phone: string | null
@@ -449,6 +450,7 @@ export type Database = {
           bio?: string | null
           city?: string | null
           created_at?: string
+          force_password_change?: boolean | null
           full_name: string
           id?: string
           kaspi_phone?: string | null
@@ -462,6 +464,7 @@ export type Database = {
           bio?: string | null
           city?: string | null
           created_at?: string
+          force_password_change?: boolean | null
           full_name?: string
           id?: string
           kaspi_phone?: string | null
