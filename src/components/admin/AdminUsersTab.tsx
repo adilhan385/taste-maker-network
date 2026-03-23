@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Ban, Shield, ChefHat, ShoppingBag, Loader2, Unlock, Award, MessageCircle } from 'lucide-react';
+import { User, Ban, Shield, ChefHat, ShoppingBag, Loader2, Unlock, Award, MessageCircle, Key } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -51,6 +52,8 @@ export default function AdminUsersTab({ searchQuery }: Props) {
   const [rankDialog, setRankDialog] = useState<UserWithRole | null>(null);
   const [selectedRank, setSelectedRank] = useState('bronze');
   const [adminConfirmDialog, setAdminConfirmDialog] = useState<UserWithRole | null>(null);
+  const [resetDialog, setResetDialog] = useState<UserWithRole | null>(null);
+  const [tempPassword, setTempPassword] = useState('');
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -208,6 +211,31 @@ export default function AdminUsersTab({ searchQuery }: Props) {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!resetDialog || tempPassword.length < 6) return;
+    setActionLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ userId: resetDialog.user_id, tempPassword }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Failed');
+      toast({ title: t('admin.passwordReset', language), description: `${resetDialog.full_name}: ${tempPassword}` });
+      setResetDialog(null);
+      setTempPassword('');
+    } catch (error: any) {
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const getRoleIcon = (role: string) => {
     if (role === 'admin') return <Shield className="w-4 h-4" />;
     if (role === 'cook') return <ChefHat className="w-4 h-4" />;
@@ -277,6 +305,11 @@ export default function AdminUsersTab({ searchQuery }: Props) {
                 {u.role === 'cook' && (
                   <Button variant="outline" size="sm" onClick={() => { setRankDialog(u); setSelectedRank(u.chefRank || 'bronze'); }}>
                     <Award className="w-4 h-4 mr-1" />{t('admin.rank', language)}
+                  </Button>
+                )}
+                {u.user_id !== user?.id && (
+                  <Button variant="outline" size="sm" onClick={() => { setResetDialog(u); setTempPassword(''); }}>
+                    <Key className="w-4 h-4 mr-1" />{t('admin.resetPassword', language)}
                   </Button>
                 )}
                 {u.role !== 'admin' && (
@@ -371,6 +404,27 @@ export default function AdminUsersTab({ searchQuery }: Props) {
             <Button variant={adminConfirmDialog?.role === 'admin' ? 'destructive' : 'default'} onClick={handleToggleAdmin} disabled={actionLoading}>
               {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
               {adminConfirmDialog?.role === 'admin' ? t('admin.removeAdmin', language) : t('admin.makeAdmin', language)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Reset Password Dialog */}
+      <Dialog open={!!resetDialog} onOpenChange={() => setResetDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('admin.resetPassword', language)} — {resetDialog?.full_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>{t('admin.tempPassword', language)}</Label>
+              <Input type="text" value={tempPassword} onChange={e => setTempPassword(e.target.value)} placeholder={t('admin.tempPasswordPlaceholder', language)} minLength={6} />
+              <p className="text-xs text-muted-foreground mt-1">{t('admin.tempPasswordHint', language)}</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetDialog(null)}>{t('common.cancel', language)}</Button>
+            <Button onClick={handleResetPassword} disabled={actionLoading || tempPassword.length < 6}>
+              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}{t('admin.resetPassword', language)}
             </Button>
           </DialogFooter>
         </DialogContent>

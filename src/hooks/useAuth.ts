@@ -16,6 +16,7 @@ export interface UserProfile {
   avatarUrl?: string;
   bio?: string;
   role: UserRole;
+  forcePasswordChange?: boolean;
 }
 
 export function useAuth() {
@@ -65,6 +66,7 @@ export function useAuth() {
           avatarUrl: profileData.avatar_url || undefined,
           bio: profileData.bio || undefined,
           role,
+          forcePasswordChange: (profileData as any).force_password_change || false,
         });
       } else {
         // Profile not created yet (edge case)
