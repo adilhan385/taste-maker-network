@@ -371,22 +371,6 @@ export default function ChefDishesTab() {
             </div>
 
             <div className="space-y-2">
-              <Label>{t('chef.portionSize', language)}</Label>
-              <Input value={formData.portion_size} onChange={e => setFormData(prev => ({ ...prev, portion_size: e.target.value }))} placeholder={t('chef.portionSizePlaceholder', language)} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t('chef.ingredients', language)}</Label>
-              <Input value={formData.ingredients} onChange={e => setFormData(prev => ({ ...prev, ingredients: e.target.value }))} placeholder={t('chef.ingredientsPlaceholder', language)} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t('chef.allergens', language)}</Label>
-              <Input value={formData.allergens} onChange={e => setFormData(prev => ({ ...prev, allergens: e.target.value }))} placeholder={t('chef.allergensPlaceholder', language)} />
-            </div>
-
-
-            <div className="space-y-2">
               <Label>{t('chef.availableDays', language)}</Label>
               <div className="flex flex-wrap gap-2">
                 {dayOptions.map(day => (
