@@ -187,6 +187,10 @@ export default function ChefProfileTab() {
         bio: formData.bio,
         avatarUrl,
       });
+      // Save kaspi_phone separately
+      if (user) {
+        await supabase.from('profiles').update({ kaspi_phone: formData.kaspiPhone }).eq('user_id', user.id);
+      }
       toast({ title: t('chef.profileUpdated', language) });
     } catch (error: any) {
       toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
