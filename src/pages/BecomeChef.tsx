@@ -25,10 +25,7 @@ const chefApplicationSchema = z.object({
   bio: z.string().trim().min(10).max(1000),
   kaspiPhone: z.string().regex(/^\+?[0-9\s\-()]{10,20}$/).optional().or(z.literal('')),
   experience: z.string().min(1),
-  cuisineSpecialization: z.string().min(1),
 });
-
-const cuisineOptions = ['Kazakh', 'Uzbek', 'Russian', 'Georgian', 'Turkish', 'Indian', 'Japanese', 'Mexican', 'Italian', 'Chinese', 'Korean', 'Other'];
 
 export default function BecomeChef() {
   const navigate = useNavigate();
