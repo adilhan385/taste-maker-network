@@ -18,27 +18,14 @@ import { z } from 'zod';
 
 // Validation schema for chef application
 const chefApplicationSchema = z.object({
-  fullName: z.string().trim()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name too long')
-    .regex(/^[a-zA-Zа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ\s\-']+$/, 'Name contains invalid characters'),
-  phone: z.string()
-    .regex(/^\+?[0-9\s\-()]{10,20}$/, 'Invalid phone number format'),
-  city: z.string().trim()
-    .min(2, 'City must be at least 2 characters')
-    .max(100, 'City name too long'),
-  address: z.string().trim().max(200, 'Address too long').optional().or(z.literal('')),
-  bio: z.string().trim()
-    .min(10, 'Please write at least 10 characters about yourself')
-    .max(1000, 'Bio too long'),
-const chefApplicationSchema = z.object({
   fullName: z.string().trim().min(2).max(100).regex(/^[a-zA-Zа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ\s\-']+$/),
   phone: z.string().regex(/^\+?[0-9\s\-()]{10,20}$/),
   city: z.string().trim().min(2).max(100),
   address: z.string().trim().max(200).optional().or(z.literal('')),
   bio: z.string().trim().min(10).max(1000),
-  kaspiPhone: z.string().regex(/^\+?[0-9\s\-()]{10,20}$/, 'Invalid Kaspi phone').optional().or(z.literal('')),
+  kaspiPhone: z.string().regex(/^\+?[0-9\s\-()]{10,20}$/).optional().or(z.literal('')),
   experience: z.string().min(1),
+  cuisineSpecialization: z.string().min(1),
 });
 
 const cuisineOptions = ['Kazakh', 'Uzbek', 'Russian', 'Georgian', 'Turkish', 'Indian', 'Japanese', 'Mexican', 'Italian', 'Chinese', 'Korean', 'Other'];

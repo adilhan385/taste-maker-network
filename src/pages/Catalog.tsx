@@ -171,6 +171,15 @@ const mockDishes: Dish[] = [
 ];
 
 const rankOrder: Record<string, number> = { diamond: 4, gold: 3, silver: 2, bronze: 1 };
+const defaultCuisines = ['All'];
+
+export default function Catalog() {
+  const { language } = useApp();
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCuisine, setSelectedCuisine] = useState('All');
+  const [dishes, setDishes] = useState<Dish[]>([]);
+  const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState([0, 15000]);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
