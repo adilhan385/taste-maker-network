@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Loader2, ArrowLeft, MessageCircle } from 'lucide-react';
+import { Send, Loader2, ArrowLeft, MessageCircle, UserPlus, Search, X } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
