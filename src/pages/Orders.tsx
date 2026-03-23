@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, Clock, MessageSquare, Filter, Star } from 'lucide-react';
+import { Package, Clock, MessageSquare, Filter, Star, ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
