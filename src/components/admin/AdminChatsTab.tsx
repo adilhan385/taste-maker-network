@@ -146,11 +146,11 @@ export default function AdminChatsTab({ searchQuery }: Props) {
             <div className="space-y-2">
               {messages.map(msg => (
                 <div key={msg.id} className={`flex ${msg.sender_id === selectedPair.user1Id ? 'justify-start' : 'justify-end'}`}>
-                  <div className={`max-w-[70%] rounded-xl px-3 py-2 ${msg.sender_id === selectedPair.user1Id ? 'bg-muted' : 'bg-primary/10'}`}>
+                  <div className={`max-w-[70%] rounded-xl px-3 py-2 break-words overflow-hidden ${msg.sender_id === selectedPair.user1Id ? 'bg-muted' : 'bg-primary/10'}`}>
                     <p className="text-xs font-medium text-muted-foreground mb-0.5">
                       {msg.sender_id === selectedPair.user1Id ? selectedPair.user1Name : selectedPair.user2Name}
                     </p>
-                    <p className="text-sm">{msg.message}</p>
+                    <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
                     <p className="text-[10px] text-muted-foreground mt-1">
                       {new Date(msg.created_at).toLocaleString()}
                     </p>

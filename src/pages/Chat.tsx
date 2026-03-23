@@ -400,8 +400,8 @@ export default function Chat() {
                       <div className="space-y-3">
                         {messages.map(msg => (
                           <div key={msg.id} className={`flex ${msg.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${msg.sender_id === user?.id ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                              <p className="text-sm">{msg.message}</p>
+                            <div className={`max-w-[70%] rounded-2xl px-4 py-2 break-words overflow-hidden ${msg.sender_id === user?.id ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                              <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
                               <p className={`text-[10px] mt-1 ${msg.sender_id === user?.id ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
                                 {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </p>
