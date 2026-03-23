@@ -53,9 +53,6 @@ export default function ChefDishesTab() {
     dietary: [] as string[],
     prep_time: '',
     available_portions: '10',
-    allergens: '',
-    portion_size: '',
-    ingredients: '',
     available_days: dayOptions as string[],
   });
 
