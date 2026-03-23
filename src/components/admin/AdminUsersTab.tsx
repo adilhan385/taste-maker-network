@@ -46,6 +46,7 @@ export default function AdminUsersTab({ searchQuery }: Props) {
   const [actionLoading, setActionLoading] = useState(false);
   const [rankDialog, setRankDialog] = useState<UserWithRole | null>(null);
   const [selectedRank, setSelectedRank] = useState('bronze');
+  const [adminConfirmDialog, setAdminConfirmDialog] = useState<UserWithRole | null>(null);
 
   useEffect(() => { fetchUsers(); }, []);
 
