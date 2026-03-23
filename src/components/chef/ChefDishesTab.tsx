@@ -50,7 +50,6 @@ export default function ChefDishesTab() {
     name: '',
     description: '',
     price: '',
-    cuisine: '',
     dietary: [] as string[],
     prep_time: '',
     available_portions: '10',
