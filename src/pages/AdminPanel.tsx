@@ -11,6 +11,8 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import ChefApplicationsTab from '@/components/admin/ChefApplicationsTab';
+import AdminUsersTab from '@/components/admin/AdminUsersTab';
+import AdminProductsTab from '@/components/admin/AdminProductsTab';
 
 const navItems = [
   { id: 'applications', label: 'Chef Applications', icon: ChefHat },
