@@ -31,7 +31,7 @@ export default function Cart() {
   const [processing, setProcessing] = useState(false);
   const [chefKaspiPhone, setChefKaspiPhone] = useState<string | null>(null);
 
-  // Fetch wallet balance
+  // Fetch wallet balance and chef kaspi phone
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -53,6 +53,27 @@ export default function Cart() {
 
     fetchWallet();
   }, [isAuthenticated]);
+
+  // Fetch chef's Kaspi phone when cart has items
+  useEffect(() => {
+    if (cart.length === 0) return;
+    const chefId = cart[0]?.chefId;
+    if (!chefId) return;
+
+    const fetchKaspiPhone = async () => {
+      const { data } = await supabase
+        .from('chef_applications')
+        .select('kaspi_phone, phone')
+        .eq('user_id', chefId)
+        .eq('status', 'approved')
+        .maybeSingle();
+
+      if (data) {
+        setChefKaspiPhone(data.kaspi_phone || data.phone);
+      }
+    };
+    fetchKaspiPhone();
+  }, [cart]);
 
   if (profile?.role === 'admin') {
     return (
