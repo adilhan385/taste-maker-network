@@ -112,7 +112,7 @@ export default function BecomeChef() {
         city: formData.city,
         address: formData.address,
         bio: formData.bio,
-        cuisineSpecialization: formData.cuisineSpecialization,
+        kaspiPhone: formData.kaspiPhone,
         experience: formData.experience,
       });
 
