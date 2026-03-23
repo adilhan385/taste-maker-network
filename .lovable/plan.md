@@ -1,32 +1,57 @@
 
 
-# План: Кошелёк только для возвратов + Kaspi-оплата с чеком + Kaspi-номер повара
+# План: Сброс пароля админом + временный пароль
 
 ## Что будет сделано
 
-1. **Кошелёк остаётся, но пополнение убирается** — кнопка "Пополнить" и диалог top-up удаляются. Баланс растёт только от возвратов/отмен.
-2. **Повар при входе в дашборд указывает свой Kaspi-номер** — поле в профиле повара
-3. **При покупке через Kaspi — покупатель загружает чек (скриншот)** как подтверждение
-4. **Повар и админ видят чек** в своих заказах
+Админ сможет сбросить пароль любому пользователю, задав временный пароль. При входе с временным паролем пользователь будет обязан сменить его.
 
-## Миграция БД
+## Изменения
 
+### 1. Edge Function `admin-reset-password`
+**Файл:** `supabase/functions/admin-reset-password/index.ts`
+
+- Принимает `{ userId, tempPassword }` в body
+- Проверяет что вызывающий — админ (через JWT + проверка роли)
+- Использует `supabase.auth.admin.updateUserById(userId, { password: tempPassword })` с service role key
+- Записывает флаг `force_password_change = true` в `profiles` для этого пользователя
+
+### 2. Миграция БД
 ```sql
-ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS payment_receipt_url text;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS kaspi_phone text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS force_password_change boolean DEFAULT false;
 ```
 
-Также нужно создать storage bucket `payment-receipts` (public) для хранения чеков.
+### 3. UI: Кнопка в AdminUsersTab
+**Файл:** `src/components/admin/AdminUsersTab.tsx`
+- Кнопка `Key` ("Сбросить пароль") рядом с остальными действиями
+- Диалог с полем ввода временного пароля (минимум 6 символов)
+- Вызов edge function `admin-reset-password`
+- Показ временного пароля админу для передачи пользователю
 
-## Изменения по файлам
+### 4. Принудительная смена пароля при входе
+**Файл:** `src/hooks/useAuth.ts`
+- После успешного `signIn` — проверять `profiles.force_password_change`
+- Если `true` — показывать диалог смены пароля вместо обычного входа
 
-| Файл | Что делать |
-|------|-----------|
-| `src/pages/Wallet.tsx` | Убрать кнопку "Пополнить", диалог top-up, preset amounts, CardPaymentForm. Оставить баланс + историю транзакций (только refund/payment) |
-| `src/components/chef/ChefProfileTab.tsx` | Добавить поле `kaspiPhone` в форму, загружать из `profiles.kaspi_phone`, сохранять при save |
-| `src/pages/Cart.tsx` | При Kaspi — добавить input для загрузки чека (файл). Загружать в storage `payment-receipts`. Сохранять URL в `orders.payment_receipt_url`. Блокировать оформление без чека при выборе Kaspi |
-| `src/components/chef/ChefOrdersTab.tsx` | Показывать кнопку "Посмотреть чек" если `payment_receipt_url` есть |
-| `src/components/admin/AdminOrdersTab.tsx` | Показывать кнопку "Посмотреть чек" |
-| `src/pages/Orders.tsx` | Показывать кнопку "Посмотреть чек" покупателю |
-| `src/lib/i18n.ts` | Ключи: `chef.kaspiPhone`, `cart.uploadReceipt`, `cart.receiptRequired`, `orders.viewReceipt`, `wallet.refundOnly` |
+### 5. Компонент смены пароля
+**Файл:** `src/components/auth/ForcePasswordChange.tsx`
+- Форма: новый пароль + подтверждение
+- Вызывает `supabase.auth.updateUser({ password })` 
+- Обновляет `profiles.force_password_change = false`
+- После успеха — обычный вход
+
+### 6. i18n ключи
+`admin.resetPassword`, `admin.tempPassword`, `admin.passwordReset`, `auth.mustChangePassword`, `auth.newPassword`, `auth.confirmPassword`, `auth.changePassword`
+
+## Файлы
+
+| Файл | Действие |
+|------|----------|
+| Миграция БД | `force_password_change` в profiles |
+| `supabase/functions/admin-reset-password/index.ts` | Создать edge function |
+| `src/components/admin/AdminUsersTab.tsx` | Кнопка + диалог сброса |
+| `src/hooks/useAuth.ts` | Проверка force_password_change |
+| `src/components/auth/ForcePasswordChange.tsx` | Создать — форма смены пароля |
+| `src/App.tsx` | Обёртка для принудительной смены |
+| `src/lib/i18n.ts` | Новые ключи |
 
