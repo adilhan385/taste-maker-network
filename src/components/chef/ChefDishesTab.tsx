@@ -306,7 +306,7 @@ export default function ChefDishesTab() {
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{dish.description}</p>
                   <div className="flex items-center gap-2 mb-3">
-                    {dish.cuisine && <Badge variant="outline">{dish.cuisine}</Badge>}
+                    
                     <span className="text-xs text-muted-foreground">{dish.available_portions} portions</span>
                   </div>
                   <div className="flex items-center gap-2">
