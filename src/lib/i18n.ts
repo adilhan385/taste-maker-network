@@ -691,6 +691,9 @@ export const translations = {
     'chef.edit': 'Редактировать',
     'chef.paused': 'Приостановлено',
     'chef.upload': 'Загрузить',
+    'chef.myReviews': 'Мои отзывы',
+    'chef.myReviewsDesc': 'Отзывы, оставленные вашими клиентами',
+    'chef.noReviewsYet': 'Пока нет отзывов',
     'chef.nameRequired': 'Название и цена обязательны',
     // Translations
     'chef.translations': 'Переводы',
