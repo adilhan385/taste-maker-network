@@ -53,9 +53,6 @@ export default function ChefDishesTab() {
     dietary: [] as string[],
     prep_time: '',
     available_portions: '10',
-    allergens: '',
-    portion_size: '',
-    ingredients: '',
     available_days: dayOptions as string[],
   });
 
@@ -90,9 +87,6 @@ export default function ChefDishesTab() {
       dietary: [],
       prep_time: '',
       available_portions: '10',
-      allergens: '',
-      portion_size: '',
-      ingredients: '',
       available_days: dayOptions,
     });
     setImageFile(null);
@@ -109,9 +103,6 @@ export default function ChefDishesTab() {
       dietary: dish.dietary || [],
       prep_time: dish.prep_time?.toString() || '',
       available_portions: dish.available_portions.toString(),
-      allergens: dish.allergens?.join(', ') || '',
-      portion_size: dish.portion_size || '',
-      ingredients: dish.ingredients?.join(', ') || '',
       available_days: dish.available_days || dayOptions,
     });
     setImagePreview(dish.image_url);
@@ -169,9 +160,6 @@ export default function ChefDishesTab() {
         prep_time: formData.prep_time ? parseInt(formData.prep_time) : null,
         available_portions: parseInt(formData.available_portions) || 10,
         image_url: imageUrl,
-        allergens: formData.allergens ? formData.allergens.split(',').map(s => s.trim()).filter(Boolean) : null,
-        portion_size: formData.portion_size || null,
-        ingredients: formData.ingredients ? formData.ingredients.split(',').map(s => s.trim()).filter(Boolean) : null,
         available_days: formData.available_days,
       };
 
@@ -381,22 +369,6 @@ export default function ChefDishesTab() {
                 <Input type="number" value={formData.available_portions} onChange={e => setFormData(prev => ({ ...prev, available_portions: e.target.value }))} placeholder="10" />
               </div>
             </div>
-
-            <div className="space-y-2">
-              <Label>{t('chef.portionSize', language)}</Label>
-              <Input value={formData.portion_size} onChange={e => setFormData(prev => ({ ...prev, portion_size: e.target.value }))} placeholder={t('chef.portionSizePlaceholder', language)} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t('chef.ingredients', language)}</Label>
-              <Input value={formData.ingredients} onChange={e => setFormData(prev => ({ ...prev, ingredients: e.target.value }))} placeholder={t('chef.ingredientsPlaceholder', language)} />
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t('chef.allergens', language)}</Label>
-              <Input value={formData.allergens} onChange={e => setFormData(prev => ({ ...prev, allergens: e.target.value }))} placeholder={t('chef.allergensPlaceholder', language)} />
-            </div>
-
 
             <div className="space-y-2">
               <Label>{t('chef.availableDays', language)}</Label>
