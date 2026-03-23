@@ -29,6 +29,18 @@ interface ChefApplication {
   reviewed_at: string | null;
 }
 
+// Helper component to load signed URL for profile photo
+function ProfilePhoto({ path }: { path: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.storage.from('chef-documents').createSignedUrl(path, 3600).then(({ data }) => {
+      if (data?.signedUrl) setUrl(data.signedUrl);
+    });
+  }, [path]);
+  if (!url) return <div className="w-24 h-24 bg-muted rounded-lg animate-pulse" />;
+  return <img src={url} alt="Profile" className="w-24 h-24 rounded-lg object-cover" />;
+}
+
 interface Props {
   searchQuery: string;
 }
@@ -282,14 +294,24 @@ export default function ChefApplicationsTab({ searchQuery }: Props) {
 
                 <div>
                   <Label className="text-muted-foreground text-xs">Documents</Label>
-                  <div className="flex gap-2 mt-2">
-                    <a href={selectedApp.docs_passport_url} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm"><FileText className="w-4 h-4 mr-1" />ID/Passport</Button>
-                    </a>
-                    <a href={selectedApp.docs_sanitary_url} target="_blank" rel="noopener noreferrer">
-                      <Button variant="outline" size="sm"><FileText className="w-4 h-4 mr-1" />Medical Cert</Button>
-                    </a>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Button variant="outline" size="sm" onClick={async () => {
+                      const path = selectedApp.docs_passport_url;
+                      const { data } = await supabase.storage.from('chef-documents').createSignedUrl(path, 3600);
+                      if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+                    }}><FileText className="w-4 h-4 mr-1" />ID/Passport</Button>
+                    <Button variant="outline" size="sm" onClick={async () => {
+                      const path = selectedApp.docs_sanitary_url;
+                      const { data } = await supabase.storage.from('chef-documents').createSignedUrl(path, 3600);
+                      if (data?.signedUrl) window.open(data.signedUrl, '_blank');
+                    }}><FileText className="w-4 h-4 mr-1" />Medical Cert</Button>
                   </div>
+                  {selectedApp.profile_photo_url && (
+                    <div className="mt-3">
+                      <Label className="text-muted-foreground text-xs">Profile Photo</Label>
+                      <ProfilePhoto path={selectedApp.profile_photo_url} />
+                    </div>
+                  )}
                 </div>
 
                 {selectedApp.status === 'pending' && (
