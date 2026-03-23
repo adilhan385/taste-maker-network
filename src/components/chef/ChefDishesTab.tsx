@@ -31,8 +31,7 @@ interface Product {
   available_days: string[] | null;
 }
 
-const cuisineOptions = ['Italian', 'Chinese', 'Japanese', 'Mexican', 'Indian', 'French', 'Thai', 'Mediterranean', 'American', 'Korean', 'Vietnamese', 'Greek', 'Spanish', 'Middle Eastern', 'Other'];
-// Dietary options removed
+// Cuisine and dietary options removed
 const dayOptions = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function ChefDishesTab() {
