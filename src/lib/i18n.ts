@@ -1019,6 +1019,12 @@ export const translations = {
     'cart.adminAccount': 'Админ аккаунты',
     'cart.adminCantOrder': 'Админдер тапсырыс бере алмайды.',
     'cart.goToAdmin': 'Админ панеліне өту',
+    'cart.kaspiTransfer': 'Kaspi аударым',
+    'cart.kaspiInstruction': 'Төменгі Kaspi нөміріне аударыңыз:',
+    'cart.kaspiNotAvailable': 'Kaspi нөмірі қолжетімсіз',
+    'cart.uploadReceipt': 'Төлем чегін жүктеу',
+    'cart.uploadReceiptHint': 'Аударым скриншотын жүктеу үшін басыңыз',
+    'cart.receiptRequired': 'Төлем чегін жүктеңіз',
     
     // Payment
     'payment.deliveryAddress': 'Жеткізу мекенжайы',
