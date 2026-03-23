@@ -87,9 +87,6 @@ export default function ChefDishesTab() {
       dietary: [],
       prep_time: '',
       available_portions: '10',
-      allergens: '',
-      portion_size: '',
-      ingredients: '',
       available_days: dayOptions,
     });
     setImageFile(null);
