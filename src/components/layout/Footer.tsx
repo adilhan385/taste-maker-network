@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ChefHat } from 'lucide-react';
+import { ChefHat, Instagram } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 
 export default function Footer() {
