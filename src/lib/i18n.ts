@@ -983,6 +983,7 @@ export const translations = {
     'cart.backToCatalog': 'Каталогқа оралу',
     'cart.payByCard': 'Картамен төлеу',
     'cart.payByWallet': 'Әмиянмен төлеу',
+    'cart.payByKaspi': 'Kaspi аударым',
     'cart.payFromWallet': 'Әмияннан төлеу',
     'cart.insufficientBalance': 'Қаражат жеткіліксіз',
     'cart.adminAccount': 'Админ аккаунты',
