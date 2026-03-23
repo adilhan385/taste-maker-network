@@ -41,6 +41,7 @@ export default function ChefProfileTab() {
   const [saving, setSaving] = useState(false);
   const [chefData, setChefData] = useState<ChefApplication | null>(null);
   const [chefRank, setChefRank] = useState<string>('bronze');
+  const [reviews, setReviews] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
