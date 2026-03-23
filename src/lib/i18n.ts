@@ -325,6 +325,8 @@ export const translations = {
     'chat.noConversations': 'No conversations yet',
     'chat.selectConversation': 'Select a conversation to start chatting',
     'chat.typePlaceholder': 'Type a message...',
+    'chat.newChat': 'New Chat',
+    'chat.searchUsers': 'Search users...',
     'chat.loading': 'Loading...',
     'chat.messageChef': 'Message Chef',
 
