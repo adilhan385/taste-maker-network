@@ -160,9 +160,6 @@ export default function ChefDishesTab() {
         prep_time: formData.prep_time ? parseInt(formData.prep_time) : null,
         available_portions: parseInt(formData.available_portions) || 10,
         image_url: imageUrl,
-        allergens: formData.allergens ? formData.allergens.split(',').map(s => s.trim()).filter(Boolean) : null,
-        portion_size: formData.portion_size || null,
-        ingredients: formData.ingredients ? formData.ingredients.split(',').map(s => s.trim()).filter(Boolean) : null,
         available_days: formData.available_days,
       };
 
