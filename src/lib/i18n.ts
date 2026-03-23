@@ -161,6 +161,12 @@ export const translations = {
     'cart.adminAccount': 'Admin Account',
     'cart.adminCantOrder': 'Admin accounts cannot place orders.',
     'cart.goToAdmin': 'Go to Admin Panel',
+    'cart.kaspiTransfer': 'Kaspi Transfer',
+    'cart.kaspiInstruction': 'Transfer the amount to the following Kaspi number:',
+    'cart.kaspiNotAvailable': 'Kaspi number not available',
+    'cart.uploadReceipt': 'Upload payment receipt',
+    'cart.uploadReceiptHint': 'Click to upload payment screenshot',
+    'cart.receiptRequired': 'Please upload a payment receipt',
     
     // Become Chef
     'becomeChef.title': 'Become a Chef',
