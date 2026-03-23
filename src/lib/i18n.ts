@@ -571,6 +571,7 @@ export const translations = {
     'cart.backToCatalog': 'Назад в каталог',
     'cart.payByCard': 'Оплата картой',
     'cart.payByWallet': 'Оплата с кошелька',
+    'cart.payByKaspi': 'Kaspi перевод',
     'cart.payFromWallet': 'Оплатить с кошелька',
     'cart.insufficientBalance': 'Недостаточно средств',
     'cart.adminAccount': 'Аккаунт админа',
