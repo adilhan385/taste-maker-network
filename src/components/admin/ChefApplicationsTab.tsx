@@ -190,7 +190,7 @@ export default function ChefApplicationsTab({ searchQuery }: Props) {
               <div className="flex flex-col sm:flex-row items-start gap-4">
                 <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
                   {app.profile_photo_url ? (
-                    <img src={app.profile_photo_url} alt={app.full_name} className="w-full h-full object-cover" />
+                    <ProfilePhoto path={app.profile_photo_url} />
                   ) : (
                     <User className="w-8 h-8 text-muted-foreground" />
                   )}
@@ -253,7 +253,7 @@ export default function ChefApplicationsTab({ searchQuery }: Props) {
                 <DialogTitle className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                     {selectedApp.profile_photo_url ? (
-                      <img src={selectedApp.profile_photo_url} alt={selectedApp.full_name} className="w-full h-full object-cover" />
+                      <ProfilePhoto path={selectedApp.profile_photo_url} />
                     ) : (
                       <User className="w-6 h-6 text-muted-foreground" />
                     )}
