@@ -293,8 +293,8 @@ export default function Orders() {
                                 size="sm"
                                 onClick={() => navigate(`/chat?to=${order.chef_id}`)}
                               >
-                                <MessageSquare className="w-4 h-4 mr-2" />
-                                {t('orders.chatWithChef', language)}
+                                <MessageSquare className="w-4 h-4 sm:mr-2" />
+                                <span className="hidden sm:inline">{t('orders.chatWithChef', language)}</span>
                               </Button>
                             </div>
                           )}

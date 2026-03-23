@@ -146,7 +146,7 @@ export default function WalletPage() {
           </div>
         </motion.div>
 
-        <div className="bg-card rounded-xl p-6 shadow-card">
+        <div className="bg-card rounded-xl p-4 sm:p-6 shadow-card overflow-x-auto">
           <h2 className="text-xl font-semibold mb-4">{t('wallet.history', language)}</h2>
           
           {transactions.length === 0 ? (

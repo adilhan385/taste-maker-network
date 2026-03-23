@@ -142,11 +142,15 @@ export default function Navbar() {
         </div>
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-3">
-          <LanguageSelector />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden sm:block">
+            <LanguageSelector />
+          </div>
           
           {/* Wallet Widget - for authenticated non-admin users */}
-          <WalletWidget />
+          <div className="hidden sm:block">
+            <WalletWidget />
+          </div>
 
           {/* Cart - visible for guests and buyers, hidden for admin */}
           {showCart && (
@@ -256,7 +260,7 @@ export default function Navbar() {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden border-t border-border bg-background"
           >
-            <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
+            <div className="container mx-auto px-4 py-4 flex flex-col gap-4" onClick={() => setMobileMenuOpen(false)}>
               <NavLinks />
               {profile?.role === 'buyer' && (
                 <Link to="/become-chef" className="flex items-center gap-2 text-primary font-medium">
@@ -264,6 +268,10 @@ export default function Navbar() {
                   {t('nav.becomeChef', language)}
                 </Link>
               )}
+              <div className="flex items-center gap-4 pt-2 border-t border-border">
+                <LanguageSelector />
+                <WalletWidget />
+              </div>
             </div>
           </motion.div>
         )}

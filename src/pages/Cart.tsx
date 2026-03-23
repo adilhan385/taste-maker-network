@@ -263,8 +263,8 @@ export default function Cart() {
             <h2 className="font-semibold text-lg mb-4">{t('cart.yourItems', language)} ({cart.length})</h2>
             
             {cart.map(item => (
-              <motion.div key={item.productId} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="bg-card rounded-xl p-4 shadow-card flex gap-4">
-                <img src={item.productImage || '/placeholder.svg'} alt={item.productName} className="w-24 h-24 rounded-lg object-cover" />
+              <motion.div key={item.productId} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="bg-card rounded-xl p-4 shadow-card flex gap-3 sm:gap-4">
+                <img src={item.productImage || '/placeholder.svg'} alt={item.productName} className="w-16 h-16 sm:w-24 sm:h-24 rounded-lg object-cover flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold mb-1 truncate">{item.productName}</h3>
                   <p className="text-sm text-muted-foreground mb-1">{t('cart.by', language)} {item.chefName}</p>
