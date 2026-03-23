@@ -148,6 +148,7 @@ export default function ChefProfileTab() {
           city: data.city,
           address: data.address || '',
           bio: data.bio || '',
+          kaspiPhone: '',
         });
         setPhotoPreview(data.profile_photo_url);
       }
