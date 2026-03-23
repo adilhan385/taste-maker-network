@@ -1,102 +1,104 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import DishCard, { Dish } from '@/components/catalog/DishCard';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/contexts/AppContext';
 import { t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
-
-// Sample dishes for display
-const sampleDishes: Dish[] = [
-  {
-    id: '1',
-    name: 'Homemade Beshbarmak',
-    description: 'Traditional Kazakh dish with tender lamb, handmade noodles, and savory broth',
-    price: 15.99,
-    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&auto=format&fit=crop',
-    chef: {
-      id: 'chef-1',
-      name: 'Aisha K.',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&auto=format&fit=crop',
-      rating: 4.9,
-    },
-    cuisine: 'Kazakh',
-    dietary: ['Halal'],
-    rating: 4.8,
-    reviewCount: 128,
-    prepTime: 45,
-    availablePortions: 8,
-  },
-  {
-    id: '2',
-    name: 'Authentic Plov',
-    description: 'Uzbek rice pilaf with carrots, chickpeas, and aromatic spices',
-    price: 12.99,
-    image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800&auto=format&fit=crop',
-    chef: {
-      id: 'chef-2',
-      name: 'Rustam M.',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop',
-      rating: 4.8,
-    },
-    cuisine: 'Uzbek',
-    dietary: ['Halal', 'Gluten-free'],
-    rating: 4.9,
-    reviewCount: 256,
-    prepTime: 60,
-    availablePortions: 12,
-  },
-  {
-    id: '3',
-    name: 'Georgian Khinkali',
-    description: 'Hand-pleated dumplings filled with spiced beef and pork, served with fresh herbs',
-    price: 10.99,
-    image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=800&auto=format&fit=crop',
-    chef: {
-      id: 'chef-3',
-      name: 'Nino G.',
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop',
-      rating: 4.7,
-    },
-    cuisine: 'Georgian',
-    dietary: [],
-    rating: 4.7,
-    reviewCount: 89,
-    prepTime: 30,
-    availablePortions: 20,
-  },
-  {
-    id: '4',
-    name: 'Russian Borscht',
-    description: 'Classic beet soup with cabbage, potatoes, and sour cream',
-    price: 8.99,
-    image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&auto=format&fit=crop',
-    chef: {
-      id: 'chef-4',
-      name: 'Elena P.',
-      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&auto=format&fit=crop',
-      rating: 4.9,
-    },
-    cuisine: 'Russian',
-    dietary: ['Vegetarian'],
-    rating: 4.6,
-    reviewCount: 167,
-    prepTime: 25,
-    availablePortions: 15,
-  },
-];
+import { supabase } from '@/integrations/supabase/client';
 
 export default function FeaturedDishes() {
   const { language } = useApp();
   const { toast } = useToast();
+  const [dishes, setDishes] = useState<Dish[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const { data: productsData, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('is_available', true)
+          .gt('available_portions', 0)
+          .order('created_at', { ascending: false })
+          .limit(4);
+
+        if (error || !productsData || productsData.length === 0) {
+          setDishes([]);
+          setLoading(false);
+          return;
+        }
+
+        const chefIds = [...new Set(productsData.map(p => p.chef_id))];
+        const [{ data: profilesData }, { data: ranksData }, { data: reviewsData }] = await Promise.all([
+          supabase.from('profiles').select('user_id, full_name, avatar_url').in('user_id', chefIds),
+          supabase.from('chef_ranks').select('chef_id, rank').in('chef_id', chefIds),
+          supabase.from('reviews').select('product_id, rating').in('product_id', productsData.map(p => p.id)),
+        ]);
+
+        const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
+        const ranksMap = new Map(ranksData?.map(r => [r.chef_id, r.rank]) || []);
+        const reviewsMap = new Map<string, { sum: number; count: number }>();
+        reviewsData?.forEach(r => {
+          const existing = reviewsMap.get(r.product_id) || { sum: 0, count: 0 };
+          existing.sum += r.rating;
+          existing.count += 1;
+          reviewsMap.set(r.product_id, existing);
+        });
+
+        const formatted: Dish[] = productsData.map(product => {
+          const profile = profilesMap.get(product.chef_id);
+          const stats = reviewsMap.get(product.id);
+          const avgRating = stats ? Math.round((stats.sum / stats.count) * 10) / 10 : 0;
+          return {
+            id: product.id,
+            name: product.name,
+            name_ru: product.name_ru,
+            name_kz: product.name_kz,
+            description: product.description || '',
+            description_ru: product.description_ru,
+            description_kz: product.description_kz,
+            price: Number(product.price),
+            image: product.image_url || '/placeholder.svg',
+            chef: {
+              id: product.chef_id,
+              name: profile?.full_name || 'Chef',
+              avatar: profile?.avatar_url || '',
+              rating: avgRating || 0,
+            },
+            cuisine: product.cuisine || '',
+            dietary: [],
+            rating: avgRating,
+            reviewCount: stats?.count || 0,
+            prepTime: product.prep_time || 30,
+            availablePortions: product.available_portions,
+            chefRank: ranksMap.get(product.chef_id) || 'bronze',
+          };
+        });
+
+        setDishes(formatted);
+      } catch (err) {
+        console.error('Error fetching featured dishes:', err);
+        setDishes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeatured();
+  }, []);
 
   const handleAddToCart = () => {
     toast({
       title: t('common.success', language),
-      description: 'Added to cart!',
+      description: t('catalog.addToCart', language),
     });
   };
+
+  if (!loading && dishes.length === 0) return null;
 
   return (
     <section className="py-20 bg-secondary/30">
@@ -112,27 +114,33 @@ export default function FeaturedDishes() {
               {t('catalog.title', language)}
             </h2>
             <p className="text-muted-foreground">
-              Fresh dishes from the best local home cooks
+              {t('catalog.subtitle', language)}
             </p>
           </div>
           <Link to="/catalog">
             <Button variant="outline" className="gap-2">
-              View All
+              {t('common.viewAll', language) || 'View All'}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {sampleDishes.map((dish, index) => (
-            <DishCard
-              key={dish.id}
-              dish={dish}
-              index={index}
-              onAddToCart={handleAddToCart}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {dishes.map((dish, index) => (
+              <DishCard
+                key={dish.id}
+                dish={dish}
+                index={index}
+                onAddToCart={handleAddToCart}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
