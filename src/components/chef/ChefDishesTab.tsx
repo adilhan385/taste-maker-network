@@ -164,7 +164,7 @@ export default function ChefDishesTab() {
         name: formData.name,
         description: formData.description || null,
         price: parseFloat(formData.price),
-        cuisine: formData.cuisine || null,
+        cuisine: null,
         dietary: formData.dietary.length > 0 ? formData.dietary : null,
         prep_time: formData.prep_time ? parseInt(formData.prep_time) : null,
         available_portions: parseInt(formData.available_portions) || 10,
