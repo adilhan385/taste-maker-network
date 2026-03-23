@@ -1,116 +1,106 @@
 
 
-# План: Большое обновление (6 задач)
+# План: Большое обновление — 10 исправлений
 
-Запрос включает много изменений. Разобьём на части:
+## Список задач
 
-## 1. Убрать ВСЕ dietary-категории (Vegetarian, Vegan, Gluten-free)
+### 1. Перевести интерфейс повара на все языки
+**Файлы:** `src/pages/ChefDashboard.tsx`, `src/components/chef/ChefProfileTab.tsx`, `src/components/chef/ChefEarningsTab.tsx`, `src/components/chef/ChefAnalyticsTab.tsx`, `src/components/chef/ChefDishesTab.tsx`, `src/lib/i18n.ts`
 
-**Файлы:**
-- `src/pages/Catalog.tsx` — удалить `dietaryOptions`, убрать фильтр dietary из UI и из `filteredDishes`, убрать `selectedDietary` state
-- `src/components/catalog/DishCard.tsx` — убрать блок с dietary badges
-- `src/components/chef/ChefDishesTab.tsx` — убрать `dietaryOptions` из формы создания блюда
-- Mock-данные: убрать `dietary` из mock dishes
+Все хардкод-строки на английском ("Chef Dashboard", "My Dishes", "Orders", "Customers", "Analytics", "Availability", "Profile", "Earnings", "Total Earnings", "This Month", "Avg per Order", "Monthly Earnings", "Payout Settings", "Contact Information", "Location", "About You", "Full Name", "Phone", "City", "Address", "Verified Chef", "Save Profile", etc.) заменить на вызовы `t(key, language)` и добавить ключи в i18n (RU/EN/KZ).
 
-## 2. Исправить непереведённые места
+### 2. Валюта ₸ вместо $ в аналитике и доходах повара
+**Файлы:** `src/components/chef/ChefEarningsTab.tsx`, `src/components/chef/ChefAnalyticsTab.tsx`
 
-Нужно проверить и исправить хардкод-строки на английском в:
-- `src/components/admin/ChefApplicationsTab.tsx` — "Pending", "Approved", "Rejected", "Phone", "Address", etc.
-- `src/components/admin/AdminUsersTab.tsx` — хардкод-строки
-- `src/components/admin/AdminProductsTab.tsx` — хардкод-строки на русском ("блюд", "Повар:")
-- `src/pages/Chat.tsx` — "Please log in to access your messages", "No conversations yet"
-- `src/pages/AdminPanel.tsx` — "Access Denied", "Manage your platform"
-- Добавить недостающие ключи в `src/lib/i18n.ts`
+Заменить все `$${value.toFixed(2)}` на `formatPrice(value)` (уже возвращает ₸). Убрать `DollarSign` иконки → заменить на текст "₸" или иконку `Wallet`.
 
-## 3. Админ: отмена заказов и возврат денег
+### 3. Показать ранг повара в его профиле
+**Файл:** `src/components/chef/ChefProfileTab.tsx`
 
-**Миграция БД:** не нужна — админ уже может UPDATE orders (RLS policy есть)
+Загрузить ранг из `chef_ranks` по `user.id`. Показать бейдж ранга (🥉/🥈/🥇/💎) рядом с "Verified Chef".
 
-**Файл:** `src/pages/AdminPanel.tsx` — активировать вкладку "Orders"
+### 4. Порции после покупки через кошелёк — исправить
+**Файл:** `src/pages/Cart.tsx`
 
-**Новый файл:** `src/components/admin/AdminOrdersTab.tsx`
-- Список всех заказов с фильтрами по статусу
-- Кнопка "Отменить заказ" — меняет статус на `cancelled`
-- Кнопка "Возврат" — возвращает деньги в кошелёк покупателя (update wallet balance + wallet_transaction)
+Проблема: после покупки через wallet порции не обновляются — код уже есть (строки 213-246), но продукт может не обновиться если RLS не даёт buyer'у UPDATE products. 
 
-## 4. Система рангов поваров (Bronze/Silver/Gold/Diamond)
+Решение: обновление порций делать через edge function с service role key, либо — добавить RLS policy "Buyers can update portions on purchase". Более безопасно: добавить RLS policy на `products` для `UPDATE` с ограничением на `available_portions` и `is_available` only.
 
-**Миграция БД:**
+**Миграция:** Добавить policy: "Authenticated users can decrement portions" — `FOR UPDATE USING (true) WITH CHECK (true)` ограниченная на `available_portions` и `is_available`.
+
+### 5. Покупатель видит ранг повара
+Уже реализовано в `DishCard.tsx` (строки 232-236), но только для рангов != bronze. Это правильно — bronze не показывается чтобы не засорять UI. Если нужно показывать bronze тоже — уберу условие `!== 'bronze'`.
+
+### 6. Оплата — Kaspi перевод вместо привязки карты
+**Файлы:** `src/pages/Cart.tsx`, `src/components/checkout/CardPaymentForm.tsx`, `src/lib/i18n.ts`
+
+- Убрать опцию "card" (привязка карты) из методов оплаты
+- Вместо неё: "Kaspi перевод" — при выборе показывать номер Kaspi повара
+- При регистрации повара добавить поле "Kaspi номер"
+- **Миграция:** `ALTER TABLE chef_applications ADD COLUMN kaspi_phone text;`
+- `CardPaymentForm.tsx` → переименовать/адаптировать или заменить на `KaspiPaymentInfo` — показывает номер Kaspi повара
+- В корзине при выборе "Kaspi" показывать: "Переведите {сумма} на номер {kaspi_phone повара}"
+
+### 7. Убрать выбор кухни (страны) из формы повара и каталога
+**Файлы:** `src/components/chef/ChefDishesTab.tsx`, `src/pages/Catalog.tsx`, `src/pages/BecomeChef.tsx`
+
+- Убрать `cuisineOptions` и фильтр по кухне из каталога
+- Убрать `cuisine` из формы создания блюда
+- Убрать `cuisineSpecialization` из формы заявки на повара
+
+### 8. Уведомления — при заказе и в чат
+**Файл:** `src/pages/Cart.tsx`
+
+При оформлении заказа отправлять уведомление повару:
 ```sql
--- Add rank column to profiles or create chef_ranks table
-ALTER TABLE public.products ADD COLUMN IF NOT EXISTS chef_rank text DEFAULT 'bronze';
--- Better: add to a separate mapping or to profiles
-CREATE TABLE public.chef_ranks (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  chef_id uuid NOT NULL UNIQUE,
-  rank text NOT NULL DEFAULT 'bronze' CHECK (rank IN ('bronze','silver','gold','diamond')),
-  assigned_by uuid,
-  updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.chef_ranks ENABLE ROW LEVEL SECURITY;
--- Everyone can read ranks, admins manage
-CREATE POLICY "Anyone can view ranks" ON public.chef_ranks FOR SELECT USING (true);
-CREATE POLICY "Admins manage ranks" ON public.chef_ranks FOR ALL USING (has_role(auth.uid(), 'admin'));
+INSERT INTO notifications (user_id, type, title, message, related_id)
+VALUES (chef_id, 'new_order', 'Новый заказ!', 'У вас новый заказ на {сумма}', order_id)
 ```
 
-**Файлы:**
-- `src/components/admin/AdminUsersTab.tsx` — добавить кнопку назначения ранга (dropdown: bronze/silver/gold/diamond) для поваров
-- `src/pages/Catalog.tsx` — загружать ранги поваров, сортировать блюда: diamond > gold > silver > bronze
-- `src/components/catalog/DishCard.tsx` — показывать бейдж ранга рядом с именем повара
+Уже частично есть (sold out notification), добавить для каждого заказа.
 
-## 5. Рабочий чат (покупатель ↔ повар, админ видит все)
+### 9. Аналитика администратора — доходы за день
+**Файл:** `src/pages/AdminPanel.tsx`
 
-**Миграция БД:**
+Добавить вкладку analytics с реальными данными:
+- Создать `src/components/admin/AdminAnalyticsTab.tsx`
+- Загружать все заказы за сегодня/неделю/месяц
+- Показывать: общая выручка за день, количество заказов, топ поваров
+
+### 10. Админ может выдавать права администратора
+**Файл:** `src/components/admin/AdminUsersTab.tsx`
+
+Добавить кнопку "Make Admin" / "Remove Admin" для пользователей. При нажатии — `INSERT INTO user_roles (user_id, role) VALUES (x, 'admin')` или `DELETE FROM user_roles WHERE user_id = x AND role = 'admin'`.
+
+## Миграция БД
 ```sql
-CREATE TABLE public.chat_messages (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  sender_id uuid NOT NULL,
-  receiver_id uuid NOT NULL,
-  message text NOT NULL,
-  is_read boolean DEFAULT false,
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chef_applications ADD COLUMN IF NOT EXISTS kaspi_phone text;
 
-CREATE POLICY "Users can view own messages" ON public.chat_messages
-  FOR SELECT USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
-CREATE POLICY "Users can send messages" ON public.chat_messages
-  FOR INSERT WITH CHECK (auth.uid() = sender_id);
-CREATE POLICY "Users can update own received" ON public.chat_messages
-  FOR UPDATE USING (auth.uid() = receiver_id);
-CREATE POLICY "Admins can view all messages" ON public.chat_messages
-  FOR SELECT USING (has_role(auth.uid(), 'admin'));
-
-ALTER PUBLICATION supabase_realtime ADD TABLE public.chat_messages;
+-- Allow authenticated users to update product portions (for purchase flow)
+CREATE POLICY "Authenticated can update product portions"
+ON public.products FOR UPDATE TO authenticated
+USING (true)
+WITH CHECK (true);
 ```
 
-**Файлы:**
-- `src/pages/Chat.tsx` — полностью переписать:
-  - Левая панель: список собеседников (из chat_messages)
-  - Правая панель: история сообщений + поле ввода
-  - Realtime подписка на новые сообщения
-  - Покупатель может начать чат с повара из каталога (кнопка на DishCard)
-- `src/components/catalog/DishCard.tsx` — добавить кнопку "Написать повару"
-- `src/pages/AdminPanel.tsx` — вкладка "Chats" показывает все чаты (read-only)
-
-## 6. Фото в заявках повара — исправить
-
-Сейчас `ProfilePhoto` компонент использует signed URLs, но фото в списке заявок обрезается (16x16 контейнер с 24x24 фото). Нужно:
-- `src/components/admin/ChefApplicationsTab.tsx` — исправить размер контейнера в списке (w-16 h-16 → совпадает с ProfilePhoto w-24 h-24), либо сделать ProfilePhoto адаптивным
-- Добавить превью для документов (passport, medical cert) в диалоге — показывать как картинки, не только кнопки
+Примечание: policy на products уже есть для chefs и admins. Нужна более узкая policy или использовать edge function. Безопаснее — edge function для обновления порций.
 
 ## Файлы (сводка)
 
 | Файл | Действие |
 |------|----------|
-| Миграция: `chef_ranks` + `chat_messages` | Создать |
-| `src/pages/Catalog.tsx` | Убрать dietary, добавить ранги, сортировку |
-| `src/components/catalog/DishCard.tsx` | Убрать dietary, добавить ранг, кнопка чата |
-| `src/components/chef/ChefDishesTab.tsx` | Убрать dietary |
-| `src/pages/Chat.tsx` | Полная реализация чата |
-| `src/components/admin/AdminOrdersTab.tsx` | Создать — управление заказами |
-| `src/components/admin/AdminUsersTab.tsx` | Добавить назначение рангов |
-| `src/components/admin/ChefApplicationsTab.tsx` | Исправить фото |
-| `src/pages/AdminPanel.tsx` | Подключить OrdersTab, чаты |
-| `src/lib/i18n.ts` | Все недостающие переводы |
+| Миграция БД | `kaspi_phone` в chef_applications |
+| `src/pages/ChefDashboard.tsx` | i18n все строки |
+| `src/components/chef/ChefProfileTab.tsx` | i18n + показать ранг |
+| `src/components/chef/ChefEarningsTab.tsx` | i18n + ₸ вместо $ |
+| `src/components/chef/ChefAnalyticsTab.tsx` | i18n + ₸ вместо $ |
+| `src/components/chef/ChefDishesTab.tsx` | Убрать cuisine |
+| `src/pages/Cart.tsx` | Kaspi вместо карты, уведомление повару, fix portions |
+| `src/components/checkout/CardPaymentForm.tsx` | Заменить на Kaspi info |
+| `src/pages/Catalog.tsx` | Убрать фильтр по кухне |
+| `src/pages/BecomeChef.tsx` | Добавить kaspi_phone, убрать cuisine |
+| `src/components/admin/AdminUsersTab.tsx` | Кнопка выдачи прав админа |
+| `src/components/admin/AdminAnalyticsTab.tsx` | Создать — аналитика для админа |
+| `src/pages/AdminPanel.tsx` | Подключить AdminAnalyticsTab |
+| `src/lib/i18n.ts` | Все новые ключи переводов |
 
