@@ -1106,6 +1106,9 @@ export const translations = {
     'chef.edit': 'Өзгерту',
     'chef.paused': 'Тоқтатылған',
     'chef.upload': 'Жүктеу',
+    'chef.myReviews': 'Менің пікірлерім',
+    'chef.myReviewsDesc': 'Сіздің клиенттеріңіз қалдырған пікірлер',
+    'chef.noReviewsYet': 'Әзірге пікірлер жоқ',
     'chef.nameRequired': 'Атауы мен бағасы міндетті',
     // Translations
     'chef.translations': 'Аудармалар',
