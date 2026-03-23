@@ -117,7 +117,7 @@ export default function Catalog() {
         }
       } catch (error) {
         console.error('Error fetching dishes:', error);
-        setDishes(mockDishes);
+        setDishes([]);
       } finally {
         setLoading(false);
       }
