@@ -202,6 +202,11 @@ export default function AdminOrdersTab({ searchQuery }: Props) {
                   </p>
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
+                  {(order as any).payment_receipt_url && (
+                    <Button variant="outline" size="sm" onClick={() => window.open((order as any).payment_receipt_url, '_blank')}>
+                      <ImageIcon className="w-4 h-4 mr-1" />{t('orders.viewReceipt', language)}
+                    </Button>
+                  )}
                   {order.status !== 'cancelled' && order.status !== 'delivered' && (
                     <Button variant="destructive" size="sm" onClick={() => handleCancelOrder(order)} disabled={actionLoading}>
                       <XCircle className="w-4 h-4 mr-1" />{t('admin.cancel', language)}

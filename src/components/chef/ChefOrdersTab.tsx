@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, Clock, CheckCircle, Truck, XCircle, Loader2, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Package, Clock, CheckCircle, Truck, XCircle, Loader2, MessageCircle, ChevronDown, ChevronUp, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
