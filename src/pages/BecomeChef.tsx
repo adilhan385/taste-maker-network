@@ -179,7 +179,7 @@ export default function BecomeChef() {
     switch (currentStep) {
       case 1: return formData.fullName && formData.phone && formData.city;
       case 2: return formData.idDocument && formData.sanitaryCertificate;
-      case 3: return formData.bio && formData.cuisineSpecialization && formData.experience;
+      case 3: return formData.bio && formData.experience;
       default: return false;
     }
   };
