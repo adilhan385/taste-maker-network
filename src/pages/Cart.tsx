@@ -23,11 +23,13 @@ export default function Cart() {
   const navigate = useNavigate();
   
   const [deliveryOption, setDeliveryOption] = useState<'delivery' | 'pickup'>('delivery');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
-  const [cardData, setCardData] = useState<CardPaymentData>(initialCardPaymentData);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('kaspi');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryNotes, setDeliveryNotes] = useState('');
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [walletId, setWalletId] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [chefKaspiPhone, setChefKaspiPhone] = useState<string | null>(null);
 
   // Fetch wallet balance
   useEffect(() => {
