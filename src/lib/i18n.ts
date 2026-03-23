@@ -649,6 +649,7 @@ export const translations = {
     'becomeChef.appExistsDesc': 'У вас уже есть ожидающая заявка. Пожалуйста, дождитесь проверки.',
     'becomeChef.appSubmitted': 'Заявка отправлена!',
     'becomeChef.appSubmittedDesc': 'Ваша заявка повара отправлена. Мы рассмотрим её в течение 2-3 рабочих дней.',
+    'becomeChef.kaspiPhone': 'Номер Kaspi',
     
     // Chef Dashboard
     'chef.myDishes': 'Мои блюда',
