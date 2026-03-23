@@ -103,9 +103,6 @@ export default function ChefDishesTab() {
       dietary: dish.dietary || [],
       prep_time: dish.prep_time?.toString() || '',
       available_portions: dish.available_portions.toString(),
-      allergens: dish.allergens?.join(', ') || '',
-      portion_size: dish.portion_size || '',
-      ingredients: dish.ingredients?.join(', ') || '',
       available_days: dish.available_days || dayOptions,
     });
     setImagePreview(dish.image_url);
