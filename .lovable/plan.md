@@ -1,72 +1,116 @@
 
 
-# План: Расширенные возможности администратора
+# План: Большое обновление (6 задач)
 
-## Что будет сделано
+Запрос включает много изменений. Разобьём на части:
 
-1. **Блокировка пользователей** (навсегда или временно)
-2. **Управление продуктами** (просмотр, удаление любых блюд)
-3. **Просмотр документов** через signed URLs (исправление проблемы с фотками)
-4. **Управление пользователями** (список всех пользователей с поиском)
+## 1. Убрать ВСЕ dietary-категории (Vegetarian, Vegan, Gluten-free)
 
-## Изменения в базе данных
+**Файлы:**
+- `src/pages/Catalog.tsx` — удалить `dietaryOptions`, убрать фильтр dietary из UI и из `filteredDishes`, убрать `selectedDietary` state
+- `src/components/catalog/DishCard.tsx` — убрать блок с dietary badges
+- `src/components/chef/ChefDishesTab.tsx` — убрать `dietaryOptions` из формы создания блюда
+- Mock-данные: убрать `dietary` из mock dishes
 
-### Миграция: таблица `user_bans`
+## 2. Исправить непереведённые места
+
+Нужно проверить и исправить хардкод-строки на английском в:
+- `src/components/admin/ChefApplicationsTab.tsx` — "Pending", "Approved", "Rejected", "Phone", "Address", etc.
+- `src/components/admin/AdminUsersTab.tsx` — хардкод-строки
+- `src/components/admin/AdminProductsTab.tsx` — хардкод-строки на русском ("блюд", "Повар:")
+- `src/pages/Chat.tsx` — "Please log in to access your messages", "No conversations yet"
+- `src/pages/AdminPanel.tsx` — "Access Denied", "Manage your platform"
+- Добавить недостающие ключи в `src/lib/i18n.ts`
+
+## 3. Админ: отмена заказов и возврат денег
+
+**Миграция БД:** не нужна — админ уже может UPDATE orders (RLS policy есть)
+
+**Файл:** `src/pages/AdminPanel.tsx` — активировать вкладку "Orders"
+
+**Новый файл:** `src/components/admin/AdminOrdersTab.tsx`
+- Список всех заказов с фильтрами по статусу
+- Кнопка "Отменить заказ" — меняет статус на `cancelled`
+- Кнопка "Возврат" — возвращает деньги в кошелёк покупателя (update wallet balance + wallet_transaction)
+
+## 4. Система рангов поваров (Bronze/Silver/Gold/Diamond)
+
+**Миграция БД:**
 ```sql
-CREATE TABLE public.user_bans (
+-- Add rank column to profiles or create chef_ranks table
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS chef_rank text DEFAULT 'bronze';
+-- Better: add to a separate mapping or to profiles
+CREATE TABLE public.chef_ranks (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL,
-  banned_by uuid NOT NULL,
-  reason text,
-  banned_until timestamptz, -- NULL = навсегда
-  created_at timestamptz NOT NULL DEFAULT now()
+  chef_id uuid NOT NULL UNIQUE,
+  rank text NOT NULL DEFAULT 'bronze' CHECK (rank IN ('bronze','silver','gold','diamond')),
+  assigned_by uuid,
+  updated_at timestamptz DEFAULT now()
 );
-ALTER TABLE public.user_bans ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Admins can manage bans" ON public.user_bans
-  FOR ALL USING (has_role(auth.uid(), 'admin'));
-
-CREATE POLICY "Users can view own bans" ON public.user_bans
-  FOR SELECT USING (auth.uid() = user_id);
+ALTER TABLE public.chef_ranks ENABLE ROW LEVEL SECURITY;
+-- Everyone can read ranks, admins manage
+CREATE POLICY "Anyone can view ranks" ON public.chef_ranks FOR SELECT USING (true);
+CREATE POLICY "Admins manage ranks" ON public.chef_ranks FOR ALL USING (has_role(auth.uid(), 'admin'));
 ```
 
-## Новые компоненты
+**Файлы:**
+- `src/components/admin/AdminUsersTab.tsx` — добавить кнопку назначения ранга (dropdown: bronze/silver/gold/diamond) для поваров
+- `src/pages/Catalog.tsx` — загружать ранги поваров, сортировать блюда: diamond > gold > silver > bronze
+- `src/components/catalog/DishCard.tsx` — показывать бейдж ранга рядом с именем повара
 
-### `src/components/admin/AdminUsersTab.tsx`
-- Загрузка всех профилей из `profiles` + `user_roles`
-- Поиск по имени/email
-- Кнопки: заблокировать на время (выбор срока) / навсегда / разблокировать
-- Показ текущего статуса бана
-- Роль пользователя (buyer/cook/admin)
+## 5. Рабочий чат (покупатель ↔ повар, админ видит все)
 
-### `src/components/admin/AdminProductsTab.tsx`
-- Загрузка всех продуктов с именем повара
-- Поиск по названию/повару
-- Кнопка удаления продукта
-- Превью фото блюда
+**Миграция БД:**
+```sql
+CREATE TABLE public.chat_messages (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  sender_id uuid NOT NULL,
+  receiver_id uuid NOT NULL,
+  message text NOT NULL,
+  is_read boolean DEFAULT false,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
 
-## Обновления существующих файлов
+CREATE POLICY "Users can view own messages" ON public.chat_messages
+  FOR SELECT USING (auth.uid() = sender_id OR auth.uid() = receiver_id);
+CREATE POLICY "Users can send messages" ON public.chat_messages
+  FOR INSERT WITH CHECK (auth.uid() = sender_id);
+CREATE POLICY "Users can update own received" ON public.chat_messages
+  FOR UPDATE USING (auth.uid() = receiver_id);
+CREATE POLICY "Admins can view all messages" ON public.chat_messages
+  FOR SELECT USING (has_role(auth.uid(), 'admin'));
 
-### `src/components/admin/ChefApplicationsTab.tsx`
-- Документы (паспорт, мед.книжка, фото) загружать через **signed URLs** вместо прямых ссылок
-- Использовать `supabase.storage.from('chef-documents').createSignedUrl(path, 3600)` для генерации временных ссылок
-- Показывать превью фото прямо в диалоге
+ALTER PUBLICATION supabase_realtime ADD TABLE public.chat_messages;
+```
 
-### `src/pages/AdminPanel.tsx`
-- Подключить `AdminUsersTab` и `AdminProductsTab` к соответствующим вкладкам
-- Вкладка Users и Products станут рабочими
+**Файлы:**
+- `src/pages/Chat.tsx` — полностью переписать:
+  - Левая панель: список собеседников (из chat_messages)
+  - Правая панель: история сообщений + поле ввода
+  - Realtime подписка на новые сообщения
+  - Покупатель может начать чат с повара из каталога (кнопка на DishCard)
+- `src/components/catalog/DishCard.tsx` — добавить кнопку "Написать повару"
+- `src/pages/AdminPanel.tsx` — вкладка "Chats" показывает все чаты (read-only)
 
-### Проверка бана при входе
-- В `src/contexts/AuthContext.tsx` — при авторизации проверять таблицу `user_bans` (активный бан = `banned_until IS NULL` или `banned_until > now()`). Если забанен — показывать сообщение и выходить.
+## 6. Фото в заявках повара — исправить
 
-## Файлы
+Сейчас `ProfilePhoto` компонент использует signed URLs, но фото в списке заявок обрезается (16x16 контейнер с 24x24 фото). Нужно:
+- `src/components/admin/ChefApplicationsTab.tsx` — исправить размер контейнера в списке (w-16 h-16 → совпадает с ProfilePhoto w-24 h-24), либо сделать ProfilePhoto адаптивным
+- Добавить превью для документов (passport, medical cert) в диалоге — показывать как картинки, не только кнопки
+
+## Файлы (сводка)
 
 | Файл | Действие |
 |------|----------|
-| Миграция БД | Создать таблицу `user_bans` |
-| `src/components/admin/AdminUsersTab.tsx` | Создать |
-| `src/components/admin/AdminProductsTab.tsx` | Создать |
-| `src/components/admin/ChefApplicationsTab.tsx` | Исправить просмотр документов через signed URLs |
-| `src/pages/AdminPanel.tsx` | Подключить новые вкладки |
-| `src/contexts/AuthContext.tsx` | Проверка бана при входе |
+| Миграция: `chef_ranks` + `chat_messages` | Создать |
+| `src/pages/Catalog.tsx` | Убрать dietary, добавить ранги, сортировку |
+| `src/components/catalog/DishCard.tsx` | Убрать dietary, добавить ранг, кнопка чата |
+| `src/components/chef/ChefDishesTab.tsx` | Убрать dietary |
+| `src/pages/Chat.tsx` | Полная реализация чата |
+| `src/components/admin/AdminOrdersTab.tsx` | Создать — управление заказами |
+| `src/components/admin/AdminUsersTab.tsx` | Добавить назначение рангов |
+| `src/components/admin/ChefApplicationsTab.tsx` | Исправить фото |
+| `src/pages/AdminPanel.tsx` | Подключить OrdersTab, чаты |
+| `src/lib/i18n.ts` | Все недостающие переводы |
 
