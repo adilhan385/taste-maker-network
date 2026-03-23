@@ -56,8 +56,53 @@ export default function ChefProfileTab() {
     if (user) {
       fetchChefData();
       fetchChefRank();
+      fetchReviews();
     }
   }, [user]);
+
+  const fetchReviews = async () => {
+    if (!user) return;
+    try {
+      // Get chef's products
+      const { data: products } = await supabase.from('products').select('id').eq('chef_id', user.id);
+      if (!products || products.length === 0) return;
+      const productIds = products.map(p => p.id);
+      
+      // Get reviews for those products
+      const { data: reviewsData } = await supabase
+        .from('reviews')
+        .select('*')
+        .in('product_id', productIds)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      if (reviewsData && reviewsData.length > 0) {
+        // Get reviewer profiles
+        const userIds = [...new Set(reviewsData.map(r => r.user_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', userIds);
+        
+        const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+        
+        // Get product names
+        const { data: prods } = await supabase
+          .from('products')
+          .select('id, name')
+          .in('id', productIds);
+        const prodMap = new Map(prods?.map(p => [p.id, p.name]) || []);
+        
+        setReviews(reviewsData.map(r => ({
+          ...r,
+          reviewer_name: profileMap.get(r.user_id)?.full_name || 'User',
+          product_name: prodMap.get(r.product_id) || '',
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    }
+  };
 
   useEffect(() => {
     if (profile) {
