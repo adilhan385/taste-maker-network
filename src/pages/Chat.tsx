@@ -293,10 +293,48 @@ export default function Chat() {
             <div className="flex h-full">
               {/* Contacts sidebar */}
               <div className={`w-full md:w-80 border-r flex flex-col ${selectedContact ? 'hidden md:flex' : 'flex'}`}>
-                <div className="p-4 border-b">
+                <div className="p-4 border-b flex items-center justify-between">
                   <h2 className="text-lg font-serif font-bold">{t('nav.chat', language)}</h2>
-                  
+                  {isAdmin && (
+                    <Button variant="ghost" size="icon" onClick={() => { setShowUserSearch(!showUserSearch); setSearchQuery(''); setSearchResults([]); }}>
+                      {showUserSearch ? <X className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
+                    </Button>
+                  )}
                 </div>
+                {showUserSearch && (
+                  <div className="p-3 border-b space-y-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        value={searchQuery}
+                        onChange={async (e) => {
+                          const q = e.target.value;
+                          setSearchQuery(q);
+                          if (q.length < 2) { setSearchResults([]); return; }
+                          setSearchLoading(true);
+                          const { data } = await supabase.from('profiles').select('user_id, full_name, avatar_url').ilike('full_name', `%${q}%`).limit(10);
+                          setSearchResults((data || []).filter(p => p.user_id !== user?.id));
+                          setSearchLoading(false);
+                        }}
+                        placeholder={t('chat.searchUsers', language)}
+                        className="pl-9"
+                      />
+                    </div>
+                    {searchLoading && <div className="flex justify-center py-2"><Loader2 className="w-4 h-4 animate-spin" /></div>}
+                    {searchResults.map(p => (
+                      <button
+                        key={p.user_id}
+                        onClick={() => { setSelectedContact(p.user_id); setShowUserSearch(false); setSearchQuery(''); setSearchResults([]); }}
+                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
+                          {p.avatar_url ? <img src={p.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-xs font-medium">{p.full_name.charAt(0)}</span>}
+                        </div>
+                        <span className="text-sm font-medium">{p.full_name}</span>
+                      </button>
+                    ))}
+                  </div>
+                )
                 <ScrollArea className="flex-1">
                   {loading ? (
                     <div className="flex items-center justify-center py-12">
