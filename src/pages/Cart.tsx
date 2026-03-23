@@ -251,8 +251,8 @@ export default function Cart() {
               .insert({
                 user_id: product.chef_id,
                 type: 'product_sold_out',
-                title: 'Блюдо распродано',
-                message: `${product.name} полностью распродано!`,
+                title: 'Product sold out',
+                message: `${product.name} is sold out`,
                 related_id: item.productId
               });
           }
