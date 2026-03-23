@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Minus, Plus, Trash2, CreditCard, Banknote, ArrowLeft, Truck, Store, Wallet } from 'lucide-react';
+import { ShoppingBag, Minus, Plus, Trash2, Banknote, ArrowLeft, Truck, Store, Wallet, Smartphone } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { formatPrice, t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import CardPaymentForm, { CardPaymentData, initialCardPaymentData, validateCardPayment } from '@/components/checkout/CardPaymentForm';
 
-type PaymentMethod = 'card' | 'cash' | 'wallet';
+type PaymentMethod = 'kaspi' | 'cash' | 'wallet';
 
 export default function Cart() {
   const { cart, language, updateCartQuantity, removeFromCart, cartTotal, setAuthModalOpen, setAuthModalMode, clearCart } = useApp();
