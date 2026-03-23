@@ -13,6 +13,7 @@ import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import AdminProductsTab from '@/components/admin/AdminProductsTab';
 import AdminOrdersTab from '@/components/admin/AdminOrdersTab';
 import AdminChatsTab from '@/components/admin/AdminChatsTab';
+import AdminAnalyticsTab from '@/components/admin/AdminAnalyticsTab';
 
 const navItems = [
   { id: 'applications', labelKey: 'admin.chefApplications', icon: ChefHat },
