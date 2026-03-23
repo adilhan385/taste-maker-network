@@ -245,7 +245,6 @@ export default function Chat() {
 
   const handleSend = async () => {
     if (!newMessage.trim() || !selectedContact || !user || sending) return;
-    if (isAdmin) return; // Admin is read-only
 
     setSending(true);
     try {
@@ -292,7 +291,7 @@ export default function Chat() {
               <div className={`w-full md:w-80 border-r flex flex-col ${selectedContact ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-4 border-b">
                   <h2 className="text-lg font-serif font-bold">{t('nav.chat', language)}</h2>
-                  {isAdmin && <p className="text-xs text-muted-foreground mt-1">{t('admin.viewOnly', language)}</p>}
+                  
                 </div>
                 <ScrollArea className="flex-1">
                   {loading ? (
@@ -372,21 +371,19 @@ export default function Chat() {
                     </ScrollArea>
 
                     {/* Input */}
-                    {!isAdmin && (
-                      <div className="p-4 border-t">
-                        <div className="flex gap-2">
-                          <Input
-                            value={newMessage}
-                            onChange={e => setNewMessage(e.target.value)}
-                            placeholder={t('chat.typePlaceholder', language)}
-                            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
-                          />
-                          <Button onClick={handleSend} disabled={!newMessage.trim() || sending} size="icon">
-                            <Send className="w-4 h-4" />
-                          </Button>
-                        </div>
+                    <div className="p-4 border-t">
+                      <div className="flex gap-2">
+                        <Input
+                          value={newMessage}
+                          onChange={e => setNewMessage(e.target.value)}
+                          placeholder={t('chat.typePlaceholder', language)}
+                          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
+                        />
+                        <Button onClick={handleSend} disabled={!newMessage.trim() || sending} size="icon">
+                          <Send className="w-4 h-4" />
+                        </Button>
                       </div>
-                    )}
+                    </div>
                   </>
                 ) : (
                   <div className="flex-1 flex items-center justify-center">

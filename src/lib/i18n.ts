@@ -238,6 +238,9 @@ export const translations = {
     'chef.edit': 'Edit',
     'chef.paused': 'Paused',
     'chef.upload': 'Upload',
+    'chef.myReviews': 'My Reviews',
+    'chef.myReviewsDesc': 'Reviews left by your customers',
+    'chef.noReviewsYet': 'No reviews yet',
     'chef.nameRequired': 'Name and price are required',
     // Translations for dishes
     'chef.translations': 'Translations',
@@ -688,6 +691,9 @@ export const translations = {
     'chef.edit': 'Редактировать',
     'chef.paused': 'Приостановлено',
     'chef.upload': 'Загрузить',
+    'chef.myReviews': 'Мои отзывы',
+    'chef.myReviewsDesc': 'Отзывы, оставленные вашими клиентами',
+    'chef.noReviewsYet': 'Пока нет отзывов',
     'chef.nameRequired': 'Название и цена обязательны',
     // Translations
     'chef.translations': 'Переводы',
@@ -1100,6 +1106,9 @@ export const translations = {
     'chef.edit': 'Өзгерту',
     'chef.paused': 'Тоқтатылған',
     'chef.upload': 'Жүктеу',
+    'chef.myReviews': 'Менің пікірлерім',
+    'chef.myReviewsDesc': 'Сіздің клиенттеріңіз қалдырған пікірлер',
+    'chef.noReviewsYet': 'Әзірге пікірлер жоқ',
     'chef.nameRequired': 'Атауы мен бағасы міндетті',
     // Translations
     'chef.translations': 'Аудармалар',

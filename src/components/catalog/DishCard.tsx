@@ -268,9 +268,22 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
             <span className="text-xl font-bold text-primary">{formatPrice(dish.price)}</span>
             <span className="text-xs text-muted-foreground ml-1">{t('catalog.perPortion', language)}</span>
           </div>
-          <span className="text-xs text-muted-foreground">
-            {dish.availablePortions} {t('catalog.available', language)}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              {dish.availablePortions} {t('catalog.available', language)}
+            </span>
+            {showAddToCart && (
+              <Button
+                onClick={handleMessageChef}
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                title={t('orders.chatWithChef', language)}
+              >
+                <MessageCircle className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

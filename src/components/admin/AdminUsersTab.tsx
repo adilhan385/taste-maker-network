@@ -17,11 +17,13 @@ interface UserWithRole {
   id: string;
   user_id: string;
   full_name: string;
+  email?: string;
   phone: string | null;
   city: string | null;
   avatar_url: string | null;
   role: string;
   chefRank: string | null;
+  isOwner?: boolean;
   ban?: {
     id: string;
     reason: string | null;
@@ -178,6 +180,8 @@ export default function AdminUsersTab({ searchQuery }: Props) {
       setActionLoading(false);
     }
   };
+
+  const OWNER_EMAIL = 'adilhananuar426@gmail.com';
 
   const handleToggleAdmin = async () => {
     if (!adminConfirmDialog || !user) return;

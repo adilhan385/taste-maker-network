@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Camera, Save, Loader2, MapPin, Phone, FileText } from 'lucide-react';
+import { User, Camera, Save, Loader2, MapPin, Phone, FileText, Star, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,6 +41,7 @@ export default function ChefProfileTab() {
   const [saving, setSaving] = useState(false);
   const [chefData, setChefData] = useState<ChefApplication | null>(null);
   const [chefRank, setChefRank] = useState<string>('bronze');
+  const [reviews, setReviews] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -55,8 +56,53 @@ export default function ChefProfileTab() {
     if (user) {
       fetchChefData();
       fetchChefRank();
+      fetchReviews();
     }
   }, [user]);
+
+  const fetchReviews = async () => {
+    if (!user) return;
+    try {
+      // Get chef's products
+      const { data: products } = await supabase.from('products').select('id').eq('chef_id', user.id);
+      if (!products || products.length === 0) return;
+      const productIds = products.map(p => p.id);
+      
+      // Get reviews for those products
+      const { data: reviewsData } = await supabase
+        .from('reviews')
+        .select('*')
+        .in('product_id', productIds)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      
+      if (reviewsData && reviewsData.length > 0) {
+        // Get reviewer profiles
+        const userIds = [...new Set(reviewsData.map(r => r.user_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', userIds);
+        
+        const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+        
+        // Get product names
+        const { data: prods } = await supabase
+          .from('products')
+          .select('id, name')
+          .in('id', productIds);
+        const prodMap = new Map(prods?.map(p => [p.id, p.name]) || []);
+        
+        setReviews(reviewsData.map(r => ({
+          ...r,
+          reviewer_name: profileMap.get(r.user_id)?.full_name || 'User',
+          product_name: prodMap.get(r.product_id) || '',
+        })));
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    }
+  };
 
   useEffect(() => {
     if (profile) {
@@ -248,6 +294,41 @@ export default function ChefProfileTab() {
           </Card>
         </motion.div>
       )}
+
+      {/* Reviews section */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><MessageSquare className="w-5 h-5" />{t('chef.myReviews', language)}</CardTitle>
+            <CardDescription>{t('chef.myReviewsDesc', language)}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {reviews.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">{t('chef.noReviewsYet', language)}</p>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map(review => (
+                  <div key={review.id} className="border rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{review.reviewer_name}</span>
+                        <span className="text-xs text-muted-foreground">• {review.product_name}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'text-accent fill-accent' : 'text-muted-foreground'}`} />
+                        ))}
+                      </div>
+                    </div>
+                    {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
+                    <p className="text-xs text-muted-foreground">{new Date(review.created_at).toLocaleDateString()}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
 
       <div className="flex justify-end">
         <Button variant="hero" onClick={saveProfile} disabled={saving} className="gap-2">

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ChefHat } from 'lucide-react';
+import { ChefHat, Instagram } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 
 export default function Footer() {
@@ -18,6 +18,15 @@ export default function Footer() {
           <p className="text-sm text-background/60 text-center max-w-md">
             ChefCook
           </p>
+          <a
+            href="https://www.instagram.com/chefcook.kz?igsh=MXc3a2U2cGV5OW52MQ=="
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center gap-2 text-background/60 hover:text-background transition-colors"
+          >
+            <Instagram className="w-5 h-5" />
+            <span className="text-sm">@chefcook.kz</span>
+          </a>
         </div>
 
         <div className="border-t border-background/10 pt-8 text-center text-sm text-background/50">
