@@ -49,6 +49,33 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       chef_applications: {
         Row: {
           address: string | null
@@ -142,6 +169,30 @@ export type Database = {
           start_time?: string
           updated_at?: string
           working_days?: string[]
+        }
+        Relationships: []
+      }
+      chef_ranks: {
+        Row: {
+          assigned_by: string | null
+          chef_id: string
+          id: string
+          rank: string
+          updated_at: string | null
+        }
+        Insert: {
+          assigned_by?: string | null
+          chef_id: string
+          id?: string
+          rank?: string
+          updated_at?: string | null
+        }
+        Update: {
+          assigned_by?: string | null
+          chef_id?: string
+          id?: string
+          rank?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
