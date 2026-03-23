@@ -31,8 +31,14 @@ const chefApplicationSchema = z.object({
   bio: z.string().trim()
     .min(10, 'Please write at least 10 characters about yourself')
     .max(1000, 'Bio too long'),
-  cuisineSpecialization: z.string().min(1, 'Please select a cuisine'),
-  experience: z.string().min(1, 'Please select your experience level'),
+const chefApplicationSchema = z.object({
+  fullName: z.string().trim().min(2).max(100).regex(/^[a-zA-Zа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ\s\-']+$/),
+  phone: z.string().regex(/^\+?[0-9\s\-()]{10,20}$/),
+  city: z.string().trim().min(2).max(100),
+  address: z.string().trim().max(200).optional().or(z.literal('')),
+  bio: z.string().trim().min(10).max(1000),
+  kaspiPhone: z.string().regex(/^\+?[0-9\s\-()]{10,20}$/, 'Invalid Kaspi phone').optional().or(z.literal('')),
+  experience: z.string().min(1),
 });
 
 const cuisineOptions = ['Kazakh', 'Uzbek', 'Russian', 'Georgian', 'Turkish', 'Indian', 'Japanese', 'Mexican', 'Italian', 'Chinese', 'Korean', 'Other'];
