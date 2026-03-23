@@ -99,7 +99,13 @@ export default function AdminPanel() {
               {activeTab === 'applications' && (
                 <ChefApplicationsTab searchQuery={searchQuery} />
               )}
-              {activeTab !== 'applications' && (
+              {activeTab === 'users' && (
+                <AdminUsersTab searchQuery={searchQuery} />
+              )}
+              {activeTab === 'products' && (
+                <AdminProductsTab searchQuery={searchQuery} />
+              )}
+              {!['applications', 'users', 'products'].includes(activeTab) && (
                 <div className="bg-card rounded-xl p-12 shadow-card text-center">
                   <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground">No data yet</p>

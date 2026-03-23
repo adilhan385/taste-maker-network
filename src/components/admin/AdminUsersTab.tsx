@@ -1,0 +1,248 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { User, Ban, Shield, ChefHat, ShoppingBag, Loader2, Unlock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuthContext } from '@/contexts/AuthContext';
+
+interface UserWithRole {
+  id: string;
+  user_id: string;
+  full_name: string;
+  phone: string | null;
+  city: string | null;
+  avatar_url: string | null;
+  role: string;
+  ban?: {
+    id: string;
+    reason: string | null;
+    banned_until: string | null;
+    created_at: string;
+  } | null;
+}
+
+interface Props {
+  searchQuery: string;
+}
+
+export default function AdminUsersTab({ searchQuery }: Props) {
+  const { toast } = useToast();
+  const { user } = useAuthContext();
+  const [users, setUsers] = useState<UserWithRole[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [banDialog, setBanDialog] = useState<UserWithRole | null>(null);
+  const [banReason, setBanReason] = useState('');
+  const [banDuration, setBanDuration] = useState('permanent');
+  const [actionLoading, setActionLoading] = useState(false);
+
+  useEffect(() => { fetchUsers(); }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data: profiles, error: pErr } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (pErr) throw pErr;
+
+      const { data: roles, error: rErr } = await supabase
+        .from('user_roles')
+        .select('*');
+      if (rErr) throw rErr;
+
+      const { data: bans, error: bErr } = await supabase
+        .from('user_bans')
+        .select('*');
+      if (bErr) throw bErr;
+
+      const userList: UserWithRole[] = (profiles || []).map(p => {
+        const userRoles = (roles || []).filter(r => r.user_id === p.user_id);
+        let role = 'buyer';
+        if (userRoles.some(r => r.role === 'admin')) role = 'admin';
+        else if (userRoles.some(r => r.role === 'cook')) role = 'cook';
+
+        const activeBan = (bans || []).find(b =>
+          b.user_id === p.user_id &&
+          (b.banned_until === null || new Date(b.banned_until) > new Date())
+        );
+
+        return {
+          id: p.id,
+          user_id: p.user_id,
+          full_name: p.full_name,
+          phone: p.phone,
+          city: p.city,
+          avatar_url: p.avatar_url,
+          role,
+          ban: activeBan ? {
+            id: activeBan.id,
+            reason: activeBan.reason,
+            banned_until: activeBan.banned_until,
+            created_at: activeBan.created_at,
+          } : null,
+        };
+      });
+
+      setUsers(userList);
+    } catch (error: any) {
+      console.error('Error fetching users:', error);
+      toast({ title: 'Ошибка', description: 'Не удалось загрузить пользователей', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBan = async () => {
+    if (!banDialog || !user) return;
+    setActionLoading(true);
+    try {
+      let bannedUntil: string | null = null;
+      if (banDuration === '1d') bannedUntil = new Date(Date.now() + 86400000).toISOString();
+      else if (banDuration === '7d') bannedUntil = new Date(Date.now() + 7 * 86400000).toISOString();
+      else if (banDuration === '30d') bannedUntil = new Date(Date.now() + 30 * 86400000).toISOString();
+
+      const { error } = await supabase.from('user_bans').insert({
+        user_id: banDialog.user_id,
+        banned_by: user.id,
+        reason: banReason || null,
+        banned_until: bannedUntil,
+      });
+      if (error) throw error;
+
+      toast({ title: 'Пользователь заблокирован', description: banDialog.full_name });
+      setBanDialog(null);
+      setBanReason('');
+      setBanDuration('permanent');
+      fetchUsers();
+    } catch (error: any) {
+      toast({ title: 'Ошибка', description: error.message, variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleUnban = async (u: UserWithRole) => {
+    if (!u.ban) return;
+    setActionLoading(true);
+    try {
+      const { error } = await supabase.from('user_bans').delete().eq('id', u.ban.id);
+      if (error) throw error;
+      toast({ title: 'Пользователь разблокирован', description: u.full_name });
+      fetchUsers();
+    } catch (error: any) {
+      toast({ title: 'Ошибка', description: error.message, variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const getRoleIcon = (role: string) => {
+    if (role === 'admin') return <Shield className="w-4 h-4" />;
+    if (role === 'cook') return <ChefHat className="w-4 h-4" />;
+    return <ShoppingBag className="w-4 h-4" />;
+  };
+
+  const getRoleBadge = (role: string) => {
+    const colors: Record<string, string> = {
+      admin: 'bg-purple-500/10 text-purple-600 border-purple-500/30',
+      cook: 'bg-orange-500/10 text-orange-600 border-orange-500/30',
+      buyer: 'bg-blue-500/10 text-blue-600 border-blue-500/30',
+    };
+    return (
+      <Badge variant="outline" className={`${colors[role] || ''} flex items-center gap-1`}>
+        {getRoleIcon(role)} {role}
+      </Badge>
+    );
+  };
+
+  const filtered = users.filter(u =>
+    u.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    u.city?.toLowerCase().includes(searchQuery.toLowerCase()) || false
+  );
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <Badge variant="secondary">{users.length} пользователей</Badge>
+
+      {filtered.length === 0 ? (
+        <div className="bg-card rounded-xl p-12 shadow-card text-center">
+          <User className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-muted-foreground">Пользователи не найдены</p>
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {filtered.map(u => (
+            <motion.div key={u.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-xl p-4 shadow-card flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
+                {u.avatar_url ? <img src={u.avatar_url} alt={u.full_name} className="w-full h-full object-cover" /> : <User className="w-6 h-6 text-muted-foreground" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold">{u.full_name}</h3>
+                  {getRoleBadge(u.role)}
+                  {u.ban && <Badge variant="destructive" className="text-xs">Заблокирован{u.ban.banned_until ? ` до ${new Date(u.ban.banned_until).toLocaleDateString()}` : ' навсегда'}</Badge>}
+                </div>
+                <p className="text-sm text-muted-foreground">{u.city || 'Город не указан'} {u.phone ? `• ${u.phone}` : ''}</p>
+              </div>
+              <div className="flex gap-2 flex-shrink-0">
+                {u.role !== 'admin' && (
+                  u.ban ? (
+                    <Button variant="outline" size="sm" onClick={() => handleUnban(u)} disabled={actionLoading}>
+                      <Unlock className="w-4 h-4 mr-1" />Разблокировать
+                    </Button>
+                  ) : (
+                    <Button variant="destructive" size="sm" onClick={() => setBanDialog(u)} disabled={actionLoading}>
+                      <Ban className="w-4 h-4 mr-1" />Заблокировать
+                    </Button>
+                  )
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      <Dialog open={!!banDialog} onOpenChange={() => setBanDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Заблокировать {banDialog?.full_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Срок блокировки</Label>
+              <Select value={banDuration} onValueChange={setBanDuration}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1d">1 день</SelectItem>
+                  <SelectItem value="7d">7 дней</SelectItem>
+                  <SelectItem value="30d">30 дней</SelectItem>
+                  <SelectItem value="permanent">Навсегда</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Причина</Label>
+              <Textarea value={banReason} onChange={e => setBanReason(e.target.value)} placeholder="Укажите причину блокировки..." rows={3} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBanDialog(null)}>Отмена</Button>
+            <Button variant="destructive" onClick={handleBan} disabled={actionLoading}>
+              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}Заблокировать
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
