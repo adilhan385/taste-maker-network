@@ -161,6 +161,31 @@ export function useAuth() {
       return { error };
     }
 
+    // Check if user is banned
+    if (data.user) {
+      const { data: bans } = await supabase
+        .from('user_bans')
+        .select('*')
+        .eq('user_id', data.user.id);
+
+      const activeBan = (bans || []).find(b =>
+        b.banned_until === null || new Date(b.banned_until) > new Date()
+      );
+
+      if (activeBan) {
+        await supabase.auth.signOut();
+        const until = activeBan.banned_until
+          ? `до ${new Date(activeBan.banned_until).toLocaleDateString()}`
+          : 'навсегда';
+        toast({
+          title: 'Аккаунт заблокирован',
+          description: `Ваш аккаунт заблокирован ${until}.${activeBan.reason ? ` Причина: ${activeBan.reason}` : ''}`,
+          variant: 'destructive',
+        });
+        return { error: { message: 'Account banned' } };
+      }
+    }
+
     toast({
       title: 'Welcome back!',
       description: 'You have successfully logged in.',

@@ -29,6 +29,18 @@ interface ChefApplication {
   reviewed_at: string | null;
 }
 
+// Helper component to load signed URL for profile photo
+function ProfilePhoto({ path }: { path: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.storage.from('chef-documents').createSignedUrl(path, 3600).then(({ data }) => {
+      if (data?.signedUrl) setUrl(data.signedUrl);
+    });
+  }, [path]);
+  if (!url) return <div className="w-24 h-24 bg-muted rounded-lg animate-pulse" />;
+  return <img src={url} alt="Profile" className="w-24 h-24 rounded-lg object-cover" />;
+}
+
 interface Props {
   searchQuery: string;
 }
