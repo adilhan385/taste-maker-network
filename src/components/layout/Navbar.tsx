@@ -142,11 +142,15 @@ export default function Navbar() {
         </div>
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-3">
-          <LanguageSelector />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden sm:block">
+            <LanguageSelector />
+          </div>
           
           {/* Wallet Widget - for authenticated non-admin users */}
-          <WalletWidget />
+          <div className="hidden sm:block">
+            <WalletWidget />
+          </div>
 
           {/* Cart - visible for guests and buyers, hidden for admin */}
           {showCart && (
