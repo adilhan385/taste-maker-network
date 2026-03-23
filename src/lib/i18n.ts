@@ -409,6 +409,7 @@ export const translations = {
     'admin.portionsCount': 'portions',
     'admin.unavailable': 'Unavailable',
   },
+  ru: {
     'nav.orders': 'Заказы',
     'nav.chat': 'Чат',
     'nav.profile': 'Профиль',
