@@ -249,6 +249,14 @@ export default function ChefProfileTab() {
                 <Input value={formData.phone} onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))} />
               </div>
             </div>
+            <div className="space-y-2 mt-4">
+              <Label className="flex items-center gap-2">
+                <Smartphone className="w-4 h-4" />
+                {t('chef.kaspiPhone', language)}
+              </Label>
+              <Input value={formData.kaspiPhone} onChange={e => setFormData(prev => ({ ...prev, kaspiPhone: e.target.value }))} placeholder="+7 777 123 4567" />
+              <p className="text-xs text-muted-foreground">{t('chef.kaspiPhoneHint', language)}</p>
+            </div>
           </CardContent>
         </Card>
       </motion.div>
