@@ -295,6 +295,41 @@ export default function ChefProfileTab() {
         </motion.div>
       )}
 
+      {/* Reviews section */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><MessageSquare className="w-5 h-5" />{t('chef.myReviews', language)}</CardTitle>
+            <CardDescription>{t('chef.myReviewsDesc', language)}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {reviews.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">{t('chef.noReviewsYet', language)}</p>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map(review => (
+                  <div key={review.id} className="border rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">{review.reviewer_name}</span>
+                        <span className="text-xs text-muted-foreground">• {review.product_name}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'text-accent fill-accent' : 'text-muted-foreground'}`} />
+                        ))}
+                      </div>
+                    </div>
+                    {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
+                    <p className="text-xs text-muted-foreground">{new Date(review.created_at).toLocaleDateString()}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
       <div className="flex justify-end">
         <Button variant="hero" onClick={saveProfile} disabled={saving} className="gap-2">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
