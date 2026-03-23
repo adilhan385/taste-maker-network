@@ -115,6 +115,12 @@ export default function ChefProfileTab() {
         address: profile.address || prev.address,
         bio: profile.bio || prev.bio,
       }));
+      // Fetch kaspi_phone from profiles table
+      if (user) {
+        supabase.from('profiles').select('kaspi_phone').eq('user_id', user.id).maybeSingle().then(({ data }) => {
+          if (data?.kaspi_phone) setFormData(prev => ({ ...prev, kaspiPhone: data.kaspi_phone || '' }));
+        });
+      }
     }
   }, [profile]);
 
