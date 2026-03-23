@@ -46,6 +46,7 @@ export default function AdminUsersTab({ searchQuery }: Props) {
   const [actionLoading, setActionLoading] = useState(false);
   const [rankDialog, setRankDialog] = useState<UserWithRole | null>(null);
   const [selectedRank, setSelectedRank] = useState('bronze');
+  const [adminConfirmDialog, setAdminConfirmDialog] = useState<UserWithRole | null>(null);
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -178,6 +179,29 @@ export default function AdminUsersTab({ searchQuery }: Props) {
     }
   };
 
+  const handleToggleAdmin = async () => {
+    if (!adminConfirmDialog || !user) return;
+    if (adminConfirmDialog.user_id === user.id) return;
+    setActionLoading(true);
+    try {
+      if (adminConfirmDialog.role === 'admin') {
+        const { error } = await supabase.from('user_roles').delete().eq('user_id', adminConfirmDialog.user_id).eq('role', 'admin');
+        if (error) throw error;
+        toast({ title: t('admin.adminRevoked', language), description: adminConfirmDialog.full_name });
+      } else {
+        const { error } = await supabase.from('user_roles').insert({ user_id: adminConfirmDialog.user_id, role: 'admin' });
+        if (error) throw error;
+        toast({ title: t('admin.adminGranted', language), description: adminConfirmDialog.full_name });
+      }
+      setAdminConfirmDialog(null);
+      fetchUsers();
+    } catch (error: any) {
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const getRoleIcon = (role: string) => {
     if (role === 'admin') return <Shield className="w-4 h-4" />;
     if (role === 'cook') return <ChefHat className="w-4 h-4" />;
@@ -236,6 +260,11 @@ export default function AdminUsersTab({ searchQuery }: Props) {
                 <p className="text-sm text-muted-foreground">{u.city || t('admin.noCity', language)} {u.phone ? `• ${u.phone}` : ''}</p>
               </div>
               <div className="flex gap-2 flex-shrink-0 flex-wrap">
+                {u.user_id !== user?.id && (
+                  <Button variant={u.role === 'admin' ? 'destructive' : 'outline'} size="sm" onClick={() => setAdminConfirmDialog(u)} disabled={actionLoading}>
+                    <Shield className="w-4 h-4 mr-1" />{u.role === 'admin' ? t('admin.removeAdmin', language) : t('admin.makeAdmin', language)}
+                  </Button>
+                )}
                 {u.role === 'cook' && (
                   <Button variant="outline" size="sm" onClick={() => { setRankDialog(u); setSelectedRank(u.chefRank || 'bronze'); }}>
                     <Award className="w-4 h-4 mr-1" />{t('admin.rank', language)}
@@ -315,6 +344,24 @@ export default function AdminUsersTab({ searchQuery }: Props) {
             <Button variant="outline" onClick={() => setRankDialog(null)}>{t('common.cancel', language)}</Button>
             <Button onClick={handleSetRank} disabled={actionLoading}>
               {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}{t('common.save', language)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Admin Role Dialog */}
+      <Dialog open={!!adminConfirmDialog} onOpenChange={() => setAdminConfirmDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{adminConfirmDialog?.role === 'admin' ? t('admin.removeAdmin', language) : t('admin.makeAdmin', language)} — {adminConfirmDialog?.full_name}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            {adminConfirmDialog?.role === 'admin' ? t('admin.confirmRemoveAdmin', language) : t('admin.confirmMakeAdmin', language)}
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAdminConfirmDialog(null)}>{t('common.cancel', language)}</Button>
+            <Button variant={adminConfirmDialog?.role === 'admin' ? 'destructive' : 'default'} onClick={handleToggleAdmin} disabled={actionLoading}>
+              {actionLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              {adminConfirmDialog?.role === 'admin' ? t('admin.removeAdmin', language) : t('admin.makeAdmin', language)}
             </Button>
           </DialogFooter>
         </DialogContent>
