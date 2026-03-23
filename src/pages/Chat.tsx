@@ -334,7 +334,7 @@ export default function Chat() {
                       </button>
                     ))}
                   </div>
-                )
+                )}
                 <ScrollArea className="flex-1">
                   {loading ? (
                     <div className="flex items-center justify-center py-12">
