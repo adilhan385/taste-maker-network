@@ -48,6 +48,7 @@ export default function ChefProfileTab() {
     city: '',
     address: '',
     bio: '',
+    kaspiPhone: '',
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
