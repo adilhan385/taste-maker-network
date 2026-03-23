@@ -1061,6 +1061,7 @@ export const translations = {
     'becomeChef.appExistsDesc': 'Сізде күтудегі өтінім бар. Тексеруді күтіңіз.',
     'becomeChef.appSubmitted': 'Өтінім жіберілді!',
     'becomeChef.appSubmittedDesc': 'Сіздің аспаз өтініміңіз жіберілді. Біз 2-3 жұмыс күні ішінде қарастырамыз.',
+    'becomeChef.kaspiPhone': 'Kaspi телефон нөмірі',
     
     // Chef Dashboard
     'chef.myDishes': 'Менің тағамдарым',
