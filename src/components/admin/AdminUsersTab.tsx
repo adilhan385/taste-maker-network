@@ -200,6 +200,9 @@ export default function AdminUsersTab({ searchQuery }: Props) {
     } finally {
       setActionLoading(false);
     }
+  };
+
+  const getRoleIcon = (role: string) => {
     if (role === 'admin') return <Shield className="w-4 h-4" />;
     if (role === 'cook') return <ChefHat className="w-4 h-4" />;
     return <ShoppingBag className="w-4 h-4" />;
