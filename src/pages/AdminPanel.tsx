@@ -13,6 +13,7 @@ import AdminUsersTab from '@/components/admin/AdminUsersTab';
 import AdminProductsTab from '@/components/admin/AdminProductsTab';
 import AdminOrdersTab from '@/components/admin/AdminOrdersTab';
 import AdminChatsTab from '@/components/admin/AdminChatsTab';
+import AdminAnalyticsTab from '@/components/admin/AdminAnalyticsTab';
 
 const navItems = [
   { id: 'applications', labelKey: 'admin.chefApplications', icon: ChefHat },
@@ -99,7 +100,8 @@ export default function AdminPanel() {
               {activeTab === 'products' && <AdminProductsTab searchQuery={searchQuery} />}
               {activeTab === 'orders' && <AdminOrdersTab searchQuery={searchQuery} />}
               {activeTab === 'chats' && <AdminChatsTab searchQuery={searchQuery} />}
-              {!['applications', 'users', 'products', 'orders', 'chats'].includes(activeTab) && (
+              {activeTab === 'analytics' && <AdminAnalyticsTab />}
+              {!['applications', 'users', 'products', 'orders', 'chats', 'analytics'].includes(activeTab) && (
                 <div className="bg-card rounded-xl p-12 shadow-card text-center">
                   <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground">{t('admin.noData', language)}</p>

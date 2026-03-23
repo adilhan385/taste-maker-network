@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChefHat, UtensilsCrossed, Package, Users, BarChart3, Clock, User, DollarSign, RefreshCw } from 'lucide-react';
+import { ChefHat, UtensilsCrossed, Package, Users, BarChart3, Clock, User, Wallet, RefreshCw } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -29,8 +29,8 @@ export default function ChefDashboard() {
     await refetchProfile();
     setRefreshing(false);
     toast({
-      title: 'Status updated',
-      description: 'Your profile status has been refreshed.',
+      title: t('chef.statusUpdated', language),
+      description: t('chef.statusUpdatedDesc', language),
     });
   };
 
@@ -42,8 +42,8 @@ export default function ChefDashboard() {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
               <ChefHat className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h1 className="text-3xl font-serif font-bold mb-4">Chef Dashboard</h1>
-            <p className="text-muted-foreground mb-8">Please log in to access your chef dashboard</p>
+            <h1 className="text-3xl font-serif font-bold mb-4">{t('chef.dashboard', language)}</h1>
+            <p className="text-muted-foreground mb-8">{t('chef.loginPrompt', language)}</p>
             <Button variant="hero" onClick={() => { setAuthModalMode('login'); setAuthModalOpen(true); }}>
               {t('nav.login', language)}
             </Button>
@@ -62,10 +62,8 @@ export default function ChefDashboard() {
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-yellow-500/20 flex items-center justify-center">
               <Clock className="w-10 h-10 text-yellow-600" />
             </div>
-            <h1 className="text-3xl font-serif font-bold mb-4">Waiting for Approval</h1>
-            <p className="text-muted-foreground mb-8">
-              Your chef application is pending review. Once approved by an admin, you'll have access to your chef dashboard.
-            </p>
+            <h1 className="text-3xl font-serif font-bold mb-4">{t('chef.waitingApproval', language)}</h1>
+            <p className="text-muted-foreground mb-8">{t('chef.waitingApprovalDesc', language)}</p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button 
                 variant="default" 
@@ -74,10 +72,10 @@ export default function ChefDashboard() {
                 className="gap-2"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-                {refreshing ? 'Checking...' : 'Check Status'}
+                {refreshing ? t('chef.checking', language) : t('chef.checkStatus', language)}
               </Button>
               <Link to="/become-chef">
-                <Button variant="outline">Apply to become a Chef</Button>
+                <Button variant="outline">{t('chef.applyToBecome', language)}</Button>
               </Link>
             </div>
           </motion.div>
@@ -97,8 +95,8 @@ export default function ChefDashboard() {
                 <ChefHat className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-serif font-bold">Chef Dashboard</h1>
-                <p className="text-muted-foreground">Manage your dishes, orders, and business</p>
+                <h1 className="text-3xl font-serif font-bold">{t('chef.dashboard', language)}</h1>
+                <p className="text-muted-foreground">{t('chef.dashboardDesc', language)}</p>
               </div>
             </div>
 
@@ -106,31 +104,31 @@ export default function ChefDashboard() {
               <TabsList className="w-full flex-wrap h-auto gap-2 bg-transparent p-0">
                 <TabsTrigger value="dishes" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <UtensilsCrossed className="w-4 h-4" />
-                  My Dishes
+                  {t('chef.myDishes', language)}
                 </TabsTrigger>
                 <TabsTrigger value="orders" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <Package className="w-4 h-4" />
-                  Orders
+                  {t('nav.orders', language)}
                 </TabsTrigger>
                 <TabsTrigger value="customers" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <Users className="w-4 h-4" />
-                  Customers
+                  {t('nav.customers', language)}
                 </TabsTrigger>
                 <TabsTrigger value="analytics" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <BarChart3 className="w-4 h-4" />
-                  Analytics
+                  {t('nav.analytics', language)}
                 </TabsTrigger>
                 <TabsTrigger value="availability" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <Clock className="w-4 h-4" />
-                  Availability
+                  {t('nav.availability', language)}
                 </TabsTrigger>
                 <TabsTrigger value="profile" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <User className="w-4 h-4" />
-                  Profile
+                  {t('nav.profile', language)}
                 </TabsTrigger>
                 <TabsTrigger value="earnings" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <DollarSign className="w-4 h-4" />
-                  Earnings
+                  <Wallet className="w-4 h-4" />
+                  {t('nav.earnings', language)}
                 </TabsTrigger>
               </TabsList>
 

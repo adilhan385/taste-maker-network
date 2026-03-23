@@ -1,19 +1,20 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Minus, Plus, Trash2, CreditCard, Banknote, ArrowLeft, Truck, Store, Wallet } from 'lucide-react';
+import { ShoppingBag, Minus, Plus, Trash2, Banknote, ArrowLeft, Truck, Store, Wallet, Smartphone } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { formatPrice, t } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import CardPaymentForm, { CardPaymentData, initialCardPaymentData, validateCardPayment } from '@/components/checkout/CardPaymentForm';
 
-type PaymentMethod = 'card' | 'cash' | 'wallet';
+type PaymentMethod = 'kaspi' | 'cash' | 'wallet';
 
 export default function Cart() {
   const { cart, language, updateCartQuantity, removeFromCart, cartTotal, setAuthModalOpen, setAuthModalMode, clearCart } = useApp();
@@ -22,13 +23,15 @@ export default function Cart() {
   const navigate = useNavigate();
   
   const [deliveryOption, setDeliveryOption] = useState<'delivery' | 'pickup'>('delivery');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
-  const [cardData, setCardData] = useState<CardPaymentData>(initialCardPaymentData);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('kaspi');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryNotes, setDeliveryNotes] = useState('');
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [walletId, setWalletId] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [chefKaspiPhone, setChefKaspiPhone] = useState<string | null>(null);
 
-  // Fetch wallet balance
+  // Fetch wallet balance and chef kaspi phone
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -50,6 +53,27 @@ export default function Cart() {
 
     fetchWallet();
   }, [isAuthenticated]);
+
+  // Fetch chef's Kaspi phone when cart has items
+  useEffect(() => {
+    if (cart.length === 0) return;
+    const chefId = cart[0]?.chefId;
+    if (!chefId) return;
+
+    const fetchKaspiPhone = async () => {
+      const { data } = await supabase
+        .from('chef_applications')
+        .select('kaspi_phone, phone')
+        .eq('user_id', chefId)
+        .eq('status', 'approved')
+        .maybeSingle();
+
+      if (data) {
+        setChefKaspiPhone(data.kaspi_phone || data.phone);
+      }
+    };
+    fetchKaspiPhone();
+  }, [cart]);
 
   if (profile?.role === 'admin') {
     return (
@@ -126,15 +150,6 @@ export default function Cart() {
   const insufficientBalance = paymentMethod === 'wallet' && walletBalance < totalPrice;
 
   const handleCheckout = async () => {
-    // Validate based on payment method
-    if (paymentMethod === 'card') {
-      const validationError = validateCardPayment(cardData, deliveryOption === 'delivery');
-      if (validationError) {
-        toast({ title: validationError, variant: 'destructive' });
-        return;
-      }
-    }
-
     if (paymentMethod === 'wallet') {
       if (walletBalance < totalPrice) {
         toast({ title: t('cart.insufficientBalance', language), variant: 'destructive' });
@@ -142,7 +157,7 @@ export default function Cart() {
       }
     }
 
-    if (paymentMethod === 'cash' && deliveryOption === 'delivery' && !cardData.street.trim()) {
+    if (deliveryOption === 'delivery' && !deliveryAddress.trim()) {
       toast({ title: t('payment.streetRequired', language), variant: 'destructive' });
       return;
     }
@@ -152,7 +167,6 @@ export default function Cart() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Create order
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -163,7 +177,7 @@ export default function Cart() {
           payment_method: paymentMethod,
           delivery_type: deliveryOption,
           delivery_address: deliveryOption === 'delivery' 
-            ? `${cardData.street}, ${cardData.city}${cardData.notes ? ` (${cardData.notes})` : ''}`
+            ? `${deliveryAddress}${deliveryNotes ? ` (${deliveryNotes})` : ''}`
             : null,
         })
         .select()
@@ -245,9 +259,16 @@ export default function Cart() {
         }
       }
 
-      // Simulate card payment processing
-      if (paymentMethod === 'card') {
-        await new Promise(resolve => setTimeout(resolve, 1500));
+      // Notify chef about new order
+      const chefId = cart[0]?.chefId;
+      if (chefId && order) {
+        await supabase.from('notifications').insert({
+          user_id: chefId,
+          type: 'new_order',
+          title: 'Новый заказ!',
+          message: `У вас новый заказ на ${formatPrice(totalPrice)}`,
+          related_id: order.id,
+        });
       }
 
       toast({ title: t('cart.orderPlaced', language), description: t('cart.orderPlacedDesc', language) });
@@ -308,22 +329,33 @@ export default function Cart() {
               </motion.div>
             ))}
 
-            {/* Card Payment Form - show when card selected OR when delivery + cash */}
-            {(paymentMethod === 'card' || (paymentMethod === 'cash' && deliveryOption === 'delivery')) && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-card rounded-xl p-6 shadow-card"
-              >
-                <h2 className="font-semibold text-lg mb-4">
-                  {paymentMethod === 'card' ? t('payment.cardDetails', language) : t('payment.deliveryAddress', language)}
-                </h2>
-                <CardPaymentForm
-                  language={language}
-                  showAddress={deliveryOption === 'delivery'}
-                  formData={cardData}
-                  onFormChange={setCardData}
-                />
+            {/* Delivery address form */}
+            {deliveryOption === 'delivery' && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-xl p-6 shadow-card space-y-4">
+                <h2 className="font-semibold text-lg">{t('payment.deliveryAddress', language)}</h2>
+                <div>
+                  <Label>{t('payment.street', language)} *</Label>
+                  <Input value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} placeholder={t('payment.streetPlaceholder', language)} className="mt-1" />
+                </div>
+                <div>
+                  <Label>{t('payment.notes', language)}</Label>
+                  <Textarea value={deliveryNotes} onChange={e => setDeliveryNotes(e.target.value)} placeholder={t('payment.notesPlaceholder', language)} className="mt-1" rows={2} />
+                </div>
+              </motion.div>
+            )}
+
+            {/* Kaspi transfer info */}
+            {paymentMethod === 'kaspi' && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-xl p-6 shadow-card">
+                <div className="flex items-center gap-2 mb-4">
+                  <Smartphone className="w-5 h-5 text-primary" />
+                  <h2 className="font-semibold text-lg">{t('cart.kaspiTransfer', language)}</h2>
+                </div>
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  <p className="text-sm text-muted-foreground">{t('cart.kaspiInstruction', language)}</p>
+                  <p className="text-2xl font-bold font-mono">{chefKaspiPhone || t('cart.kaspiNotAvailable', language)}</p>
+                  <p className="text-lg font-semibold text-primary">{formatPrice(totalPrice)}</p>
+                </div>
               </motion.div>
             )}
           </div>
@@ -358,10 +390,10 @@ export default function Cart() {
                 <h3 className="text-sm font-medium">{t('cart.paymentMethod', language)}</h3>
                 <RadioGroup value={paymentMethod} onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}>
                   <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
-                    <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="flex-1 cursor-pointer flex items-center gap-2">
-                      <CreditCard className="w-4 h-4" />
-                      <span>{t('cart.payByCard', language)}</span>
+                    <RadioGroupItem value="kaspi" id="kaspi" />
+                    <Label htmlFor="kaspi" className="flex-1 cursor-pointer flex items-center gap-2">
+                      <Smartphone className="w-4 h-4" />
+                      <span>{t('cart.payByKaspi', language)}</span>
                     </Label>
                   </div>
                   <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
@@ -416,7 +448,6 @@ export default function Cart() {
                 disabled={processing || insufficientBalance}
               >
                 {processing ? t('common.loading', language) : (
-                  paymentMethod === 'card' ? t('cart.proceedToPayment', language) : 
                   paymentMethod === 'wallet' ? t('cart.payFromWallet', language) :
                   t('cart.placeOrder', language)
                 )}

@@ -89,6 +89,7 @@ export type Database = {
           experience: string
           full_name: string
           id: string
+          kaspi_phone: string | null
           phone: string
           profile_photo_url: string | null
           reviewed_at: string | null
@@ -109,6 +110,7 @@ export type Database = {
           experience: string
           full_name: string
           id?: string
+          kaspi_phone?: string | null
           phone: string
           profile_photo_url?: string | null
           reviewed_at?: string | null
@@ -129,6 +131,7 @@ export type Database = {
           experience?: string
           full_name?: string
           id?: string
+          kaspi_phone?: string | null
           phone?: string
           profile_photo_url?: string | null
           reviewed_at?: string | null
