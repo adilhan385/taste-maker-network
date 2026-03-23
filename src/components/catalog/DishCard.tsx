@@ -218,11 +218,17 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
 
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
-          <img
-            src={dish.chef.avatar}
-            alt={dish.chef.name}
-            className="w-6 h-6 rounded-full object-cover"
-          />
+          {dish.chef.avatar ? (
+            <img
+              src={dish.chef.avatar}
+              alt={dish.chef.name}
+              className="w-6 h-6 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+              <span className="text-[10px] font-medium text-primary">{dish.chef.name.charAt(0)}</span>
+            </div>
+          )}
           <button
             onClick={() => setShowChefReviews(true)}
             className="text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"

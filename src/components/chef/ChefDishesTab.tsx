@@ -31,8 +31,7 @@ interface Product {
   available_days: string[] | null;
 }
 
-const cuisineOptions = ['Italian', 'Chinese', 'Japanese', 'Mexican', 'Indian', 'French', 'Thai', 'Mediterranean', 'American', 'Korean', 'Vietnamese', 'Greek', 'Spanish', 'Middle Eastern', 'Other'];
-// Dietary options removed
+// Cuisine and dietary options removed
 const dayOptions = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function ChefDishesTab() {
@@ -51,7 +50,6 @@ export default function ChefDishesTab() {
     name: '',
     description: '',
     price: '',
-    cuisine: '',
     dietary: [] as string[],
     prep_time: '',
     available_portions: '10',
@@ -89,7 +87,6 @@ export default function ChefDishesTab() {
       name: '',
       description: '',
       price: '',
-      cuisine: '',
       dietary: [],
       prep_time: '',
       available_portions: '10',
@@ -109,7 +106,6 @@ export default function ChefDishesTab() {
       name: dish.name,
       description: dish.description || '',
       price: dish.price.toString(),
-      cuisine: dish.cuisine || '',
       dietary: dish.dietary || [],
       prep_time: dish.prep_time?.toString() || '',
       available_portions: dish.available_portions.toString(),
@@ -168,7 +164,7 @@ export default function ChefDishesTab() {
         name: formData.name,
         description: formData.description || null,
         price: parseFloat(formData.price),
-        cuisine: formData.cuisine || null,
+        cuisine: null,
         dietary: formData.dietary.length > 0 ? formData.dietary : null,
         prep_time: formData.prep_time ? parseInt(formData.prep_time) : null,
         available_portions: parseInt(formData.available_portions) || 10,
@@ -310,7 +306,7 @@ export default function ChefDishesTab() {
                   </div>
                   <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{dish.description}</p>
                   <div className="flex items-center gap-2 mb-3">
-                    {dish.cuisine && <Badge variant="outline">{dish.cuisine}</Badge>}
+                    
                     <span className="text-xs text-muted-foreground">{dish.available_portions} portions</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -375,16 +371,7 @@ export default function ChefDishesTab() {
               <Textarea value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} placeholder={t('chef.descriptionPlaceholder', language)} rows={3} />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>{t('chef.cuisine', language)}</Label>
-                <Select value={formData.cuisine} onValueChange={v => setFormData(prev => ({ ...prev, cuisine: v }))}>
-                  <SelectTrigger><SelectValue placeholder={t('chef.cuisineSelect', language)} /></SelectTrigger>
-                  <SelectContent>
-                    {cuisineOptions.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('chef.prepTime', language)}</Label>
                 <Input type="number" value={formData.prep_time} onChange={e => setFormData(prev => ({ ...prev, prep_time: e.target.value }))} placeholder="30" />

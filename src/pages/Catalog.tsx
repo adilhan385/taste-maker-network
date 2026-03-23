@@ -96,7 +96,7 @@ export default function Catalog() {
                 id: product.chef_id,
                 name: profile?.full_name || 'Chef',
                 avatar: profile?.avatar_url || '',
-                rating: avgRating || 4.8,
+                rating: avgRating,
               },
               cuisine: product.cuisine || '',
               dietary: [],

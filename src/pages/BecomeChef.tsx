@@ -25,10 +25,7 @@ const chefApplicationSchema = z.object({
   bio: z.string().trim().min(10).max(1000),
   kaspiPhone: z.string().regex(/^\+?[0-9\s\-()]{10,20}$/).optional().or(z.literal('')),
   experience: z.string().min(1),
-  cuisineSpecialization: z.string().min(1),
 });
-
-const cuisineOptions = ['Kazakh', 'Uzbek', 'Russian', 'Georgian', 'Turkish', 'Indian', 'Japanese', 'Mexican', 'Italian', 'Chinese', 'Korean', 'Other'];
 
 export default function BecomeChef() {
   const navigate = useNavigate();
@@ -53,7 +50,7 @@ export default function BecomeChef() {
     sanitaryCertificate: null as File | null,
     profilePhoto: null as File | null,
     bio: '',
-    cuisineSpecialization: '',
+    kaspiPhone: '',
     experience: '',
   });
 
@@ -115,7 +112,7 @@ export default function BecomeChef() {
         city: formData.city,
         address: formData.address,
         bio: formData.bio,
-        cuisineSpecialization: formData.cuisineSpecialization,
+        kaspiPhone: formData.kaspiPhone,
         experience: formData.experience,
       });
 
@@ -160,7 +157,8 @@ export default function BecomeChef() {
           docs_sanitary_url: sanitaryUrl,
           profile_photo_url: photoUrl,
           bio: validationResult.data.bio || null,
-          cuisine_specialization: validationResult.data.cuisineSpecialization,
+          cuisine_specialization: 'General',
+          kaspi_phone: validationResult.data.kaspiPhone || null,
           experience: validationResult.data.experience,
           status: 'pending',
         });
@@ -181,7 +179,7 @@ export default function BecomeChef() {
     switch (currentStep) {
       case 1: return formData.fullName && formData.phone && formData.city;
       case 2: return formData.idDocument && formData.sanitaryCertificate;
-      case 3: return formData.bio && formData.cuisineSpecialization && formData.experience;
+      case 3: return formData.bio && formData.experience;
       default: return false;
     }
   };
@@ -237,8 +235,8 @@ export default function BecomeChef() {
                 <h2 className="text-xl font-serif font-semibold mb-6">{t('becomeChef.cookingProfile', language)}</h2>
                 <div className="space-y-2"><Label>{t('becomeChef.bio', language)} *</Label><Textarea rows={4} value={formData.bio} onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))} placeholder={t('becomeChef.bioPlaceholder', language)} /></div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>{t('becomeChef.cuisine', language)} *</Label><Select value={formData.cuisineSpecialization} onValueChange={(v) => setFormData(prev => ({ ...prev, cuisineSpecialization: v }))}><SelectTrigger><SelectValue placeholder={t('becomeChef.cuisineSelect', language)} /></SelectTrigger><SelectContent>{cuisineOptions.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent></Select></div>
                   <div className="space-y-2"><Label>{t('becomeChef.experience', language)} *</Label><Select value={formData.experience} onValueChange={(v) => setFormData(prev => ({ ...prev, experience: v }))}><SelectTrigger><SelectValue placeholder={t('becomeChef.experienceSelect', language)} /></SelectTrigger><SelectContent><SelectItem value="1">{t('becomeChef.exp1', language)}</SelectItem><SelectItem value="1-3">{t('becomeChef.exp1_3', language)}</SelectItem><SelectItem value="3-5">{t('becomeChef.exp3_5', language)}</SelectItem><SelectItem value="5+">{t('becomeChef.exp5plus', language)}</SelectItem></SelectContent></Select></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.kaspiPhone', language)}</Label><Input type="tel" value={formData.kaspiPhone} onChange={(e) => setFormData(prev => ({ ...prev, kaspiPhone: e.target.value }))} placeholder="+7 777 123 4567" /></div>
                 </div>
               </div>
             )}

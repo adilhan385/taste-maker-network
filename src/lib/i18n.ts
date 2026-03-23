@@ -155,6 +155,7 @@ export const translations = {
     'cart.backToCatalog': 'Back to Catalog',
     'cart.payByCard': 'Pay by Card',
     'cart.payByWallet': 'Pay from Wallet',
+    'cart.payByKaspi': 'Kaspi Transfer',
     'cart.payFromWallet': 'Pay from Wallet',
     'cart.insufficientBalance': 'Insufficient balance',
     'cart.adminAccount': 'Admin Account',
@@ -198,6 +199,7 @@ export const translations = {
     'becomeChef.appExistsDesc': 'You already have a pending application. Please wait for admin review.',
     'becomeChef.appSubmitted': 'Application Submitted!',
     'becomeChef.appSubmittedDesc': 'Your chef application has been submitted. We will review and notify you within 2-3 business days.',
+    'becomeChef.kaspiPhone': 'Kaspi Phone Number',
     
     // Chef Dashboard
     'chef.myDishes': 'My Dishes',
@@ -569,6 +571,7 @@ export const translations = {
     'cart.backToCatalog': 'Назад в каталог',
     'cart.payByCard': 'Оплата картой',
     'cart.payByWallet': 'Оплата с кошелька',
+    'cart.payByKaspi': 'Kaspi перевод',
     'cart.payFromWallet': 'Оплатить с кошелька',
     'cart.insufficientBalance': 'Недостаточно средств',
     'cart.adminAccount': 'Аккаунт админа',
@@ -646,6 +649,7 @@ export const translations = {
     'becomeChef.appExistsDesc': 'У вас уже есть ожидающая заявка. Пожалуйста, дождитесь проверки.',
     'becomeChef.appSubmitted': 'Заявка отправлена!',
     'becomeChef.appSubmittedDesc': 'Ваша заявка повара отправлена. Мы рассмотрим её в течение 2-3 рабочих дней.',
+    'becomeChef.kaspiPhone': 'Номер Kaspi',
     
     // Chef Dashboard
     'chef.myDishes': 'Мои блюда',
@@ -979,6 +983,7 @@ export const translations = {
     'cart.backToCatalog': 'Каталогқа оралу',
     'cart.payByCard': 'Картамен төлеу',
     'cart.payByWallet': 'Әмиянмен төлеу',
+    'cart.payByKaspi': 'Kaspi аударым',
     'cart.payFromWallet': 'Әмияннан төлеу',
     'cart.insufficientBalance': 'Қаражат жеткіліксіз',
     'cart.adminAccount': 'Админ аккаунты',
@@ -1056,6 +1061,7 @@ export const translations = {
     'becomeChef.appExistsDesc': 'Сізде күтудегі өтінім бар. Тексеруді күтіңіз.',
     'becomeChef.appSubmitted': 'Өтінім жіберілді!',
     'becomeChef.appSubmittedDesc': 'Сіздің аспаз өтініміңіз жіберілді. Біз 2-3 жұмыс күні ішінде қарастырамыз.',
+    'becomeChef.kaspiPhone': 'Kaspi телефон нөмірі',
     
     // Chef Dashboard
     'chef.myDishes': 'Менің тағамдарым',

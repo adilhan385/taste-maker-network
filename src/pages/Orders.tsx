@@ -154,6 +154,7 @@ export default function Orders() {
       case 'card': return t('cart.payByCard', language);
       case 'wallet': return t('cart.payByWallet', language);
       case 'cash': return t('cart.payCash', language);
+      case 'kaspi': return t('cart.payByKaspi', language);
       default: return method;
     }
   };
@@ -290,7 +291,7 @@ export default function Orders() {
                               <Button 
                                 variant="outline" 
                                 size="sm"
-                                onClick={() => navigate('/chat')}
+                                onClick={() => navigate(`/chat?to=${order.chef_id}`)}
                               >
                                 <MessageSquare className="w-4 h-4 mr-2" />
                                 {t('orders.chatWithChef', language)}
