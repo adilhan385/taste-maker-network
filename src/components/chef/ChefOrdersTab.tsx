@@ -205,7 +205,7 @@ export default function ChefOrdersTab() {
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="font-bold text-lg">${order.total_amount}</span>
+                        <span className="font-bold text-lg">{Number(order.total_amount).toLocaleString()} ₸</span>
                         {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                       </div>
                     </div>
