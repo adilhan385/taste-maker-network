@@ -210,6 +210,31 @@ export default function AdminUsersTab({ searchQuery }: Props) {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!resetDialog || tempPassword.length < 6) return;
+    setActionLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ userId: resetDialog.user_id, tempPassword }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Failed');
+      toast({ title: t('admin.passwordReset', language), description: `${resetDialog.full_name}: ${tempPassword}` });
+      setResetDialog(null);
+      setTempPassword('');
+    } catch (error: any) {
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const getRoleIcon = (role: string) => {
     if (role === 'admin') return <Shield className="w-4 h-4" />;
     if (role === 'cook') return <ChefHat className="w-4 h-4" />;
