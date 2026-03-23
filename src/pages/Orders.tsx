@@ -349,6 +349,14 @@ export default function Orders() {
                               <span>{order.delivery_address}</span>
                             </div>
                           )}
+
+                          {/* View receipt */}
+                          {(order as any).payment_receipt_url && (
+                            <Button variant="outline" size="sm" onClick={() => window.open((order as any).payment_receipt_url, '_blank')}>
+                              <ImageIcon className="w-4 h-4 mr-2" />
+                              {t('orders.viewReceipt', language)}
+                            </Button>
+                          )}
                           
                           {/* Notes */}
                           {order.notes && (
