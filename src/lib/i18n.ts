@@ -199,6 +199,7 @@ export const translations = {
     'becomeChef.appExistsDesc': 'You already have a pending application. Please wait for admin review.',
     'becomeChef.appSubmitted': 'Application Submitted!',
     'becomeChef.appSubmittedDesc': 'Your chef application has been submitted. We will review and notify you within 2-3 business days.',
+    'becomeChef.kaspiPhone': 'Kaspi Phone Number',
     
     // Chef Dashboard
     'chef.myDishes': 'My Dishes',

@@ -175,11 +175,11 @@ export function useAuth() {
       if (activeBan) {
         await supabase.auth.signOut();
         const until = activeBan.banned_until
-          ? `до ${new Date(activeBan.banned_until).toLocaleDateString()}`
-          : 'навсегда';
+          ? `until ${new Date(activeBan.banned_until).toLocaleDateString()}`
+          : 'permanently';
         toast({
-          title: 'Аккаунт заблокирован',
-          description: `Ваш аккаунт заблокирован ${until}.${activeBan.reason ? ` Причина: ${activeBan.reason}` : ''}`,
+          title: 'Account Banned',
+          description: `Your account is banned ${until}.${activeBan.reason ? ` Reason: ${activeBan.reason}` : ''}`,
           variant: 'destructive',
         });
         return { error: { message: 'Account banned' } };
