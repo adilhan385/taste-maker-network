@@ -325,6 +325,8 @@ export const translations = {
     'chat.noConversations': 'No conversations yet',
     'chat.selectConversation': 'Select a conversation to start chatting',
     'chat.typePlaceholder': 'Type a message...',
+    'chat.newChat': 'New Chat',
+    'chat.searchUsers': 'Search users...',
     'chat.loading': 'Loading...',
     'chat.messageChef': 'Message Chef',
 
@@ -740,6 +742,8 @@ export const translations = {
     'chat.noConversations': 'Чатов пока нет',
     'chat.selectConversation': 'Выберите чат, чтобы начать общение',
     'chat.typePlaceholder': 'Введите сообщение...',
+    'chat.newChat': 'Новый чат',
+    'chat.searchUsers': 'Поиск пользователей...',
     'chat.loading': 'Загрузка...',
     'chat.messageChef': 'Написать повару',
 
@@ -1157,6 +1161,8 @@ export const translations = {
     'chat.noConversations': 'Чаттар әлі жоқ',
     'chat.selectConversation': 'Сөйлесуді бастау үшін чатты таңдаңыз',
     'chat.typePlaceholder': 'Хабарлама жазыңыз...',
+    'chat.newChat': 'Жаңа чат',
+    'chat.searchUsers': 'Пайдаланушыларды іздеу...',
     'chat.loading': 'Жүктелуде...',
     'chat.messageChef': 'Аспазға жазу',
 
