@@ -742,6 +742,8 @@ export const translations = {
     'chat.noConversations': 'Чатов пока нет',
     'chat.selectConversation': 'Выберите чат, чтобы начать общение',
     'chat.typePlaceholder': 'Введите сообщение...',
+    'chat.newChat': 'Новый чат',
+    'chat.searchUsers': 'Поиск пользователей...',
     'chat.loading': 'Загрузка...',
     'chat.messageChef': 'Написать повару',
 
