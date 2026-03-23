@@ -592,6 +592,12 @@ export const translations = {
     'cart.adminAccount': 'Аккаунт админа',
     'cart.adminCantOrder': 'Админы не могут делать заказы.',
     'cart.goToAdmin': 'Перейти в панель админа',
+    'cart.kaspiTransfer': 'Kaspi перевод',
+    'cart.kaspiInstruction': 'Переведите сумму на следующий номер Kaspi:',
+    'cart.kaspiNotAvailable': 'Номер Kaspi недоступен',
+    'cart.uploadReceipt': 'Загрузить чек оплаты',
+    'cart.uploadReceiptHint': 'Нажмите, чтобы загрузить скриншот перевода',
+    'cart.receiptRequired': 'Пожалуйста, загрузите чек оплаты',
     
     // Payment
     'payment.deliveryAddress': 'Адрес доставки',
