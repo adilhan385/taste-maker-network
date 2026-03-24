@@ -142,7 +142,7 @@ export function useAuth() {
 
     toast({
       title: 'Account created!',
-      description: 'Welcome to ChefCook!',
+      description: 'Please check your email to confirm your account.',
     });
 
     return { data };
