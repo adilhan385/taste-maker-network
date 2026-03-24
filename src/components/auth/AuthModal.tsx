@@ -290,6 +290,66 @@ export default function AuthModal() {
               </motion.div>
             )}
 
+            {view === 'forgotPassword' && (
+              <motion.div
+                key="forgotPassword"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-4"
+              >
+                <DialogHeader className="mb-2">
+                  <DialogTitle className="text-2xl font-serif text-center">
+                    {t('auth.forgotPasswordTitle', language)}
+                  </DialogTitle>
+                  <p className="text-center text-muted-foreground text-sm">
+                    {t('auth.forgotPasswordDesc', language)}
+                  </p>
+                </DialogHeader>
+                <div className="space-y-2">
+                  <Label htmlFor="resetEmail">{t('auth.email', language)}</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      id="resetEmail"
+                      type="email"
+                      placeholder="your@email.com"
+                      className="pl-10"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+                <Button onClick={handleForgotPassword} disabled={resetLoading || !resetEmail} variant="hero" className="w-full">
+                  {resetLoading ? t('common.loading', language) : t('auth.sendResetLink', language)}
+                </Button>
+                <button onClick={() => setView('form')} className="text-sm text-primary hover:underline w-full text-center block">
+                  {t('auth.backToLogin', language)}
+                </button>
+              </motion.div>
+            )}
+
+            {view === 'resetLinkSent' && (
+              <motion.div
+                key="resetLinkSent"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="text-center space-y-4"
+              >
+                <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-primary" />
+                </div>
+                <h2 className="text-xl font-serif font-semibold">{t('auth.resetLinkSent', language)}</h2>
+                <p className="text-muted-foreground text-sm">{t('auth.resetLinkSentDesc', language)}</p>
+                <p className="text-xs text-muted-foreground">{resetEmail}</p>
+                <Button variant="ghost" onClick={() => { setAuthModalOpen(false); resetState(); }} className="w-full mt-4">
+                  OK
+                </Button>
+              </motion.div>
+            )}
+
             {view === 'form' && (
               <motion.div
                 key="form"

@@ -255,14 +255,23 @@ export default function ChefOrdersTab() {
                             </div>
                           </div>
 
+                          {/* Kaspi receipt preview */}
+                          {order.payment_receipt_url && (
+                            <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+                              <div className="flex items-center gap-2">
+                                <ImageIcon className="w-4 h-4 text-primary" />
+                                <span className="text-sm font-medium">Чек оплаты (Kaspi)</span>
+                              </div>
+                              <img
+                                src={order.payment_receipt_url}
+                                alt="Payment receipt"
+                                className="max-w-[300px] max-h-[400px] rounded-lg border border-border cursor-pointer hover:opacity-90 transition-opacity"
+                                onClick={(e) => { e.stopPropagation(); window.open(order.payment_receipt_url!, '_blank'); }}
+                              />
+                            </div>
+                          )}
+
                           <div className="flex gap-2 flex-wrap pt-2">
-                            {/* View receipt */}
-                            {(order as any).payment_receipt_url && (
-                              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); window.open((order as any).payment_receipt_url, '_blank'); }}>
-                                <ImageIcon className="w-4 h-4 mr-1" />
-                                View Receipt
-                              </Button>
-                            )}
                             {config.next && order.status !== 'cancelled' && (
                               <Button 
                                 variant="hero" 

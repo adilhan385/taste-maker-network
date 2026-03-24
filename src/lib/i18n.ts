@@ -1399,6 +1399,17 @@ export const translations = {
     'auth.resendCode': 'Қайта жіберу',
     'auth.phoneTaken': 'Бұл телефон нөмірі бұрыннан қолданылуда',
     'auth.phoneRequired': 'Телефон нөмірі міндетті',
+    'auth.forgotPasswordTitle': 'Құпия сөзді ұмыттыңыз ба?',
+    'auth.forgotPasswordDesc': 'Email енгізіңіз, біз қалпына келтіру сілтемесін жібереміз',
+    'auth.sendResetLink': 'Сілтеме жіберу',
+    'auth.resetLinkSent': 'Сілтеме жіберілді!',
+    'auth.resetLinkSentDesc': 'Құпия сөзді қалпына келтіру үшін поштаңызды тексеріңіз.',
+    'auth.backToLogin': 'Кіруге оралу',
+    'auth.newPasswordTitle': 'Жаңа құпия сөз',
+    'auth.newPasswordDesc': 'Жаңа құпия сөзді енгізіңіз',
+    'auth.resetSuccess': 'Құпия сөз сәтті өзгертілді!',
+    'auth.redirecting': 'Қайта бағыттау...',
+    'auth.invalidResetLink': 'Жарамсыз немесе мерзімі өткен сілтеме.',
   },
 };
 
