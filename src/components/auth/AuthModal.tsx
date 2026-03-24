@@ -420,7 +420,7 @@ export default function AuthModal() {
 
                   {authModalMode === 'login' && (
                     <div className="text-right">
-                      <button type="button" className="text-sm text-primary hover:underline">
+                      <button type="button" className="text-sm text-primary hover:underline" onClick={() => { setResetEmail(formData.email); setView('forgotPassword'); }}>
                         {t('auth.forgotPassword', language)}
                       </button>
                     </div>
