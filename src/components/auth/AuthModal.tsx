@@ -51,6 +51,8 @@ export default function AuthModal() {
   const [smsCode, setSmsCode] = useState('');
   const [registeredPhone, setRegisteredPhone] = useState('');
   const [smsLoading, setSmsLoading] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
