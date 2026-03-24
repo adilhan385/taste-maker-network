@@ -25,7 +25,7 @@ export default function AdminAnalyticsTab() {
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
 
-  useEffect(() => { fetchAnalytics(); }, []);
+  useEffect(() => { fetchAnalytics(); const iv = setInterval(fetchAnalytics, 30000); return () => clearInterval(iv); }, []);
 
   const fetchAnalytics = async () => {
     try {
