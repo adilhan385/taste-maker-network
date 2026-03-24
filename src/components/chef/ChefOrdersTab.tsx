@@ -24,6 +24,7 @@ interface Order {
   delivery_type: string;
   delivery_address: string | null;
   payment_method: string;
+  payment_receipt_url: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
