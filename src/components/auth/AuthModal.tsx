@@ -68,6 +68,25 @@ export default function AuthModal() {
     setView('form');
     setSmsCode('');
     setRegisteredPhone('');
+    setResetEmail('');
+  };
+
+  const handleForgotPassword = async () => {
+    if (!resetEmail) return;
+    setResetLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      } else {
+        setView('resetLinkSent');
+      }
+    } catch (err) {
+      console.error('Reset password error:', err);
+    }
+    setResetLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
