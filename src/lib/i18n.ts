@@ -1267,6 +1267,8 @@ export const translations = {
     'admin.notifications': 'Хабарландырулар',
     'admin.settings': 'Баптаулар',
     'admin.noData': 'Деректер әлі жоқ',
+    'admin.onlineNow': 'Қазір онлайн',
+    'admin.usersOnline': 'пайдаланушы онлайн',
     'admin.viewOnly': 'Тек көру',
     'admin.conversations': 'диалог',
     'admin.usersCount': 'пайдаланушы',
