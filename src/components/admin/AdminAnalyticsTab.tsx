@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, Package, TrendingUp, Users, Loader2 } from 'lucide-react';
+import { Wallet, Package, TrendingUp, Users, Loader2, Wifi } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,7 @@ interface AdminAnalytics {
   monthRevenue: number;
   monthOrders: number;
   topChefs: { name: string; revenue: number; orders: number }[];
+  onlineCount: number;
 }
 
 export default function AdminAnalyticsTab() {
@@ -24,7 +25,7 @@ export default function AdminAnalyticsTab() {
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
 
-  useEffect(() => { fetchAnalytics(); }, []);
+  useEffect(() => { fetchAnalytics(); const iv = setInterval(fetchAnalytics, 30000); return () => clearInterval(iv); }, []);
 
   const fetchAnalytics = async () => {
     try {
@@ -69,6 +70,13 @@ export default function AdminAnalyticsTab() {
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 5);
 
+      // Online users (last 2 minutes)
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+      const { count: onlineCount } = await supabase
+        .from('user_presence')
+        .select('*', { count: 'exact', head: true })
+        .gte('last_seen_at', twoMinutesAgo);
+
       setAnalytics({
         todayRevenue: todayOrders.reduce((s, o) => s + o.total_amount, 0),
         todayOrders: todayOrders.length,
@@ -77,6 +85,7 @@ export default function AdminAnalyticsTab() {
         monthRevenue: monthOrders.reduce((s, o) => s + o.total_amount, 0),
         monthOrders: monthOrders.length,
         topChefs,
+        onlineCount: onlineCount || 0,
       });
     } catch (error: any) {
       toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
@@ -90,7 +99,22 @@ export default function AdminAnalyticsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('admin.onlineNow', language)}</CardTitle>
+              <Wifi className="w-4 h-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
+                {analytics.onlineCount}
+              </div>
+              <p className="text-xs text-muted-foreground">{t('admin.usersOnline', language)}</p>
+            </CardContent>
+          </Card>
+        </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
