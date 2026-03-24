@@ -321,6 +321,7 @@ export default function AuthModal() {
                               className="pl-10"
                               value={formData.phone}
                               onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                              required
                             />
                           </div>
                         </div>

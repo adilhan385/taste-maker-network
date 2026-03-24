@@ -1375,6 +1375,8 @@ export const translations = {
     'auth.phoneVerifiedDesc': 'Телефон нөміріңіз сәтті расталды',
     'auth.enterCode': 'Телефоныңызға жіберілген 6 санды кодты енгізіңіз',
     'auth.resendCode': 'Қайта жіберу',
+    'auth.phoneTaken': 'Бұл телефон нөмірі бұрыннан қолданылуда',
+    'auth.phoneRequired': 'Телефон нөмірі міндетті',
   },
 };
 

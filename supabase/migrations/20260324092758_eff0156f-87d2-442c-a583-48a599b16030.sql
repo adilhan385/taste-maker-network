@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX unique_phone_on_profiles ON public.profiles (phone) WHERE phone IS NOT NULL AND phone != '';
