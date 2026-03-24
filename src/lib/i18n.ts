@@ -916,6 +916,8 @@ export const translations = {
     'auth.phoneVerifiedDesc': 'Ваш номер телефона успешно подтверждён',
     'auth.enterCode': 'Введите 6-значный код, отправленный на ваш телефон',
     'auth.resendCode': 'Отправить повторно',
+    'auth.phoneTaken': 'Этот номер телефона уже используется',
+    'auth.phoneRequired': 'Номер телефона обязателен',
   },
   kz: {
     // Navigation
