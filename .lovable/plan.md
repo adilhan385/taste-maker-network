@@ -1,39 +1,44 @@
 
 
-# План: Запретить дублирование email и телефона при регистрации
+# План: Забыл пароль + Чеки Kaspi для поваров
 
-## Что сейчас
+## 1. Функция "Забыл пароль"
 
-- Supabase уже не позволяет регистрировать два аккаунта с одним email (встроенная проверка)
-- Но телефон хранится в `profiles.phone` без уникального ограничения — можно создать несколько аккаунтов с одним номером
+### `src/components/auth/AuthModal.tsx`
+- Добавить новый view `forgotPassword` в `ModalView` type
+- Кнопка "Забыли пароль?" (строка 402) получает `onClick` → переключает view на `forgotPassword`
+- View `forgotPassword`: поле email + кнопка "Отправить ссылку"
+- Вызывает `supabase.auth.resetPasswordForEmail(email, { redirectTo: origin + '/reset-password' })`
+- После отправки показывает сообщение "Проверьте почту"
 
-## Что нужно сделать
+### `src/pages/ResetPassword.tsx` (создать)
+- Страница `/reset-password` — форма нового пароля + подтверждение
+- Проверяет наличие `type=recovery` в URL hash
+- Вызывает `supabase.auth.updateUser({ password })` для смены пароля
+- После успеха — редирект на главную
 
-### 1. Миграция БД — уникальный индекс на телефон
-```sql
-CREATE UNIQUE INDEX unique_phone_on_profiles 
-ON public.profiles (phone) 
-WHERE phone IS NOT NULL AND phone != '';
-```
-Это не даст двум профилям иметь одинаковый номер телефона.
+### `src/App.tsx`
+- Добавить Route: `<Route path="/reset-password" element={<ResetPassword />} />`
 
-### 2. `src/components/auth/AuthModal.tsx`
-- Сделать поле телефона **обязательным** при регистрации (убрать `optional()`)
-- Перед вызовом `signUp` — проверять через запрос к `profiles`, не занят ли уже номер
-- Показывать ошибку "Этот номер уже используется"
+### `src/lib/i18n.ts`
+- Ключи: `auth.forgotPasswordTitle`, `auth.sendResetLink`, `auth.resetLinkSent`, `auth.newPasswordTitle`, `auth.resetSuccess`
 
-### 3. `src/hooks/useAuth.ts`
-- В `signUp` добавить проверку уникальности телефона перед созданием аккаунта
+## 2. Повара видят чеки Kaspi в заказах
 
-### 4. `src/lib/i18n.ts`
-- Ключи: `auth.phoneRequired`, `auth.phoneTaken`
+### `src/components/chef/ChefOrdersTab.tsx`
+Кнопка "View Receipt" уже есть (строка 260), но:
+- Проверить что `payment_receipt_url` включён в запрос (уже `select *`)
+- Сделать кнопку более заметной — добавить `variant="secondary"` и текст на русском
+- Добавить превью чека прямо в развёрнутом заказе (изображение чека внутри карточки), а не только кнопку открытия в новом окне
+- Показывать способ оплаты "Kaspi" с пометкой если есть чек
 
 ## Файлы
 
 | Файл | Действие |
 |------|----------|
-| Миграция БД | Уникальный индекс на `profiles.phone` |
-| `src/components/auth/AuthModal.tsx` | Телефон обязателен + проверка дубликата |
-| `src/hooks/useAuth.ts` | Проверка уникальности телефона |
+| `src/components/auth/AuthModal.tsx` | Добавить view "Забыл пароль" |
+| `src/pages/ResetPassword.tsx` | Создать — страница смены пароля |
+| `src/App.tsx` | Добавить route `/reset-password` |
+| `src/components/chef/ChefOrdersTab.tsx` | Показать превью чека в заказе |
 | `src/lib/i18n.ts` | Новые ключи |
 
