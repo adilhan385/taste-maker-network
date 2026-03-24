@@ -1,25 +1,66 @@
 
 
-# План: Убрать "Стать поваром" для поваров + убрать лишние поля из формы блюда
+# План: Верификация Email + SMS при регистрации
 
-## Проблемы
+## Что будет сделано
 
-1. **На главной странице** секция `BecomeChefCTA` показывается всем, включая поваров
-2. **В мобильном меню** ссылка "Стать поваром" показывается только для `buyer` (уже правильно), но секция CTA на главной — нет
-3. **В форме добавления блюда** есть лишние поля: размер порции, ингредиенты, аллергены — повару не нужны
+1. **Email подтверждение** — после регистрации пользователь получит письмо со ссылкой. Пока не подтвердит — не сможет войти.
+2. **SMS подтверждение телефона** — после регистрации отправляется код на телефон, пользователь вводит его для подтверждения.
+
+## Важно
+
+- SMS-верификация требует подключение **Twilio** (платный сервис для отправки SMS). Нужен будет номер телефона Twilio и аккаунт.
+- Email-верификация — бесплатная, встроена в систему.
 
 ## Изменения
 
-### `src/pages/Index.tsx`
-- Обернуть `<BecomeChefCTA />` в условие: показывать только если пользователь не авторизован или его роль `buyer` (не повар и не админ)
+### 1. Отключить авто-подтверждение email
+- Использовать `configure_auth` чтобы выключить `autoconfirm` — пользователь должен нажать ссылку в письме
 
-### `src/components/chef/ChefDishesTab.tsx`
-- Удалить из формы диалога 3 поля: `portionSize`, `ingredients`, `allergens`
-- Удалить из `formData` соответствующие поля
-- Удалить из `productData` при submit
+### 2. Подключить Twilio коннектор
+- Через `standard_connectors--connect` подключить Twilio для отправки SMS
 
-| Файл | Что |
-|------|-----|
-| `src/pages/Index.tsx` | Скрыть BecomeChefCTA для поваров/админов |
-| `src/components/chef/ChefDishesTab.tsx` | Убрать поля: размер порции, ингредиенты, аллергены |
+### 3. Создать Edge Function `send-sms-otp`
+**Файл:** `supabase/functions/send-sms-otp/index.ts`
+- Генерирует 6-значный код
+- Сохраняет код в таблицу `phone_verifications` (с TTL 5 минут)
+- Отправляет SMS через Twilio gateway
+
+### 4. Миграция БД
+```sql
+CREATE TABLE public.phone_verifications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  phone text NOT NULL,
+  code text NOT NULL,
+  verified boolean DEFAULT false,
+  expires_at timestamptz NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.phone_verifications ENABLE ROW LEVEL SECURITY;
+-- RLS: пользователь видит только свои записи
+```
+
+### 5. Обновить `AuthModal.tsx`
+- После успешной регистрации — показать экран "Проверьте почту для подтверждения email"
+- Если указан телефон — показать поле ввода SMS-кода
+- Вызов edge function для отправки и проверки кода
+
+### 6. Обновить `useAuth.ts` (signUp)
+- После `signUp` показать сообщение "Проверьте email" вместо автоматического входа
+
+### 7. i18n ключи
+`auth.checkEmail`, `auth.smsCode`, `auth.sendCode`, `auth.verifyPhone`, `auth.codeExpired`, `auth.codeSent`
+
+## Файлы
+
+| Файл | Действие |
+|------|----------|
+| Миграция БД | Таблица `phone_verifications` |
+| `configure_auth` | Отключить auto-confirm |
+| Twilio коннектор | Подключить для SMS |
+| `supabase/functions/send-sms-otp/index.ts` | Создать — отправка и проверка SMS |
+| `src/components/auth/AuthModal.tsx` | Экран подтверждения email + ввод SMS-кода |
+| `src/hooks/useAuth.ts` | Обновить сообщение после регистрации |
+| `src/lib/i18n.ts` | Новые ключи |
 
