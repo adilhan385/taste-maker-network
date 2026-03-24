@@ -103,12 +103,22 @@ export default function AuthModal() {
           return;
         }
 
+        // Check if phone is already taken
+        const { data: existingPhone } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('phone', formData.phone)
+          .maybeSingle();
+
+        if (existingPhone) {
+          setErrors({ phone: t('auth.phoneTaken', language) });
+          setIsLoading(false);
+          return;
+        }
+
         const { error } = await signUp(formData.email, formData.password, formData.name, formData.phone);
         if (!error) {
-          // Show email confirmation screen
           setView('emailSent');
-          
-          // If phone was provided, try to send SMS after a delay
           if (formData.phone) {
             setRegisteredPhone(formData.phone);
           }
