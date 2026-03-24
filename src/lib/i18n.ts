@@ -810,6 +810,8 @@ export const translations = {
     'admin.notifications': 'Уведомления',
     'admin.settings': 'Настройки',
     'admin.noData': 'Данных пока нет',
+    'admin.onlineNow': 'Сейчас онлайн',
+    'admin.usersOnline': 'пользователей онлайн',
     'admin.viewOnly': 'Только просмотр',
     'admin.conversations': 'диалогов',
     'admin.usersCount': 'пользователей',
