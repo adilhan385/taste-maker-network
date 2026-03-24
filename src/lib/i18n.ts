@@ -355,6 +355,8 @@ export const translations = {
     'admin.notifications': 'Notifications',
     'admin.settings': 'Settings',
     'admin.noData': 'No data yet',
+    'admin.onlineNow': 'Online Now',
+    'admin.usersOnline': 'users online',
     'admin.viewOnly': 'View only',
     'admin.conversations': 'conversations',
     'admin.usersCount': 'users',
