@@ -20,6 +20,7 @@ import Wallet from "./pages/Wallet";
 import AdminPanel from "./pages/AdminPanel";
 import ChefDashboard from "./pages/ChefDashboard";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
