@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Wallet, Package, TrendingUp, Users, Loader2 } from 'lucide-react';
+import { Wallet, Package, TrendingUp, Users, Loader2, Wifi } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,7 @@ interface AdminAnalytics {
   monthRevenue: number;
   monthOrders: number;
   topChefs: { name: string; revenue: number; orders: number }[];
+  onlineCount: number;
 }
 
 export default function AdminAnalyticsTab() {
