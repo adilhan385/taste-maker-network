@@ -25,9 +25,8 @@ const registerSchema = z.object({
     .regex(/^[a-zA-Zа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ\s\-']+$/, 'Name contains invalid characters'),
   email: z.string().trim().email('Invalid email address').max(255, 'Email too long'),
   phone: z.string()
-    .regex(/^(\+?[0-9\s\-()]{0,20})?$/, 'Invalid phone number')
-    .optional()
-    .or(z.literal('')),
+    .min(1, 'Phone number is required')
+    .regex(/^\+?[0-9\s\-()]{7,20}$/, 'Invalid phone number'),
   password: z.string()
     .min(8, 'Password must be at least 8 characters')
     .max(128, 'Password too long')
@@ -104,12 +103,22 @@ export default function AuthModal() {
           return;
         }
 
+        // Check if phone is already taken
+        const { data: existingPhone } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('phone', formData.phone)
+          .maybeSingle();
+
+        if (existingPhone) {
+          setErrors({ phone: t('auth.phoneTaken', language) });
+          setIsLoading(false);
+          return;
+        }
+
         const { error } = await signUp(formData.email, formData.password, formData.name, formData.phone);
         if (!error) {
-          // Show email confirmation screen
           setView('emailSent');
-          
-          // If phone was provided, try to send SMS after a delay
           if (formData.phone) {
             setRegisteredPhone(formData.phone);
           }
@@ -312,8 +321,10 @@ export default function AuthModal() {
                               className="pl-10"
                               value={formData.phone}
                               onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                              required
                             />
                           </div>
+                          {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
                         </div>
                       </motion.div>
                     )}

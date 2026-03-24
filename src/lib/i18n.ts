@@ -459,6 +459,8 @@ export const translations = {
     'auth.phoneVerifiedDesc': 'Your phone number has been verified successfully',
     'auth.enterCode': 'Enter the 6-digit code sent to your phone',
     'auth.resendCode': 'Resend Code',
+    'auth.phoneTaken': 'This phone number is already in use',
+    'auth.phoneRequired': 'Phone number is required',
   },
   ru: {
     // Navigation
@@ -914,6 +916,8 @@ export const translations = {
     'auth.phoneVerifiedDesc': 'Ваш номер телефона успешно подтверждён',
     'auth.enterCode': 'Введите 6-значный код, отправленный на ваш телефон',
     'auth.resendCode': 'Отправить повторно',
+    'auth.phoneTaken': 'Этот номер телефона уже используется',
+    'auth.phoneRequired': 'Номер телефона обязателен',
   },
   kz: {
     // Navigation
@@ -1371,6 +1375,8 @@ export const translations = {
     'auth.phoneVerifiedDesc': 'Телефон нөміріңіз сәтті расталды',
     'auth.enterCode': 'Телефоныңызға жіберілген 6 санды кодты енгізіңіз',
     'auth.resendCode': 'Қайта жіберу',
+    'auth.phoneTaken': 'Бұл телефон нөмірі бұрыннан қолданылуда',
+    'auth.phoneRequired': 'Телефон нөмірі міндетті',
   },
 };
 
