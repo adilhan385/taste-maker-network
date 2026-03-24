@@ -1,49 +1,39 @@
 
 
-# План: Показать онлайн-пользователей админу
+# План: Запретить дублирование email и телефона при регистрации
 
-## Подход
+## Что сейчас
 
-Использовать **Supabase Realtime Presence** — каждый авторизованный пользователь при загрузке сайта подключается к общему каналу `online-users` и отслеживает presence. Админ в аналитике видит количество онлайн в реальном времени.
+- Supabase уже не позволяет регистрировать два аккаунта с одним email (встроенная проверка)
+- Но телефон хранится в `profiles.phone` без уникального ограничения — можно создать несколько аккаунтов с одним номером
 
-## Изменения
+## Что нужно сделать
 
-### 1. Таблица `user_presence` (миграция)
+### 1. Миграция БД — уникальный индекс на телефон
 ```sql
-CREATE TABLE public.user_presence (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL UNIQUE,
-  last_seen_at timestamptz NOT NULL DEFAULT now()
-);
-ALTER TABLE public.user_presence ENABLE ROW LEVEL SECURITY;
--- Все авторизованные могут upsert свою запись
--- Админы видят все записи
+CREATE UNIQUE INDEX unique_phone_on_profiles 
+ON public.profiles (phone) 
+WHERE phone IS NOT NULL AND phone != '';
 ```
-Пользователь обновляет `last_seen_at` каждые 60 секунд. "Онлайн" = `last_seen_at` в последние 2 минуты.
+Это не даст двум профилям иметь одинаковый номер телефона.
 
-### 2. `src/hooks/usePresence.ts` (создать)
-- При авторизации: `upsert` в `user_presence` каждые 60 сек
-- При выходе/закрытии: cleanup через `beforeunload`
-- Использовать в `Layout.tsx` чтобы работало на всех страницах
+### 2. `src/components/auth/AuthModal.tsx`
+- Сделать поле телефона **обязательным** при регистрации (убрать `optional()`)
+- Перед вызовом `signUp` — проверять через запрос к `profiles`, не занят ли уже номер
+- Показывать ошибку "Этот номер уже используется"
 
-### 3. `src/components/layout/Layout.tsx`
-- Подключить `usePresence()` для всех авторизованных пользователей
+### 3. `src/hooks/useAuth.ts`
+- В `signUp` добавить проверку уникальности телефона перед созданием аккаунта
 
-### 4. `src/components/admin/AdminAnalyticsTab.tsx`
-- Добавить карточку "Онлайн сейчас" — запрос `user_presence` где `last_seen_at > now() - 2 минуты`
-- Зелёная точка + число онлайн пользователей
-- Автообновление каждые 30 секунд
-
-### 5. `src/lib/i18n.ts`
-- Ключи: `admin.onlineNow`, `admin.usersOnline`
+### 4. `src/lib/i18n.ts`
+- Ключи: `auth.phoneRequired`, `auth.phoneTaken`
 
 ## Файлы
 
 | Файл | Действие |
 |------|----------|
-| Миграция БД | Таблица `user_presence` |
-| `src/hooks/usePresence.ts` | Создать — heartbeat presence |
-| `src/components/layout/Layout.tsx` | Подключить usePresence |
-| `src/components/admin/AdminAnalyticsTab.tsx` | Карточка "Онлайн" |
+| Миграция БД | Уникальный индекс на `profiles.phone` |
+| `src/components/auth/AuthModal.tsx` | Телефон обязателен + проверка дубликата |
+| `src/hooks/useAuth.ts` | Проверка уникальности телефона |
 | `src/lib/i18n.ts` | Новые ключи |
 
