@@ -25,9 +25,8 @@ const registerSchema = z.object({
     .regex(/^[a-zA-Zа-яА-ЯёЁәғқңөұүһіӘҒҚҢӨҰҮҺІ\s\-']+$/, 'Name contains invalid characters'),
   email: z.string().trim().email('Invalid email address').max(255, 'Email too long'),
   phone: z.string()
-    .regex(/^(\+?[0-9\s\-()]{0,20})?$/, 'Invalid phone number')
-    .optional()
-    .or(z.literal('')),
+    .min(1, 'Phone number is required')
+    .regex(/^\+?[0-9\s\-()]{7,20}$/, 'Invalid phone number'),
   password: z.string()
     .min(8, 'Password must be at least 8 characters')
     .max(128, 'Password too long')
