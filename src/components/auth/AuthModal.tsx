@@ -324,6 +324,7 @@ export default function AuthModal() {
                               required
                             />
                           </div>
+                          {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
                         </div>
                       </motion.div>
                     )}
