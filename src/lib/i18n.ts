@@ -461,6 +461,17 @@ export const translations = {
     'auth.resendCode': 'Resend Code',
     'auth.phoneTaken': 'This phone number is already in use',
     'auth.phoneRequired': 'Phone number is required',
+    'auth.forgotPasswordTitle': 'Forgot Password',
+    'auth.forgotPasswordDesc': 'Enter your email and we\'ll send you a reset link',
+    'auth.sendResetLink': 'Send Reset Link',
+    'auth.resetLinkSent': 'Reset Link Sent!',
+    'auth.resetLinkSentDesc': 'Check your email for the password reset link.',
+    'auth.backToLogin': 'Back to Login',
+    'auth.newPasswordTitle': 'Set New Password',
+    'auth.newPasswordDesc': 'Enter your new password below',
+    'auth.resetSuccess': 'Password reset successfully!',
+    'auth.redirecting': 'Redirecting...',
+    'auth.invalidResetLink': 'Invalid or expired reset link.',
   },
   ru: {
     // Navigation
