@@ -20,6 +20,7 @@ import Wallet from "./pages/Wallet";
 import AdminPanel from "./pages/AdminPanel";
 import ChefDashboard from "./pages/ChefDashboard";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ function AppRoutes() {
         <Route path="/wallet" element={<Wallet />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/chef-dashboard" element={<ChefDashboard />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
