@@ -70,6 +70,13 @@ export default function AdminAnalyticsTab() {
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 5);
 
+      // Online users (last 2 minutes)
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+      const { count: onlineCount } = await supabase
+        .from('user_presence')
+        .select('*', { count: 'exact', head: true })
+        .gte('last_seen_at', twoMinutesAgo);
+
       setAnalytics({
         todayRevenue: todayOrders.reduce((s, o) => s + o.total_amount, 0),
         todayOrders: todayOrders.length,
@@ -78,6 +85,7 @@ export default function AdminAnalyticsTab() {
         monthRevenue: monthOrders.reduce((s, o) => s + o.total_amount, 0),
         monthOrders: monthOrders.length,
         topChefs,
+        onlineCount: onlineCount || 0,
       });
     } catch (error: any) {
       toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
