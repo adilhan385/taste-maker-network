@@ -459,6 +459,8 @@ export const translations = {
     'auth.phoneVerifiedDesc': 'Your phone number has been verified successfully',
     'auth.enterCode': 'Enter the 6-digit code sent to your phone',
     'auth.resendCode': 'Resend Code',
+    'auth.phoneTaken': 'This phone number is already in use',
+    'auth.phoneRequired': 'Phone number is required',
   },
   ru: {
     // Navigation
