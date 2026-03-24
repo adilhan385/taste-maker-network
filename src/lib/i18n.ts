@@ -929,6 +929,17 @@ export const translations = {
     'auth.resendCode': 'Отправить повторно',
     'auth.phoneTaken': 'Этот номер телефона уже используется',
     'auth.phoneRequired': 'Номер телефона обязателен',
+    'auth.forgotPasswordTitle': 'Забыли пароль?',
+    'auth.forgotPasswordDesc': 'Введите email и мы отправим ссылку для сброса',
+    'auth.sendResetLink': 'Отправить ссылку',
+    'auth.resetLinkSent': 'Ссылка отправлена!',
+    'auth.resetLinkSentDesc': 'Проверьте почту для сброса пароля.',
+    'auth.backToLogin': 'Назад к входу',
+    'auth.newPasswordTitle': 'Новый пароль',
+    'auth.newPasswordDesc': 'Введите новый пароль',
+    'auth.resetSuccess': 'Пароль успешно изменён!',
+    'auth.redirecting': 'Перенаправление...',
+    'auth.invalidResetLink': 'Недействительная или истёкшая ссылка.',
   },
   kz: {
     // Navigation
