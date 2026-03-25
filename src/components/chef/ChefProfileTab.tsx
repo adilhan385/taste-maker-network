@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Camera, Save, Loader2, MapPin, Phone, FileText, Star, MessageSquare, Smartphone } from 'lucide-react';
+import { User, Camera, Save, Loader2, MapPin, Phone, FileText, Star, MessageSquare, Smartphone, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -42,6 +43,11 @@ export default function ChefProfileTab() {
   const [chefData, setChefData] = useState<ChefApplication | null>(null);
   const [chefRank, setChefRank] = useState<string>('bronze');
   const [reviews, setReviews] = useState<any[]>([]);
+  const [appeals, setAppeals] = useState<Map<string, string>>(new Map());
+  const [appealDialogOpen, setAppealDialogOpen] = useState(false);
+  const [appealReviewId, setAppealReviewId] = useState<string | null>(null);
+  const [appealReason, setAppealReason] = useState('');
+  const [appealSubmitting, setAppealSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -58,6 +64,7 @@ export default function ChefProfileTab() {
       fetchChefData();
       fetchChefRank();
       fetchReviews();
+      fetchAppeals();
     }
   }, [user]);
 
@@ -102,6 +109,21 @@ export default function ChefProfileTab() {
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
+    }
+  };
+
+  const fetchAppeals = async () => {
+    if (!user) return;
+    try {
+      const { data } = await supabase
+        .from('review_appeals')
+        .select('review_id, status')
+        .eq('chef_id', user.id);
+      if (data) {
+        setAppeals(new Map(data.map(a => [a.review_id, a.status])));
+      }
+    } catch (error) {
+      console.error('Error fetching appeals:', error);
     }
   };
 
@@ -341,7 +363,24 @@ export default function ChefProfileTab() {
                       </div>
                     </div>
                     {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
-                    <p className="text-xs text-muted-foreground">{new Date(review.created_at).toLocaleDateString()}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground">{new Date(review.created_at).toLocaleDateString()}</p>
+                      {appeals.has(review.id) ? (
+                        <Badge variant={appeals.get(review.id) === 'approved' ? 'default' : appeals.get(review.id) === 'rejected' ? 'destructive' : 'secondary'} className="text-xs">
+                          {t(`chef.appeal${appeals.get(review.id) === 'approved' ? 'Approved' : appeals.get(review.id) === 'rejected' ? 'Rejected' : 'Pending'}`, language)}
+                        </Badge>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs h-7 gap-1 text-muted-foreground hover:text-destructive"
+                          onClick={() => { setAppealReviewId(review.id); setAppealDialogOpen(true); }}
+                        >
+                          <AlertTriangle className="w-3 h-3" />
+                          {t('chef.appealReview', language)}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -356,6 +395,55 @@ export default function ChefProfileTab() {
           {t('chef.saveProfile', language)}
         </Button>
       </div>
+
+      {/* Appeal Dialog */}
+      <Dialog open={appealDialogOpen} onOpenChange={setAppealDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('chef.appealReview', language)}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>{t('chef.appealReason', language)}</Label>
+            <Textarea
+              value={appealReason}
+              onChange={e => setAppealReason(e.target.value)}
+              placeholder={t('chef.appealReasonPlaceholder', language)}
+              rows={4}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setAppealDialogOpen(false); setAppealReason(''); }}>
+              {t('common.cancel', language)}
+            </Button>
+            <Button
+              disabled={!appealReason.trim() || appealSubmitting}
+              onClick={async () => {
+                if (!user || !appealReviewId) return;
+                setAppealSubmitting(true);
+                try {
+                  const { error } = await supabase.from('review_appeals').insert({
+                    review_id: appealReviewId,
+                    chef_id: user.id,
+                    reason: appealReason.trim(),
+                  });
+                  if (error) throw error;
+                  toast({ title: t('chef.appealSubmitted', language), description: t('chef.appealSubmittedDesc', language) });
+                  setAppeals(prev => new Map(prev).set(appealReviewId, 'pending'));
+                  setAppealDialogOpen(false);
+                  setAppealReason('');
+                } catch (error: any) {
+                  toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
+                } finally {
+                  setAppealSubmitting(false);
+                }
+              }}
+            >
+              {appealSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+              {t('chef.appealSubmit', language)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

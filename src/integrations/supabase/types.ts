@@ -504,6 +504,44 @@ export type Database = {
         }
         Relationships: []
       }
+      review_appeals: {
+        Row: {
+          admin_notes: string | null
+          chef_id: string
+          created_at: string
+          id: string
+          reason: string
+          review_id: string
+          status: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          chef_id: string
+          created_at?: string
+          id?: string
+          reason: string
+          review_id: string
+          status?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          chef_id?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          review_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_appeals_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           comment: string | null

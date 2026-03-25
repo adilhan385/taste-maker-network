@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Users, ChefHat, Package, CreditCard, BarChart3, Bell, MessageCircle, Settings, Search, LogOut } from 'lucide-react';
+import { Shield, Users, ChefHat, Package, CreditCard, BarChart3, Bell, MessageCircle, Settings, Search, LogOut, AlertTriangle } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,12 +14,14 @@ import AdminProductsTab from '@/components/admin/AdminProductsTab';
 import AdminOrdersTab from '@/components/admin/AdminOrdersTab';
 import AdminChatsTab from '@/components/admin/AdminChatsTab';
 import AdminAnalyticsTab from '@/components/admin/AdminAnalyticsTab';
+import AdminReviewAppealsTab from '@/components/admin/AdminReviewAppealsTab';
 
 const navItems = [
   { id: 'applications', labelKey: 'admin.chefApplications', icon: ChefHat },
   { id: 'users', labelKey: 'admin.users', icon: Users },
   { id: 'products', labelKey: 'admin.products', icon: Package },
   { id: 'orders', labelKey: 'admin.orders', icon: CreditCard },
+  { id: 'appeals', labelKey: 'admin.reviewAppeals', icon: AlertTriangle },
   { id: 'chats', labelKey: 'admin.chats', icon: MessageCircle },
   { id: 'analytics', labelKey: 'admin.analytics', icon: BarChart3 },
   { id: 'notifications', labelKey: 'admin.notifications', icon: Bell },
@@ -108,8 +110,9 @@ export default function AdminPanel() {
             {activeTab === 'products' && <AdminProductsTab searchQuery={searchQuery} />}
             {activeTab === 'orders' && <AdminOrdersTab searchQuery={searchQuery} />}
             {activeTab === 'chats' && <AdminChatsTab searchQuery={searchQuery} />}
+            {activeTab === 'appeals' && <AdminReviewAppealsTab searchQuery={searchQuery} />}
             {activeTab === 'analytics' && <AdminAnalyticsTab />}
-            {!['applications', 'users', 'products', 'orders', 'chats', 'analytics'].includes(activeTab) && (
+            {!['applications', 'users', 'products', 'orders', 'chats', 'appeals', 'analytics'].includes(activeTab) && (
               <div className="bg-card rounded-xl p-12 shadow-card text-center">
                 <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-muted-foreground">{t('admin.noData', language)}</p>
