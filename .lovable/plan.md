@@ -1,44 +1,49 @@
 
 
-# План: Забыл пароль + Чеки Kaspi для поваров
+# План: Апелляция на отзывы + Баг языка в мобильном меню
 
-## 1. Функция "Забыл пароль"
+## 1. Баг: Язык не меняется в мобильном меню
+В `Navbar.tsx` клик на LanguageSelector закрывает всё меню из-за `onClick={() => setMobileMenuOpen(false)}` на родителе. Добавим `e.stopPropagation()` на контейнер LanguageSelector.
 
-### `src/components/auth/AuthModal.tsx`
-- Добавить новый view `forgotPassword` в `ModalView` type
-- Кнопка "Забыли пароль?" (строка 402) получает `onClick` → переключает view на `forgotPassword`
-- View `forgotPassword`: поле email + кнопка "Отправить ссылку"
-- Вызывает `supabase.auth.resetPasswordForEmail(email, { redirectTo: origin + '/reset-password' })`
-- После отправки показывает сообщение "Проверьте почту"
+## 2. Система апелляций на отзывы
 
-### `src/pages/ResetPassword.tsx` (создать)
-- Страница `/reset-password` — форма нового пароля + подтверждение
-- Проверяет наличие `type=recovery` в URL hash
-- Вызывает `supabase.auth.updateUser({ password })` для смены пароля
-- После успеха — редирект на главную
+### Миграция БД — таблица `review_appeals`
+```sql
+CREATE TABLE public.review_appeals (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  review_id uuid NOT NULL,
+  chef_id uuid NOT NULL,
+  reason text NOT NULL,
+  status text NOT NULL DEFAULT 'pending',
+  admin_notes text,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+-- RLS: повар видит/создаёт свои, админ видит/обновляет все
+```
 
-### `src/App.tsx`
-- Добавить Route: `<Route path="/reset-password" element={<ResetPassword />} />`
+### `src/components/chef/ChefProfileTab.tsx`
+- Кнопка "Подать апелляцию" у каждого отзыва
+- Диалог с полем причины → запись в `review_appeals`
+- Показ статуса если апелляция уже подана
+
+### `src/components/admin/AdminReviewAppealsTab.tsx` (новый)
+- Список pending апелляций с деталями отзыва
+- Кнопки: "Удалить отзыв" (удаляет review + approved) и "Отклонить" (rejected)
+
+### `src/pages/AdminPanel.tsx`
+- Новая вкладка "Апелляции"
 
 ### `src/lib/i18n.ts`
-- Ключи: `auth.forgotPasswordTitle`, `auth.sendResetLink`, `auth.resetLinkSent`, `auth.newPasswordTitle`, `auth.resetSuccess`
-
-## 2. Повара видят чеки Kaspi в заказах
-
-### `src/components/chef/ChefOrdersTab.tsx`
-Кнопка "View Receipt" уже есть (строка 260), но:
-- Проверить что `payment_receipt_url` включён в запрос (уже `select *`)
-- Сделать кнопку более заметной — добавить `variant="secondary"` и текст на русском
-- Добавить превью чека прямо в развёрнутом заказе (изображение чека внутри карточки), а не только кнопку открытия в новом окне
-- Показывать способ оплаты "Kaspi" с пометкой если есть чек
+- Ключи для апелляций на 3 языках
 
 ## Файлы
 
 | Файл | Действие |
 |------|----------|
-| `src/components/auth/AuthModal.tsx` | Добавить view "Забыл пароль" |
-| `src/pages/ResetPassword.tsx` | Создать — страница смены пароля |
-| `src/App.tsx` | Добавить route `/reset-password` |
-| `src/components/chef/ChefOrdersTab.tsx` | Показать превью чека в заказе |
+| Миграция БД | Таблица `review_appeals` + RLS |
+| `src/components/layout/Navbar.tsx` | Фикс языка в мобильном меню |
+| `src/components/chef/ChefProfileTab.tsx` | Кнопка апелляции |
+| `src/components/admin/AdminReviewAppealsTab.tsx` | Новый компонент |
+| `src/pages/AdminPanel.tsx` | Вкладка "Апелляции" |
 | `src/lib/i18n.ts` | Новые ключи |
 
