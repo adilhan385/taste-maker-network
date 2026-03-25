@@ -395,6 +395,55 @@ export default function ChefProfileTab() {
           {t('chef.saveProfile', language)}
         </Button>
       </div>
+
+      {/* Appeal Dialog */}
+      <Dialog open={appealDialogOpen} onOpenChange={setAppealDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('chef.appealReview', language)}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Label>{t('chef.appealReason', language)}</Label>
+            <Textarea
+              value={appealReason}
+              onChange={e => setAppealReason(e.target.value)}
+              placeholder={t('chef.appealReasonPlaceholder', language)}
+              rows={4}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setAppealDialogOpen(false); setAppealReason(''); }}>
+              {t('common.cancel', language)}
+            </Button>
+            <Button
+              disabled={!appealReason.trim() || appealSubmitting}
+              onClick={async () => {
+                if (!user || !appealReviewId) return;
+                setAppealSubmitting(true);
+                try {
+                  const { error } = await supabase.from('review_appeals').insert({
+                    review_id: appealReviewId,
+                    chef_id: user.id,
+                    reason: appealReason.trim(),
+                  });
+                  if (error) throw error;
+                  toast({ title: t('chef.appealSubmitted', language), description: t('chef.appealSubmittedDesc', language) });
+                  setAppeals(prev => new Map(prev).set(appealReviewId, 'pending'));
+                  setAppealDialogOpen(false);
+                  setAppealReason('');
+                } catch (error: any) {
+                  toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
+                } finally {
+                  setAppealSubmitting(false);
+                }
+              }}
+            >
+              {appealSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
+              {t('chef.appealSubmit', language)}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
