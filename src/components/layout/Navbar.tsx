@@ -268,7 +268,7 @@ export default function Navbar() {
                   {t('nav.becomeChef', language)}
                 </Link>
               )}
-              <div className="flex items-center gap-4 pt-2 border-t border-border">
+              <div className="flex items-center gap-4 pt-2 border-t border-border" onClick={e => e.stopPropagation()}>
                 <LanguageSelector />
                 <WalletWidget />
               </div>
