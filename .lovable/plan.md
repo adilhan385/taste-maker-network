@@ -1,49 +1,27 @@
+# План: Письма подтверждения не приходят на Gmail
 
+## Что выяснено
 
-# План: Апелляция на отзывы + Баг языка в мобильном меню
+- В коде регистрация настроена правильно: `signUp` передаёт `emailRedirectTo`, авто-подтверждение отключено, значит письмо должно отправляться.
+- **У проекта не настроен домен отправителя писем** (проверено: email setup — `not_started`). Из-за этого письма уходят с общего тестового отправителя Lovable, у которого очень жёсткие лимиты (единицы писем в час) и низкая доставляемость — Gmail такие письма чаще всего блокирует или они вообще не отправляются.
 
-## 1. Баг: Язык не меняется в мобильном меню
-В `Navbar.tsx` клик на LanguageSelector закрывает всё меню из-за `onClick={() => setMobileMenuOpen(false)}` на родителе. Добавим `e.stopPropagation()` на контейнер LanguageSelector.
+## Что сделаем
 
-## 2. Система апелляций на отзывы
+1. Настроим собственный домен отправителя (у вас уже есть `chefcook.site`) через диалог настройки почты — DNS-записи добавляются автоматически, если домен подключён к проекту.
+2. После подтверждения DNS создадим брендированные шаблоны писем авторизации (подтверждение регистрации, сброс пароля, magic link) в стиле ChefCook и задеплоим обработчик писем.
+3. Поднимем часовой лимит отправки писем авторизации, чтобы регистрации не упирались в лимит.
+4. Проверим: зарегистрируем тестовый аккаунт и убедимся, что письмо уходит (по журналу отправки).
 
-### Миграция БД — таблица `review_appeals`
-```sql
-CREATE TABLE public.review_appeals (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  review_id uuid NOT NULL,
-  chef_id uuid NOT NULL,
-  reason text NOT NULL,
-  status text NOT NULL DEFAULT 'pending',
-  admin_notes text,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
--- RLS: повар видит/создаёт свои, админ видит/обновляет все
-```
+## Технические детали
 
-### `src/components/chef/ChefProfileTab.tsx`
-- Кнопка "Подать апелляцию" у каждого отзыва
-- Диалог с полем причины → запись в `review_appeals`
-- Показ статуса если апелляция уже подана
+| Шаг | Действие |
+|-----|----------|
+| Домен | Диалог «Set up email domain» → домен `chefcook.site` (или поддомен `mail.chefcook.site`) |
+| Инфраструктура | `setup_email_infra` после установки домена |
+| Шаблоны | `scaffold_auth_email_templates` → правка `supabase/functions/_shared/email-templates/*.tsx` под бренд |
+| Деплой | `deploy_edge_functions: ["auth-email-hook"]` |
+| Лимиты | `configure_auth` → `rate_limit_email_sent` (после активации отправки) |
 
-### `src/components/admin/AdminReviewAppealsTab.tsx` (новый)
-- Список pending апелляций с деталями отзыва
-- Кнопки: "Удалить отзыв" (удаляет review + approved) и "Отклонить" (rejected)
+## Важно
 
-### `src/pages/AdminPanel.tsx`
-- Новая вкладка "Апелляции"
-
-### `src/lib/i18n.ts`
-- Ключи для апелляций на 3 языках
-
-## Файлы
-
-| Файл | Действие |
-|------|----------|
-| Миграция БД | Таблица `review_appeals` + RLS |
-| `src/components/layout/Navbar.tsx` | Фикс языка в мобильном меню |
-| `src/components/chef/ChefProfileTab.tsx` | Кнопка апелляции |
-| `src/components/admin/AdminReviewAppealsTab.tsx` | Новый компонент |
-| `src/pages/AdminPanel.tsx` | Вкладка "Апелляции" |
-| `src/lib/i18n.ts` | Новые ключи |
-
+Пока DNS домена не подтверждён, письма продолжат идти с дефолтного отправителя с лимитами. Подтверждение DNS обычно занимает от нескольких минут до пары часов.
