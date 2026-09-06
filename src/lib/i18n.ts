@@ -120,6 +120,9 @@ export const translations = {
     'catalog.yourDish': 'Your Dish',
     'catalog.thisIsYourDish': 'This is your dish',
     'catalog.min': 'min',
+    'catalog.city': 'City',
+    'catalog.allCities': 'All cities',
+    'chef.cityHint': 'City where you cook — buyers in this city will see your dishes',
     
     // Cart
     'cart.title': 'Shopping Cart',
@@ -611,6 +614,9 @@ export const translations = {
     'catalog.yourDish': 'Ваше блюдо',
     'catalog.thisIsYourDish': 'Это ваше блюдо',
     'catalog.min': 'мин',
+    'catalog.city': 'Город',
+    'catalog.allCities': 'Все города',
+    'chef.cityHint': 'Город, где вы готовите — покупатели из этого города увидят ваши блюда',
     
     // Cart
     'cart.title': 'Корзина',
@@ -1098,6 +1104,9 @@ export const translations = {
     'catalog.yourDish': 'Сіздің тағамыңыз',
     'catalog.thisIsYourDish': 'Бұл сіздің тағамыңыз',
     'catalog.min': 'мин',
+    'catalog.city': 'Қала',
+    'catalog.allCities': 'Барлық қалалар',
+    'chef.cityHint': 'Сіз тамақ дайындайтын қала — осы қаладағы сатып алушылар сіздің тағамдарыңызды көреді',
     
     // Cart
     'cart.title': 'Себет',

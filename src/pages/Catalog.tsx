@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, SlidersHorizontal, X, Loader2 } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Loader2, MapPin } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
 import DishCard, { Dish } from '@/components/catalog/DishCard';
@@ -13,6 +13,8 @@ import { useApp } from '@/contexts/AppContext';
 import { t, formatPrice, getLocalizedField } from '@/lib/i18n';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CITIES, getCityLabel } from '@/lib/cities';
 
 
 const rankOrder: Record<string, number> = { diamond: 4, gold: 3, silver: 2, bronze: 1 };
@@ -27,6 +29,11 @@ export default function Catalog() {
   const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState([0, 15000]);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [selectedCity, setSelectedCity] = useState<string>(() => localStorage.getItem('preferredCity') || 'All');
+
+  useEffect(() => {
+    localStorage.setItem('preferredCity', selectedCity);
+  }, [selectedCity]);
 
   useEffect(() => {
     const fetchDishes = async () => {
@@ -44,7 +51,7 @@ export default function Catalog() {
           const chefIds = [...new Set(productsData.map(p => p.chef_id))];
           const { data: profilesData } = await supabase
             .from('profiles')
-            .select('user_id, full_name, avatar_url')
+            .select('user_id, full_name, avatar_url, city')
             .in('user_id', chefIds);
 
           const profilesMap = new Map(
@@ -105,6 +112,7 @@ export default function Catalog() {
               prepTime: product.prep_time || 30,
               availablePortions: product.available_portions,
               chefRank,
+              chefCity: profile?.city || '',
             };
           });
 
@@ -146,10 +154,12 @@ export default function Catalog() {
       const matchesCuisine = selectedCuisine === 'All' || dish.cuisine === selectedCuisine;
       
       const matchesPrice = dish.price >= priceRange[0] && dish.price <= priceRange[1];
-      
-      return matchesSearch && matchesCuisine && matchesPrice;
+
+      const matchesCity = selectedCity === 'All' || dish.chefCity === selectedCity;
+
+      return matchesSearch && matchesCuisine && matchesPrice && matchesCity;
     });
-  }, [dishes, searchQuery, selectedCuisine, priceRange, language]);
+  }, [dishes, searchQuery, selectedCuisine, priceRange, selectedCity, language]);
 
   const handleAddToCart = () => {
     toast({
@@ -184,7 +194,7 @@ export default function Catalog() {
                 {t('catalog.subtitle', language)}
               </p>
               
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input
@@ -194,6 +204,18 @@ export default function Catalog() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
+                <Select value={selectedCity} onValueChange={setSelectedCity}>
+                  <SelectTrigger className="h-12 w-[150px] sm:w-[190px]">
+                    <MapPin className="w-4 h-4 mr-1 shrink-0 text-muted-foreground" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="All">{t('catalog.allCities', language)}</SelectItem>
+                    {CITIES.map(city => (
+                      <SelectItem key={city} value={city}>{getCityLabel(city, language)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
                   <SheetTrigger asChild>
                     <Button variant="outline" size="lg" className="gap-2 relative">
