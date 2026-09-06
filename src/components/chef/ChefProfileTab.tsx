@@ -13,6 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useApp } from '@/contexts/AppContext';
 import { t } from '@/lib/i18n';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CITIES, getCityLabel } from '@/lib/cities';
 
 interface ChefApplication {
   id: string;
@@ -293,7 +295,17 @@ export default function ChefProfileTab() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('becomeChef.city', language)}</Label>
-                <Input value={formData.city} onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))} />
+                <Select value={formData.city || undefined} onValueChange={value => setFormData(prev => ({ ...prev, city: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('catalog.city', language)} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CITIES.map(city => (
+                      <SelectItem key={city} value={city}>{getCityLabel(city, language)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">{t('chef.cityHint', language)}</p>
               </div>
               <div className="space-y-2">
                 <Label>{t('becomeChef.address', language)}</Label>

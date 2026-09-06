@@ -33,6 +33,7 @@ export interface Dish {
   prepTime: number;
   availablePortions: number;
   chefRank?: string;
+  chefCity?: string;
 }
 
 interface DishCardProps {
