@@ -293,7 +293,17 @@ export default function ChefProfileTab() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>{t('becomeChef.city', language)}</Label>
-                <Input value={formData.city} onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))} />
+                <Select value={formData.city || undefined} onValueChange={value => setFormData(prev => ({ ...prev, city: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('catalog.city', language)} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CITIES.map(city => (
+                      <SelectItem key={city} value={city}>{getCityLabel(city, language)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">{t('chef.cityHint', language)}</p>
               </div>
               <div className="space-y-2">
                 <Label>{t('becomeChef.address', language)}</Label>
