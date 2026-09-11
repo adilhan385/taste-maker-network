@@ -38,7 +38,8 @@ const registerSchema = z.object({
   path: ["confirmPassword"],
 });
 
-type ModalView = 'form' | 'emailSent' | 'smsVerify' | 'forgotPassword' | 'resetLinkSent';
+type ModalView = 'form' | 'emailVerify' | 'smsVerify' | 'forgotPassword' | 'resetLinkSent';
+type VerifyMethod = 'email' | 'sms';
 
 export default function AuthModal() {
   const { isAuthModalOpen, setAuthModalOpen, authModalMode, setAuthModalMode, language } = useApp();
