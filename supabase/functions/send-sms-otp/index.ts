@@ -19,49 +19,69 @@ Deno.serve(async (req) => {
     const TWILIO_API_KEY = Deno.env.get('TWILIO_API_KEY')
     if (!TWILIO_API_KEY) throw new Error('TWILIO_API_KEY is not configured')
 
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-    }
-
-    const supabase = createClient(
+    const serviceClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    const token = authHeader.replace('Bearer ', '')
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token)
-    if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+    const body = await req.json().catch(() => ({}))
+    const { action, phone, code, email } = body as {
+      action?: string
+      phone?: string
+      code?: string
+      email?: string
     }
 
-    const userId = claimsData.claims.sub as string
-    const { action, phone, code } = await req.json()
+    // Resolve the target user: either from a session token, or from the email
+    // of a freshly registered (not yet confirmed) account.
+    let userId: string | null = null
+    let confirmEmailOnSuccess = false
+
+    const authHeader = req.headers.get('Authorization')
+    const token = authHeader?.startsWith('Bearer ') ? authHeader.replace('Bearer ', '') : null
+
+    if (token) {
+      const anonClient = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_ANON_KEY')!
+      )
+      const { data: claimsData } = await anonClient.auth.getClaims(token)
+      const sub = claimsData?.claims?.sub as string | undefined
+      if (sub) userId = sub
+    }
+
+    if (!userId && email) {
+      const normalized = email.trim().toLowerCase()
+      // Find the user by email (service role)
+      const { data: list } = await serviceClient.auth.admin.listUsers({ page: 1, perPage: 200 })
+      const match = list?.users?.find((u) => u.email?.toLowerCase() === normalized)
+      if (match) {
+        userId = match.id
+        confirmEmailOnSuccess = !match.email_confirmed_at
+      }
+    }
+
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     if (action === 'send') {
       if (!phone) {
         return new Response(JSON.stringify({ error: 'Phone number required' }), { status: 400, headers: corsHeaders })
       }
 
-      // Generate 6-digit code
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString()
 
-      // Save to DB using service role
-      const serviceClient = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      )
-
-      // Delete old codes for this user/phone
       await serviceClient
         .from('phone_verifications')
         .delete()
         .eq('user_id', userId)
         .eq('phone', phone)
 
-      // Insert new code
       const { error: insertError } = await serviceClient
         .from('phone_verifications')
         .insert({ user_id: userId, phone, code: otpCode, expires_at: expiresAt })
@@ -71,7 +91,6 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Failed to save verification code' }), { status: 500, headers: corsHeaders })
       }
 
-      // Get Twilio phone number
       const numbersRes = await fetch(`${GATEWAY_URL}/IncomingPhoneNumbers.json?PageSize=1`, {
         headers: {
           'Authorization': `Bearer ${LOVABLE_API_KEY}`,
@@ -85,7 +104,6 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'No Twilio phone number configured' }), { status: 500, headers: corsHeaders })
       }
 
-      // Send SMS
       const smsRes = await fetch(`${GATEWAY_URL}/Messages.json`, {
         method: 'POST',
         headers: {
@@ -116,11 +134,6 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Phone and code required' }), { status: 400, headers: corsHeaders })
       }
 
-      const serviceClient = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      )
-
       const { data: verification, error: verifyError } = await serviceClient
         .from('phone_verifications')
         .select('*')
@@ -138,13 +151,18 @@ Deno.serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Code expired' }), { status: 400, headers: corsHeaders })
       }
 
-      // Mark as verified
       await serviceClient
         .from('phone_verifications')
         .update({ verified: true })
         .eq('id', verification.id)
 
-      return new Response(JSON.stringify({ success: true, verified: true }), {
+      // When the user chose SMS verification instead of email, confirm the
+      // account so they can sign in right away.
+      if (confirmEmailOnSuccess) {
+        await serviceClient.auth.admin.updateUserById(userId, { email_confirm: true })
+      }
+
+      return new Response(JSON.stringify({ success: true, verified: true, accountActivated: confirmEmailOnSuccess }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }

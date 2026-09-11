@@ -11,6 +11,7 @@ import {
   Html,
   Link,
   Preview,
+  Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
 
@@ -19,6 +20,7 @@ interface SignupEmailProps {
   siteUrl: string
   recipient: string
   confirmationUrl: string
+  token?: string
 }
 
 export const SignupEmail = ({
@@ -26,34 +28,42 @@ export const SignupEmail = ({
   siteUrl,
   recipient,
   confirmationUrl,
+  token,
 }: SignupEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head>
-      <style>{darkModeCss}</style>
-    </Head>
-    <Preview>Confirm your email for {siteName}</Preview>
+  <Html lang="ru" dir="ltr">
+    <Head />
+    <Preview>Код подтверждения {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Confirm your email</Heading>
+        <Heading style={h1}>{siteName}</Heading>
         <Text style={text}>
-          Thanks for signing up for{' '}
+          Спасибо за регистрацию в{' '}
           <Link href={siteUrl} style={link}>
             <strong>{siteName}</strong>
           </Link>
           !
         </Text>
-        <Text style={text}>
-          Please confirm your email address (
-          <Link href={`mailto:${recipient}`} style={link}>
-            {recipient}
-          </Link>
-          ) by clicking the button below:
-        </Text>
-        <Button className="dm-btn" style={button} href={confirmationUrl}>
-          Verify Email
+        {token ? (
+          <>
+            <Text style={text}>Ваш код подтверждения:</Text>
+            <Section style={codeBox}>
+              <Text style={code}>{token}</Text>
+            </Section>
+            <Text style={text}>
+              Введите этот код на сайте, чтобы подтвердить адрес{' '}
+              <Link href={`mailto:${recipient}`} style={link}>
+                {recipient}
+              </Link>
+              . Код действует 1 час.
+            </Text>
+          </>
+        ) : null}
+        <Text style={text}>Или просто нажмите кнопку:</Text>
+        <Button style={button} href={confirmationUrl}>
+          Подтвердить почту
         </Button>
         <Text style={footer}>
-          If you didn't create an account, you can safely ignore this email.
+          Если вы не регистрировались, просто проигнорируйте это письмо.
         </Text>
       </Container>
     </Body>
@@ -65,18 +75,33 @@ export default SignupEmail
 const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
 const container = { padding: '20px 25px' }
 const h1 = {
-  fontSize: '22px',
+  fontSize: '24px',
   fontWeight: 'bold' as const,
-  color: '#000000',
+  color: '#C1663F',
   margin: '0 0 20px',
 }
 const text = {
   fontSize: '14px',
   color: '#55575d',
   lineHeight: '1.5',
-  margin: '0 0 25px',
+  margin: '0 0 20px',
 }
-const link = { color: 'inherit', textDecoration: 'underline' }
+const link = { color: '#C1663F', textDecoration: 'underline' }
+const codeBox = {
+  backgroundColor: '#FBF3EE',
+  border: '1px solid #C1663F',
+  borderRadius: '10px',
+  padding: '16px',
+  textAlign: 'center' as const,
+  margin: '0 0 20px',
+}
+const code = {
+  fontSize: '32px',
+  letterSpacing: '8px',
+  fontWeight: 'bold' as const,
+  color: '#C1663F',
+  margin: '0',
+}
 const button = {
   backgroundColor: '#C1663F',
   color: '#ffffff',
@@ -87,11 +112,3 @@ const button = {
   textDecoration: 'none',
 }
 const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
-// Rendered as a text child, which React may HTML-escape: keep this CSS free of >, &, and quotes.
-const darkModeCss = `
-  @media (prefers-color-scheme: dark) {
-    .dm-btn { background-color: #C1663F !important; color: #ffffff !important; }
-  }
-  [data-ogsc] .dm-btn { background-color: #C1663F !important; color: #ffffff !important; }
-  [data-ogsb] .dm-btn { background-color: #C1663F !important; color: #ffffff !important; }
-`
