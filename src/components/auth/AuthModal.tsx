@@ -50,10 +50,21 @@ export default function AuthModal() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [view, setView] = useState<ModalView>('form');
   const [smsCode, setSmsCode] = useState('');
+  const [emailCode, setEmailCode] = useState('');
   const [registeredPhone, setRegisteredPhone] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const [smsLoading, setSmsLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [verifyMethod, setVerifyMethod] = useState<VerifyMethod>('email');
+  const [resendIn, setResendIn] = useState(0);
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = setTimeout(() => setResendIn(resendIn - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendIn]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -68,7 +79,10 @@ export default function AuthModal() {
     setErrors({});
     setView('form');
     setSmsCode('');
+    setEmailCode('');
     setRegisteredPhone('');
+    setRegisteredEmail('');
+    setResendIn(0);
     setResetEmail('');
   };
 
@@ -140,9 +154,13 @@ export default function AuthModal() {
 
         const { error } = await signUp(formData.email, formData.password, formData.name, formData.phone);
         if (!error) {
-          setView('emailSent');
-          if (formData.phone) {
-            setRegisteredPhone(formData.phone);
+          setRegisteredPhone(formData.phone);
+          setRegisteredEmail(formData.email);
+          if (verifyMethod === 'sms') {
+            await sendSmsCode(formData.phone, formData.email);
+          } else {
+            setResendIn(60);
+            setView('emailVerify');
           }
         }
       }
@@ -153,25 +171,19 @@ export default function AuthModal() {
     setIsLoading(false);
   };
 
-  const handleSendSms = async () => {
-    if (!registeredPhone) return;
+  const sendSmsCode = async (phone: string, email: string) => {
+    if (!phone) return;
     setSmsLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast({ title: t('auth.checkEmail', language), description: t('auth.checkEmailDesc', language) });
-        setSmsLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase.functions.invoke('send-sms-otp', {
-        body: { action: 'send', phone: registeredPhone },
+        body: { action: 'send', phone, email },
       });
 
       if (error) {
         toast({ title: 'Error', description: error.message, variant: 'destructive' });
       } else {
         toast({ title: t('auth.codeSent', language), description: t('auth.codeSentDesc', language) });
+        setResendIn(60);
         setView('smsVerify');
       }
     } catch (err) {
@@ -180,12 +192,49 @@ export default function AuthModal() {
     setSmsLoading(false);
   };
 
+  const handleSendSms = () => sendSmsCode(registeredPhone, registeredEmail);
+
+  const handleResendEmailCode = async () => {
+    if (!registeredEmail) return;
+    setEmailLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: registeredEmail,
+      options: { emailRedirectTo: `${window.location.origin}/` },
+    });
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: t('auth.codeSent', language), description: t('auth.checkEmailDesc', language) });
+      setResendIn(60);
+    }
+    setEmailLoading(false);
+  };
+
+  const handleVerifyEmail = async () => {
+    if (emailCode.length !== 6 || !registeredEmail) return;
+    setEmailLoading(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email: registeredEmail,
+      token: emailCode,
+      type: 'signup',
+    });
+    if (error) {
+      toast({ title: t('auth.invalidCode', language), description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: t('auth.emailVerified', language), description: t('auth.emailVerifiedDesc', language) });
+      setAuthModalOpen(false);
+      resetState();
+    }
+    setEmailLoading(false);
+  };
+
   const handleVerifySms = async () => {
     if (smsCode.length !== 6) return;
     setSmsLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('send-sms-otp', {
-        body: { action: 'verify', phone: registeredPhone, code: smsCode },
+        body: { action: 'verify', phone: registeredPhone, code: smsCode, email: registeredEmail },
       });
 
       if (error) {
@@ -222,9 +271,9 @@ export default function AuthModal() {
           className="p-6"
         >
           <AnimatePresence mode="wait">
-            {view === 'emailSent' && (
+            {view === 'emailVerify' && (
               <motion.div
-                key="emailSent"
+                key="emailVerify"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -233,23 +282,34 @@ export default function AuthModal() {
                 <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                   <Mail className="w-8 h-8 text-primary" />
                 </div>
-                <h2 className="text-xl font-serif font-semibold">{t('auth.checkEmail', language)}</h2>
-                <p className="text-muted-foreground text-sm">{t('auth.checkEmailDesc', language)}</p>
-                <p className="text-xs text-muted-foreground">{formData.email}</p>
+                <h2 className="text-xl font-serif font-semibold">{t('auth.verifyEmailTitle', language)}</h2>
+                <p className="text-muted-foreground text-sm">{t('auth.enterEmailCode', language)}</p>
+                <p className="text-xs text-muted-foreground">{registeredEmail}</p>
 
-                {registeredPhone && (
-                  <div className="pt-4 border-t space-y-3">
-                    <p className="text-sm font-medium">{t('auth.verifyPhone', language)}</p>
-                    <p className="text-xs text-muted-foreground">{registeredPhone}</p>
-                    <Button onClick={handleSendSms} disabled={smsLoading} variant="outline" className="w-full">
-                      {smsLoading ? t('common.loading', language) : t('auth.sendCode', language)}
-                    </Button>
-                  </div>
-                )}
+                <div className="flex justify-center py-4">
+                  <InputOTP maxLength={6} value={emailCode} onChange={setEmailCode}>
+                    <InputOTPGroup>
+                      <InputOTPSlot index={0} />
+                      <InputOTPSlot index={1} />
+                      <InputOTPSlot index={2} />
+                      <InputOTPSlot index={3} />
+                      <InputOTPSlot index={4} />
+                      <InputOTPSlot index={5} />
+                    </InputOTPGroup>
+                  </InputOTP>
+                </div>
 
-                <Button variant="ghost" onClick={() => { setAuthModalOpen(false); resetState(); }} className="w-full mt-4">
-                  OK
+                <Button onClick={handleVerifyEmail} disabled={emailLoading || emailCode.length !== 6} variant="hero" className="w-full">
+                  {emailLoading ? t('common.loading', language) : t('auth.verifyEmailBtn', language)}
                 </Button>
+
+                <button
+                  onClick={handleResendEmailCode}
+                  disabled={emailLoading || resendIn > 0}
+                  className="text-sm text-primary hover:underline disabled:text-muted-foreground disabled:no-underline"
+                >
+                  {resendIn > 0 ? `${t('auth.resendIn', language)} ${resendIn}s` : t('auth.resendCode', language)}
+                </button>
               </motion.div>
             )}
 
@@ -407,6 +467,36 @@ export default function AuthModal() {
                             />
                           </div>
                           {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>{t('auth.verifyMethod', language)}</Label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setVerifyMethod('email')}
+                              className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                                verifyMethod === 'email'
+                                  ? 'border-primary bg-primary/10 text-primary font-medium'
+                                  : 'border-border text-muted-foreground hover:bg-muted'
+                              }`}
+                            >
+                              <Mail className="w-4 h-4" />
+                              {t('auth.verifyByEmail', language)}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setVerifyMethod('sms')}
+                              className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                                verifyMethod === 'sms'
+                                  ? 'border-primary bg-primary/10 text-primary font-medium'
+                                  : 'border-border text-muted-foreground hover:bg-muted'
+                              }`}
+                            >
+                              <Phone className="w-4 h-4" />
+                              {t('auth.verifyBySms', language)}
+                            </button>
+                          </div>
                         </div>
                       </motion.div>
                     )}
