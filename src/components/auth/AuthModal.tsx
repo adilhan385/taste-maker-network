@@ -241,6 +241,9 @@ export default function AuthModal() {
         toast({ title: t('auth.invalidCode', language), description: error.message, variant: 'destructive' });
       } else if (data?.verified) {
         toast({ title: t('auth.phoneVerified', language), description: t('auth.phoneVerifiedDesc', language) });
+        if (data?.accountActivated && registeredEmail && formData.password) {
+          await signIn(registeredEmail, formData.password);
+        }
         setAuthModalOpen(false);
         resetState();
       } else {
