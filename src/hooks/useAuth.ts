@@ -140,12 +140,9 @@ export function useAuth() {
       return { error };
     }
 
-    toast({
-      title: 'Account created!',
-      description: 'Please check your email to confirm your account.',
-    });
+    const isExistingEmail = data.user?.identities?.length === 0;
 
-    return { data };
+    return { data, error: null, isExistingEmail };
   };
 
   const signIn = async (email: string, password: string) => {

@@ -152,7 +152,13 @@ export default function AuthModal() {
           return;
         }
 
-        const { error } = await signUp(formData.email, formData.password, formData.name, formData.phone);
+        const { error, isExistingEmail } = await signUp(formData.email, formData.password, formData.name, formData.phone);
+        if (isExistingEmail) {
+          setErrors({ email: t('auth.emailTaken', language) });
+          setIsLoading(false);
+          return;
+        }
+
         if (!error) {
           setRegisteredPhone(formData.phone);
           setRegisteredEmail(formData.email);
@@ -161,6 +167,7 @@ export default function AuthModal() {
           } else {
             setResendIn(60);
             setView('emailVerify');
+            toast({ title: t('auth.codeSent', language), description: t('auth.checkEmailDesc', language) });
           }
         }
       }
