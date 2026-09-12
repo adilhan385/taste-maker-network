@@ -20,7 +20,7 @@ interface ChefApplication {
   city: string;
   address: string | null;
   docs_passport_url: string;
-  docs_sanitary_url: string;
+  docs_sanitary_url: string | null;
   profile_photo_url: string | null;
   bio: string | null;
   cuisine_specialization: string;
