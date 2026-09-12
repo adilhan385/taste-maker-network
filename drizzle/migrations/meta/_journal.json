@@ -8,6 +8,13 @@
       "when": 1789227836958,
       "tag": "0000_medical_cert_optional_and_auto_ranks",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789228745986,
+      "tag": "0001_add_kitchen_photo_to_chef_applications",
+      "breakpoints": true
     }
   ]
 }

@@ -22,6 +22,7 @@ interface ChefApplication {
   docs_passport_url: string;
   docs_sanitary_url: string | null;
   profile_photo_url: string | null;
+  kitchen_photo_url: string | null;
   bio: string | null;
   cuisine_specialization: string;
   experience: string;
@@ -296,12 +297,20 @@ export default function ChefApplicationsTab({ searchQuery }: Props) {
                       )}
                     </div>
                   </div>
-                  {selectedApp.profile_photo_url && (
-                    <div className="mt-4">
-                      <p className="text-xs text-muted-foreground mb-2">{t('admin.profilePhoto', language)}</p>
-                      <SignedImage path={selectedApp.profile_photo_url} className="w-32 h-32" />
-                    </div>
-                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                    {selectedApp.profile_photo_url && (
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-2">{t('becomeChef.facePhoto', language)}</p>
+                        <SignedImage path={selectedApp.profile_photo_url} className="w-full h-48" />
+                      </div>
+                    )}
+                    {selectedApp.kitchen_photo_url && (
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-2">{t('becomeChef.kitchenPhoto', language)}</p>
+                        <SignedImage path={selectedApp.kitchen_photo_url} className="w-full h-48" />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {selectedApp.status === 'pending' && (
