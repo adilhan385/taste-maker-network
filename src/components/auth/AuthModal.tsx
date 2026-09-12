@@ -219,11 +219,12 @@ export default function AuthModal() {
   };
 
   const handleVerifyEmail = async () => {
-    if (emailCode.length !== 6 || !registeredEmail) return;
+    const code = emailCode.trim();
+    if (code.length < 6 || !registeredEmail) return;
     setEmailLoading(true);
     const { error } = await supabase.auth.verifyOtp({
       email: registeredEmail,
-      token: emailCode,
+      token: code,
       type: 'signup',
     });
     if (error) {
@@ -297,19 +298,24 @@ export default function AuthModal() {
                 <p className="text-xs text-muted-foreground">{registeredEmail}</p>
 
                 <div className="flex justify-center py-4">
-                  <InputOTP maxLength={6} value={emailCode} onChange={setEmailCode}>
+                  <InputOTP maxLength={8} value={emailCode} onChange={setEmailCode}>
                     <InputOTPGroup>
                       <InputOTPSlot index={0} />
                       <InputOTPSlot index={1} />
                       <InputOTPSlot index={2} />
                       <InputOTPSlot index={3} />
+                    </InputOTPGroup>
+                    <InputOTPGroup>
                       <InputOTPSlot index={4} />
                       <InputOTPSlot index={5} />
+                      <InputOTPSlot index={6} />
+                      <InputOTPSlot index={7} />
                     </InputOTPGroup>
                   </InputOTP>
                 </div>
+                <p className="text-xs text-muted-foreground">{t('auth.codeLengthHint', language)}</p>
 
-                <Button onClick={handleVerifyEmail} disabled={emailLoading || emailCode.length !== 6} variant="hero" className="w-full">
+                <Button onClick={handleVerifyEmail} disabled={emailLoading || emailCode.trim().length < 6} variant="hero" className="w-full">
                   {emailLoading ? t('common.loading', language) : t('auth.verifyEmailBtn', language)}
                 </Button>
 
