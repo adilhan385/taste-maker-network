@@ -219,11 +219,12 @@ export default function AuthModal() {
   };
 
   const handleVerifyEmail = async () => {
-    if (emailCode.length !== 6 || !registeredEmail) return;
+    const code = emailCode.trim();
+    if (code.length < 6 || !registeredEmail) return;
     setEmailLoading(true);
     const { error } = await supabase.auth.verifyOtp({
       email: registeredEmail,
-      token: emailCode,
+      token: code,
       type: 'signup',
     });
     if (error) {
