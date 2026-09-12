@@ -51,7 +51,7 @@ export default function Catalog() {
           const chefIds = [...new Set(productsData.map(p => p.chef_id))];
           const { data: profilesData } = await supabase
             .from('profiles')
-            .select('user_id, full_name, avatar_url, city')
+            .select('user_id, full_name, avatar_url, city, has_medical_cert')
             .in('user_id', chefIds);
 
           const profilesMap = new Map(
@@ -113,6 +113,7 @@ export default function Catalog() {
               availablePortions: product.available_portions,
               chefRank,
               chefCity: profile?.city || '',
+              chefHasMedCert: !!profile?.has_medical_cert,
             };
           });
 

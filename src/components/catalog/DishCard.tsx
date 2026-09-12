@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Clock, ShoppingCart, Minus, Plus, MessageCircle, Award } from 'lucide-react';
+import { Star, Clock, ShoppingCart, Minus, Plus, MessageCircle, Award, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +34,7 @@ export interface Dish {
   availablePortions: number;
   chefRank?: string;
   chefCity?: string;
+  chefHasMedCert?: boolean;
 }
 
 interface DishCardProps {
