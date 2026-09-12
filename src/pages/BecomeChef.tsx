@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ChefHat, User, FileCheck, Camera, ArrowRight, ArrowLeft, Check, Upload, Loader2 } from 'lucide-react';
+import { ChefHat, User, FileCheck, Camera, ArrowRight, ArrowLeft, Check, Upload, Loader2, ShieldCheck } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { t } from '@/lib/i18n';
+import { CITIES, getCityLabel } from '@/lib/cities';
 import { supabase } from '@/integrations/supabase/client';
 import { z } from 'zod';
 
@@ -32,7 +33,7 @@ export default function BecomeChef() {
   const { language, setAuthModalOpen, setAuthModalMode } = useApp();
   const { isAuthenticated, profile, user } = useAuthContext();
   const { toast } = useToast();
-  
+
   const steps = [
     { id: 1, title: t('becomeChef.step1', language), icon: User },
     { id: 2, title: t('becomeChef.step2', language), icon: FileCheck },
@@ -47,12 +48,33 @@ export default function BecomeChef() {
     city: profile?.city || '',
     address: profile?.address || '',
     idDocument: null as File | null,
+    facePhoto: null as File | null,
+    kitchenPhoto: null as File | null,
     sanitaryCertificate: null as File | null,
-    profilePhoto: null as File | null,
     bio: '',
     kaspiPhone: '',
     experience: '',
   });
+
+  // Phone verification (only when the profile has no phone from registration)
+  const existingPhone = profile?.phone || '';
+  const [phoneVerified, setPhoneVerified] = useState(!!existingPhone);
+  const [smsCode, setSmsCode] = useState('');
+  const [smsSent, setSmsSent] = useState(false);
+  const [smsLoading, setSmsLoading] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: prev.fullName || profile.fullName || '',
+        phone: prev.phone || profile.phone || '',
+        city: prev.city || profile.city || '',
+        address: prev.address || profile.address || '',
+      }));
+      if (profile.phone) setPhoneVerified(true);
+    }
+  }, [profile]);
 
   if (!isAuthenticated) {
     return (
@@ -75,23 +97,53 @@ export default function BecomeChef() {
     );
   }
 
-  const handleFileChange = (field: 'idDocument' | 'sanitaryCertificate' | 'profilePhoto') => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (field: 'idDocument' | 'facePhoto' | 'kitchenPhoto' | 'sanitaryCertificate') => (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) setFormData(prev => ({ ...prev, [field]: e.target.files![0] }));
+  };
+
+  const handleSendSms = async () => {
+    if (!formData.phone) return;
+    setSmsLoading(true);
+    const { error } = await supabase.functions.invoke('send-sms-otp', {
+      body: { action: 'send', phone: formData.phone },
+    });
+    if (error) {
+      toast({ title: t('common.error', language), description: error.message, variant: 'destructive' });
+    } else {
+      setSmsSent(true);
+      toast({ title: t('auth.codeSent', language), description: t('auth.codeSentDesc', language) });
+    }
+    setSmsLoading(false);
+  };
+
+  const handleVerifySms = async () => {
+    if (smsCode.length !== 6) return;
+    setSmsLoading(true);
+    const { data, error } = await supabase.functions.invoke('send-sms-otp', {
+      body: { action: 'verify', phone: formData.phone, code: smsCode },
+    });
+    if (error || !data?.verified) {
+      toast({ title: t('auth.invalidCode', language), variant: 'destructive' });
+    } else {
+      setPhoneVerified(true);
+      toast({ title: t('becomeChef.phoneOk', language) });
+    }
+    setSmsLoading(false);
   };
 
   const uploadFile = async (file: File, folder: string): Promise<string> => {
     const userId = user?.id;
     if (!userId) throw new Error('User not authenticated');
-    
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${userId}/${folder}/${Date.now()}.${fileExt}`;
-    
+
     const { error } = await supabase.storage
       .from('chef-documents')
       .upload(fileName, file);
-    
+
     if (error) throw error;
-    
+
     // Return only the relative path, not a public URL — the bucket is private
     return fileName;
   };
@@ -103,7 +155,7 @@ export default function BecomeChef() {
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Validate form data with Zod schema
       const validationResult = chefApplicationSchema.safeParse({
@@ -130,7 +182,7 @@ export default function BecomeChef() {
         .eq('user_id', user.id)
         .eq('status', 'pending')
         .maybeSingle();
-      
+
       if (existingApp) {
         toast({ title: t('becomeChef.appExists', language), description: t('becomeChef.appExistsDesc', language), variant: 'destructive' });
         setIsSubmitting(false);
@@ -138,10 +190,11 @@ export default function BecomeChef() {
       }
 
       // Upload documents
-      const [passportUrl, sanitaryUrl, photoUrl] = await Promise.all([
+      const [passportUrl, faceUrl, kitchenUrl, sanitaryUrl] = await Promise.all([
         uploadFile(formData.idDocument!, 'passport'),
+        uploadFile(formData.facePhoto!, 'photo'),
+        uploadFile(formData.kitchenPhoto!, 'kitchen'),
         formData.sanitaryCertificate ? uploadFile(formData.sanitaryCertificate, 'sanitary') : Promise.resolve(null),
-        formData.profilePhoto ? uploadFile(formData.profilePhoto, 'photo') : Promise.resolve(null),
       ]);
 
       // Insert application with validated data
@@ -155,7 +208,8 @@ export default function BecomeChef() {
           address: validationResult.data.address || null,
           docs_passport_url: passportUrl,
           docs_sanitary_url: sanitaryUrl || null,
-          profile_photo_url: photoUrl,
+          profile_photo_url: faceUrl,
+          kitchen_photo_url: kitchenUrl,
           bio: validationResult.data.bio || null,
           cuisine_specialization: 'General',
           kaspi_phone: validationResult.data.kaspiPhone || null,
@@ -164,6 +218,15 @@ export default function BecomeChef() {
         });
 
       if (error) throw error;
+
+      // Keep the profile in sync (city, and phone if it was just verified)
+      await supabase
+        .from('profiles')
+        .update({
+          city: validationResult.data.city,
+          phone: validationResult.data.phone,
+        })
+        .eq('user_id', user.id);
 
       toast({ title: t('becomeChef.appSubmitted', language), description: t('becomeChef.appSubmittedDesc', language) });
       navigate('/');
@@ -177,11 +240,42 @@ export default function BecomeChef() {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 1: return formData.fullName && formData.phone && formData.city;
-      case 2: return !!formData.idDocument;
-      case 3: return formData.bio && formData.experience;
+      case 1: return !!formData.fullName && !!formData.city && !!formData.phone && phoneVerified;
+      case 2: return !!formData.idDocument && !!formData.facePhoto && !!formData.kitchenPhoto;
+      case 3: return !!formData.bio && !!formData.experience;
       default: return false;
     }
+  };
+
+  const fileField = (
+    id: 'idDocument' | 'facePhoto' | 'kitchenPhoto' | 'sanitaryCertificate',
+    label: string,
+    hint: string,
+    required: boolean,
+    icon: 'upload' | 'camera' = 'upload',
+  ) => {
+    const file = formData[id];
+    const Icon = icon === 'camera' ? Camera : Upload;
+    return (
+      <div className="space-y-2">
+        <Label>{label}{required ? ' *' : ''}</Label>
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+        <div className="border-2 border-dashed rounded-xl p-6 text-center">
+          <input type="file" accept={id === 'idDocument' || id === 'sanitaryCertificate' ? 'image/*,.pdf' : 'image/*'} onChange={handleFileChange(id)} className="hidden" id={id} />
+          <label htmlFor={id} className="cursor-pointer block">
+            {file ? (
+              <div className="flex items-center justify-center gap-2 text-primary break-all">
+                <Check className="w-5 h-5 shrink-0" /><span>{file.name}</span>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                <Icon className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span>
+              </div>
+            )}
+          </label>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -212,21 +306,83 @@ export default function BecomeChef() {
             {currentStep === 1 && (
               <div className="space-y-6">
                 <h2 className="text-xl font-serif font-semibold mb-6">{t('becomeChef.personalInfo', language)}</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>{t('becomeChef.fullName', language)} *</Label><Input value={formData.fullName} onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))} /></div>
-                  <div className="space-y-2"><Label>{t('becomeChef.phone', language)} *</Label><Input type="tel" value={formData.phone} onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))} /></div>
+                <div className="space-y-2">
+                  <Label>{t('becomeChef.fullName', language)} *</Label>
+                  <Input value={formData.fullName} onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))} />
                 </div>
-                <div className="space-y-2"><Label>{t('becomeChef.city', language)} *</Label><Input value={formData.city} onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))} /></div>
-                <div className="space-y-2"><Label>{t('becomeChef.address', language)}</Label><Input value={formData.address} onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))} placeholder={t('becomeChef.addressOptional', language)} /></div>
+
+                {existingPhone ? (
+                  <div className="space-y-2">
+                    <Label>{t('becomeChef.phone', language)}</Label>
+                    <Input value={existingPhone} readOnly disabled />
+                    <p className="text-xs text-green-600 flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" />{t('becomeChef.phoneVerified', language)}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label>{t('becomeChef.phone', language)} *</Label>
+                    <p className="text-xs text-muted-foreground">{t('becomeChef.phoneVerifyHint', language)}</p>
+                    <div className="flex gap-2">
+                      <Input
+                        type="tel"
+                        value={formData.phone}
+                        disabled={phoneVerified}
+                        placeholder="+7 777 123 4567"
+                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      />
+                      {!phoneVerified && (
+                        <Button variant="outline" onClick={handleSendSms} disabled={!formData.phone || smsLoading}>
+                          {smsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('becomeChef.sendCode', language)}
+                        </Button>
+                      )}
+                    </div>
+                    {phoneVerified ? (
+                      <p className="text-xs text-green-600 flex items-center gap-1">
+                        <ShieldCheck className="w-3.5 h-3.5" />{t('becomeChef.phoneOk', language)}
+                      </p>
+                    ) : smsSent && (
+                      <div className="flex gap-2 pt-2">
+                        <Input
+                          inputMode="numeric"
+                          maxLength={6}
+                          placeholder={t('becomeChef.enterCode', language)}
+                          value={smsCode}
+                          onChange={(e) => setSmsCode(e.target.value.replace(/\D/g, ''))}
+                        />
+                        <Button variant="hero" onClick={handleVerifySms} disabled={smsCode.length !== 6 || smsLoading}>
+                          {smsLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : t('becomeChef.verifyCode', language)}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label>{t('becomeChef.city', language)} *</Label>
+                  <Select value={formData.city} onValueChange={(v) => setFormData(prev => ({ ...prev, city: v }))}>
+                    <SelectTrigger><SelectValue placeholder={t('becomeChef.citySelect', language)} /></SelectTrigger>
+                    <SelectContent>
+                      {CITIES.map((city) => (
+                        <SelectItem key={city} value={city}>{getCityLabel(city, language)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t('becomeChef.address', language)}</Label>
+                  <Input value={formData.address} onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))} placeholder={t('becomeChef.addressOptional', language)} />
+                </div>
               </div>
             )}
             {currentStep === 2 && (
               <div className="space-y-6">
                 <h2 className="text-xl font-serif font-semibold mb-6">{t('becomeChef.documentVerification', language)}</h2>
                 <div className="space-y-4">
-                  <div className="space-y-2"><Label>{t('becomeChef.idDocument', language)} *</Label><p className="text-xs text-muted-foreground">{t('becomeChef.idDocumentHint', language)}</p><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('idDocument')} className="hidden" id="idDocument" /><label htmlFor="idDocument" className="cursor-pointer">{formData.idDocument ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.idDocument.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
-                  <div className="space-y-2"><Label>{t('becomeChef.medicalCert', language)}</Label><p className="text-xs text-muted-foreground">{t('becomeChef.medicalCertHint', language)}</p><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('sanitaryCertificate')} className="hidden" id="sanitaryCertificate" /><label htmlFor="sanitaryCertificate" className="cursor-pointer">{formData.sanitaryCertificate ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.sanitaryCertificate.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
-                  <div className="space-y-2"><Label>{t('becomeChef.profilePhoto', language)}</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*" onChange={handleFileChange('profilePhoto')} className="hidden" id="profilePhoto" /><label htmlFor="profilePhoto" className="cursor-pointer">{formData.profilePhoto ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.profilePhoto.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Camera className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
+                  {fileField('idDocument', t('becomeChef.idDocument', language), t('becomeChef.idDocumentHint', language), true)}
+                  {fileField('facePhoto', t('becomeChef.facePhoto', language), t('becomeChef.facePhotoHint', language), true, 'camera')}
+                  {fileField('kitchenPhoto', t('becomeChef.kitchenPhoto', language), t('becomeChef.kitchenPhotoHint', language), true, 'camera')}
+                  {fileField('sanitaryCertificate', t('becomeChef.medicalCert', language), t('becomeChef.medicalCertHint', language), false)}
                 </div>
               </div>
             )}
