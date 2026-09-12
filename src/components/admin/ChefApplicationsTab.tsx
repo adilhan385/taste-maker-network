@@ -287,7 +287,13 @@ export default function ChefApplicationsTab({ searchQuery }: Props) {
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground mb-2">{t('admin.medicalCert', language)}</p>
-                      <SignedImage path={selectedApp.docs_sanitary_url} className="w-full h-48" />
+                      {selectedApp.docs_sanitary_url ? (
+                        <SignedImage path={selectedApp.docs_sanitary_url} className="w-full h-48" />
+                      ) : (
+                        <div className="w-full h-48 rounded-lg border border-dashed flex items-center justify-center text-xs text-destructive">
+                          {t('catalog.medCertNo', language)}
+                        </div>
+                      )}
                     </div>
                   </div>
                   {selectedApp.profile_photo_url && (
