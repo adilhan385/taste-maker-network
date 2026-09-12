@@ -90,6 +90,7 @@ export type Database = {
           full_name: string
           id: string
           kaspi_phone: string | null
+          kitchen_photo_url: string | null
           phone: string
           profile_photo_url: string | null
           reviewed_at: string | null
@@ -111,6 +112,7 @@ export type Database = {
           full_name: string
           id?: string
           kaspi_phone?: string | null
+          kitchen_photo_url?: string | null
           phone: string
           profile_photo_url?: string | null
           reviewed_at?: string | null
@@ -132,6 +134,7 @@ export type Database = {
           full_name?: string
           id?: string
           kaspi_phone?: string | null
+          kitchen_photo_url?: string | null
           phone?: string
           profile_photo_url?: string | null
           reviewed_at?: string | null

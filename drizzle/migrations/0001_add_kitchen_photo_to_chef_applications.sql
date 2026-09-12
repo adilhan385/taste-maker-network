@@ -1,0 +1,1 @@
+ALTER TABLE public.chef_applications ADD COLUMN IF NOT EXISTS kitchen_photo_url text;
