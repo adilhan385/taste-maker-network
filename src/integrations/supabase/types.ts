@@ -85,7 +85,7 @@ export type Database = {
           created_at: string
           cuisine_specialization: string
           docs_passport_url: string
-          docs_sanitary_url: string
+          docs_sanitary_url: string | null
           experience: string
           full_name: string
           id: string
@@ -106,7 +106,7 @@ export type Database = {
           created_at?: string
           cuisine_specialization: string
           docs_passport_url: string
-          docs_sanitary_url: string
+          docs_sanitary_url?: string | null
           experience: string
           full_name: string
           id?: string
@@ -127,7 +127,7 @@ export type Database = {
           created_at?: string
           cuisine_specialization?: string
           docs_passport_url?: string
-          docs_sanitary_url?: string
+          docs_sanitary_url?: string | null
           experience?: string
           full_name?: string
           id?: string
@@ -468,6 +468,7 @@ export type Database = {
           created_at: string
           force_password_change: boolean | null
           full_name: string
+          has_medical_cert: boolean
           id: string
           kaspi_phone: string | null
           phone: string | null
@@ -482,6 +483,7 @@ export type Database = {
           created_at?: string
           force_password_change?: boolean | null
           full_name: string
+          has_medical_cert?: boolean
           id?: string
           kaspi_phone?: string | null
           phone?: string | null
@@ -496,6 +498,7 @@ export type Database = {
           created_at?: string
           force_password_change?: boolean | null
           full_name?: string
+          has_medical_cert?: boolean
           id?: string
           kaspi_phone?: string | null
           phone?: string | null
@@ -735,6 +738,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      recalculate_chef_rank: { Args: { _chef_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "buyer" | "cook" | "admin"

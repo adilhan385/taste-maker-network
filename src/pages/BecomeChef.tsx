@@ -140,7 +140,7 @@ export default function BecomeChef() {
       // Upload documents
       const [passportUrl, sanitaryUrl, photoUrl] = await Promise.all([
         uploadFile(formData.idDocument!, 'passport'),
-        uploadFile(formData.sanitaryCertificate!, 'sanitary'),
+        formData.sanitaryCertificate ? uploadFile(formData.sanitaryCertificate, 'sanitary') : Promise.resolve(null),
         formData.profilePhoto ? uploadFile(formData.profilePhoto, 'photo') : Promise.resolve(null),
       ]);
 
@@ -154,7 +154,7 @@ export default function BecomeChef() {
           city: validationResult.data.city,
           address: validationResult.data.address || null,
           docs_passport_url: passportUrl,
-          docs_sanitary_url: sanitaryUrl,
+          docs_sanitary_url: sanitaryUrl || null,
           profile_photo_url: photoUrl,
           bio: validationResult.data.bio || null,
           cuisine_specialization: 'General',
@@ -178,7 +178,7 @@ export default function BecomeChef() {
   const canProceed = () => {
     switch (currentStep) {
       case 1: return formData.fullName && formData.phone && formData.city;
-      case 2: return formData.idDocument && formData.sanitaryCertificate;
+      case 2: return !!formData.idDocument;
       case 3: return formData.bio && formData.experience;
       default: return false;
     }
@@ -224,8 +224,8 @@ export default function BecomeChef() {
               <div className="space-y-6">
                 <h2 className="text-xl font-serif font-semibold mb-6">{t('becomeChef.documentVerification', language)}</h2>
                 <div className="space-y-4">
-                  <div className="space-y-2"><Label>{t('becomeChef.idDocument', language)} *</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('idDocument')} className="hidden" id="idDocument" /><label htmlFor="idDocument" className="cursor-pointer">{formData.idDocument ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.idDocument.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
-                  <div className="space-y-2"><Label>{t('becomeChef.medicalCert', language)} *</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('sanitaryCertificate')} className="hidden" id="sanitaryCertificate" /><label htmlFor="sanitaryCertificate" className="cursor-pointer">{formData.sanitaryCertificate ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.sanitaryCertificate.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.idDocument', language)} *</Label><p className="text-xs text-muted-foreground">{t('becomeChef.idDocumentHint', language)}</p><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('idDocument')} className="hidden" id="idDocument" /><label htmlFor="idDocument" className="cursor-pointer">{formData.idDocument ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.idDocument.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
+                  <div className="space-y-2"><Label>{t('becomeChef.medicalCert', language)}</Label><p className="text-xs text-muted-foreground">{t('becomeChef.medicalCertHint', language)}</p><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*,.pdf" onChange={handleFileChange('sanitaryCertificate')} className="hidden" id="sanitaryCertificate" /><label htmlFor="sanitaryCertificate" className="cursor-pointer">{formData.sanitaryCertificate ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.sanitaryCertificate.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Upload className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
                   <div className="space-y-2"><Label>{t('becomeChef.profilePhoto', language)}</Label><div className="border-2 border-dashed rounded-xl p-6 text-center"><input type="file" accept="image/*" onChange={handleFileChange('profilePhoto')} className="hidden" id="profilePhoto" /><label htmlFor="profilePhoto" className="cursor-pointer">{formData.profilePhoto ? <div className="flex items-center justify-center gap-2 text-primary"><Check className="w-5 h-5" /><span>{formData.profilePhoto.name}</span></div> : <div className="flex flex-col items-center gap-2 text-muted-foreground"><Camera className="w-8 h-8" /><span>{t('becomeChef.clickToUpload', language)}</span></div>}</label></div></div>
                 </div>
               </div>

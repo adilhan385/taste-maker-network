@@ -44,6 +44,8 @@ export default function ChefProfileTab() {
   const [saving, setSaving] = useState(false);
   const [chefData, setChefData] = useState<ChefApplication | null>(null);
   const [chefRank, setChefRank] = useState<string>('bronze');
+  const [deliveredCount, setDeliveredCount] = useState(0);
+  const [hasMedCert, setHasMedCert] = useState(false);
   const [reviews, setReviews] = useState<any[]>([]);
   const [appeals, setAppeals] = useState<Map<string, string>>(new Map());
   const [appealDialogOpen, setAppealDialogOpen] = useState(false);
@@ -148,10 +150,24 @@ export default function ChefProfileTab() {
     }
   }, [profile]);
 
+  const RANK_STEPS = [
+    { rank: 'silver', target: 10 },
+    { rank: 'gold', target: 20 },
+    { rank: 'diamond', target: 40 },
+  ];
+
   const fetchChefRank = async () => {
     if (!user) return;
     const { data } = await supabase.from('chef_ranks').select('rank').eq('chef_id', user.id).maybeSingle();
     if (data) setChefRank(data.rank);
+    const { count } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('chef_id', user.id)
+      .eq('status', 'delivered');
+    setDeliveredCount(count || 0);
+    const { data: prof } = await supabase.from('profiles').select('has_medical_cert').eq('user_id', user.id).maybeSingle();
+    setHasMedCert(!!prof?.has_medical_cert);
   };
 
   const fetchChefData = async () => {
@@ -228,6 +244,8 @@ export default function ChefProfileTab() {
     return <div className="flex items-center justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
+  const nextRankTarget = RANK_STEPS.find(s => deliveredCount < s.target)?.target ?? null;
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-serif font-bold">{t('chef.profileTitle', language)}</h2>
@@ -251,7 +269,22 @@ export default function ChefProfileTab() {
                 <div className="flex items-center gap-2 mt-2 justify-center sm:justify-start">
                   <Badge variant="secondary">{t('chef.verifiedChef', language)}</Badge>
                   <Badge variant="outline">{rankLabels[chefRank] || chefRank}</Badge>
+                  <Badge
+                    variant="outline"
+                    className={hasMedCert
+                      ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
+                      : 'bg-destructive/10 text-destructive border-destructive/30'}
+                  >
+                    {hasMedCert ? t('catalog.medCertYes', language) : t('catalog.medCertNo', language)}
+                  </Badge>
                 </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {nextRankTarget
+                    ? t('chef.rankProgress', language)
+                        .replace('{done}', String(deliveredCount))
+                        .replace('{total}', String(nextRankTarget))
+                    : t('chef.rankMax', language)}
+                </p>
               </div>
             </div>
           </CardContent>

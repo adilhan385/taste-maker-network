@@ -34,7 +34,7 @@ export default function FeaturedDishes() {
 
         const chefIds = [...new Set(productsData.map(p => p.chef_id))];
         const [{ data: profilesData }, { data: ranksData }, { data: reviewsData }] = await Promise.all([
-          supabase.from('profiles').select('user_id, full_name, avatar_url').in('user_id', chefIds),
+          supabase.from('profiles').select('user_id, full_name, avatar_url, has_medical_cert').in('user_id', chefIds),
           supabase.from('chef_ranks').select('chef_id, rank').in('chef_id', chefIds),
           supabase.from('reviews').select('product_id, rating').in('product_id', productsData.map(p => p.id)),
         ]);
@@ -76,6 +76,7 @@ export default function FeaturedDishes() {
             prepTime: product.prep_time || 30,
             availablePortions: product.available_portions,
             chefRank: ranksMap.get(product.chef_id) || 'bronze',
+            chefHasMedCert: !!profile?.has_medical_cert,
           };
         });
 

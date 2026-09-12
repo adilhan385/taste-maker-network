@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Clock, ShoppingCart, Minus, Plus, MessageCircle, Award } from 'lucide-react';
+import { Star, Clock, ShoppingCart, Minus, Plus, MessageCircle, Award, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,6 +34,7 @@ export interface Dish {
   availablePortions: number;
   chefRank?: string;
   chefCity?: string;
+  chefHasMedCert?: boolean;
 }
 
 interface DishCardProps {
@@ -248,6 +249,20 @@ export default function DishCard({ dish, onAddToCart, index = 0 }: DishCardProps
             <Star className="w-3 h-3 fill-current" />
             {dish.chef.rating}
           </button>
+        </div>
+
+        <div className="mb-3">
+          <Badge
+            variant="outline"
+            className={`text-[10px] px-1.5 py-0 gap-1 ${
+              dish.chefHasMedCert
+                ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
+                : 'bg-destructive/10 text-destructive border-destructive/30'
+            }`}
+          >
+            <ShieldCheck className="w-3 h-3" />
+            {dish.chefHasMedCert ? t('catalog.medCertYes', language) : t('catalog.medCertNo', language)}
+          </Badge>
         </div>
 
         <h3 className="font-serif font-semibold text-lg mb-1 line-clamp-1">{dishName}</h3>
